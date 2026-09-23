@@ -24,6 +24,15 @@ public sealed class BrokerRepository : IBrokerRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<bool> ExistsBrokerByCodeAsync(
+        string brokerCode,
+        Guid? excludedBrokerId = null,
+        CancellationToken cancellationToken = default) =>
+        _dbContext.Brokers.AnyAsync(broker =>
+            broker.BrokerCode == brokerCode
+            && (!excludedBrokerId.HasValue || broker.Id != excludedBrokerId.Value),
+            cancellationToken);
+
     public Task<Broker?> GetBrokerByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>
@@ -49,5 +58,13 @@ public sealed class BrokerRepository : IBrokerRepository
             .OrderBy(broker => broker.Name)
             .ThenBy(broker => broker.Id)
             .ToPagedResultAsync(pagination, cancellationToken);
+    }
+
+    public async Task UpdateBrokerAsync(
+        Broker broker,
+        CancellationToken cancellationToken = default)
+    {
+        _dbContext.Brokers.Update(broker);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

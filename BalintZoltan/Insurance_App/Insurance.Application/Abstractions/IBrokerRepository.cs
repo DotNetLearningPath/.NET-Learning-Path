@@ -7,6 +7,11 @@ public interface IBrokerRepository
 {
     Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsBrokerByCodeAsync(
+        string brokerCode,
+        Guid? excludedBrokerId = null,
+        CancellationToken cancellationToken = default);
+
     Task<Broker?> GetBrokerByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default);
@@ -18,4 +23,6 @@ public interface IBrokerRepository
     Task<PagedResult<Broker>> ListBrokersAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken = default);
+
+    Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken = default);
 }

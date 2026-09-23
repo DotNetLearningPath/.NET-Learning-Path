@@ -21,6 +21,16 @@ public sealed class PolicyRepository : IPolicyRepository
         Policy policy,
         CancellationToken cancellationToken = default)
     {
+        var brokerStatus = await _dbContext.Brokers
+            .Where(broker => broker.Id == policy.BrokerId)
+            .Select(broker => (BrokerStatus?)broker.Status)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (brokerStatus is null)
+            throw new InvalidOperationException("The selected broker was not found.");
+        if (brokerStatus != BrokerStatus.Active)
+            throw new InvalidOperationException("Inactive brokers cannot create policies.");
+
         await _dbContext.Policies.AddAsync(policy, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
