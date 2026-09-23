@@ -18,7 +18,12 @@ public sealed class BrokerService : IBrokerService
         ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         await EnsureCodeIsUniqueAsync(request.BrokerCode, null, cancellationToken);
 
-        var broker = new Broker(request.BrokerCode.Trim(), request.Name.Trim(), request.Email.Trim(), request.Phone.Trim(), commissionPercentage: request.CommissionPercentage);
+        var broker = new Broker(
+            request.BrokerCode.Trim(),
+            request.Name.Trim(),
+            request.Email.Trim(),
+            request.Phone.Trim(),
+            commissionPercentage: request.CommissionPercentage);
         await _brokerRepository.AddBrokerAsync(broker, cancellationToken);
         return Map(broker);
     }
@@ -52,14 +57,27 @@ public sealed class BrokerService : IBrokerService
         return Map(broker);
     }
 
-    public Task<BrokerDto> ActivateBrokerAsync(Guid id, CancellationToken cancellationToken = default) => SetStatusAsync(id, true, cancellationToken);
+    public Task<BrokerDto> ActivateBrokerAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        SetStatusAsync(id, true, cancellationToken);
 
-    public Task<BrokerDto> DeactivateBrokerAsync(Guid id, CancellationToken cancellationToken = default) => SetStatusAsync(id, false, cancellationToken);
+    public Task<BrokerDto> DeactivateBrokerAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        SetStatusAsync(id, false, cancellationToken);
 
     private async Task<BrokerDto> SetStatusAsync(Guid id, bool active, CancellationToken cancellationToken)
     {
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
-        if (active) broker.Activate(); else broker.Deactivate();
+        if (active)
+        {
+            broker.Activate();
+        }
+        else
+        {
+            broker.Deactivate();
+        }
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
         return Map(broker);
     }
@@ -71,20 +89,45 @@ public sealed class BrokerService : IBrokerService
     private async Task EnsureCodeIsUniqueAsync(string code, Guid? excludedId, CancellationToken cancellationToken)
     {
         if (await _brokerRepository.ExistsBrokerByCodeAsync(code.Trim(), excludedId, cancellationToken))
+        {
             throw new InvalidOperationException("A broker with this code already exists.");
+        }
     }
 
     private static void ValidateRequest(string code, string name, string email, string phone, decimal? commissionPercentage)
     {
-        if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("Broker code is required.");
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Broker name is required.");
-        if (string.IsNullOrWhiteSpace(phone)) throw new ArgumentException("Broker phone is required.");
-        if (code.Trim().Length > 50) throw new ArgumentException("Broker code cannot be longer than 50 characters.");
-        if (name.Trim().Length > 200) throw new ArgumentException("Broker name cannot be longer than 200 characters.");
-        if (phone.Trim().Length > 50) throw new ArgumentException("Broker phone cannot be longer than 50 characters.");
-        if (commissionPercentage is < 0 or > 100) throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            throw new ArgumentException("Broker code is required.");
+        }
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Broker name is required.");
+        }
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            throw new ArgumentException("Broker phone is required.");
+        }
+        if (code.Trim().Length > 50)
+        {
+            throw new ArgumentException("Broker code cannot be longer than 50 characters.");
+        }
+        if (name.Trim().Length > 200)
+        {
+            throw new ArgumentException("Broker name cannot be longer than 200 characters.");
+        }
+        if (phone.Trim().Length > 50)
+        {
+            throw new ArgumentException("Broker phone cannot be longer than 50 characters.");
+        }
+        if (commissionPercentage is < 0 or > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
+        }
         if (string.IsNullOrWhiteSpace(email) || email.Trim().Length > 254 || !new EmailAddressAttribute().IsValid(email.Trim()))
+        {
             throw new ArgumentException("Invalid email address format.", nameof(email));
+        }
     }
 
     private static BrokerDto Map(Broker broker) => new()

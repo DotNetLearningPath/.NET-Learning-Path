@@ -16,9 +16,18 @@ public class Currency
 
     public Currency(string code, string name, decimal exchangeRateToBase, bool isActive = true)
     {
-        if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("Currency code is required.", nameof(code));
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Currency name is required.", nameof(name));
-        if (exchangeRateToBase <= 0) throw new ArgumentOutOfRangeException(nameof(exchangeRateToBase));
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            throw new ArgumentException("Currency code is required.", nameof(code));
+        }
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Currency name is required.", nameof(name));
+        }
+        if (exchangeRateToBase <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(exchangeRateToBase));
+        }
 
         Id = Guid.NewGuid();
         Code = code;

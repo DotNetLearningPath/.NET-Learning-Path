@@ -21,8 +21,12 @@ public sealed class AdminBrokersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResult<BrokerDto>>> ListAsync([FromQuery] PaginationRequest pagination, CancellationToken cancellationToken) =>
-        Ok(await _brokerService.ListBrokersAsync(pagination, cancellationToken));
+    public async Task<ActionResult<PagedResult<BrokerDto>>> ListAsync(
+        [FromQuery] PaginationRequest pagination,
+        CancellationToken cancellationToken) =>
+        Ok(await _brokerService.ListBrokersAsync(
+            pagination,
+            cancellationToken));
 
     [HttpPost]
     public async Task<ActionResult<BrokerDto>> CreateAsync(CreateBrokerRequest request, CancellationToken cancellationToken)

@@ -7,7 +7,9 @@ public sealed class PremiumCalculationService : IPremiumCalculationService
 {
     private readonly IFeeConfigurationRepository _feeConfigurationRepository;
 
-    public PremiumCalculationService(IFeeConfigurationRepository feeConfigurationRepository)
+    public PremiumCalculationService(
+        IFeeConfigurationRepository feeConfigurationRepository,
+        IRiskFactorRepository? riskFactorRepository = null)
     {
         _feeConfigurationRepository = feeConfigurationRepository;
     }
