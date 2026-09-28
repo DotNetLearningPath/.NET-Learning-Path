@@ -8,6 +8,6 @@ public static class FeeConfigConstraints
     public const decimal MinPercentage = 0m;
     public const decimal MaxPercentage = 100m;
 
-    public const int PercentagePrecision = 7;
-    public const int PercentageScale = 4;
+    public const int PercentagePrecision = 5;
+    public const int PercentageScale = 2;
 }
