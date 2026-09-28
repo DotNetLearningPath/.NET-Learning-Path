@@ -1,0 +1,26 @@
+[
+  {
+    "Level": "County",
+    "Reference": "JUDEȚUL MUREȘ",
+    "AdjustmentPercentage": 5.0,
+    "IsActive": true
+  },
+  {
+    "Level": "City",
+    "Reference": "TÂRGU MUREȘ",
+    "AdjustmentPercentage": 8.0,
+    "IsActive": true
+  },
+  {
+    "Level": "BuildingType",
+    "Reference": "HISTORIC",
+    "AdjustmentPercentage": 12.5,
+    "IsActive": true
+  },
+  {
+    "Level": "BuildingType",
+    "Reference": "RESIDENTIAL",
+    "AdjustmentPercentage": -2.0,
+    "IsActive": true
+  }
+]

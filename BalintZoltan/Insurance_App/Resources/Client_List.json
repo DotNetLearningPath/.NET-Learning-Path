@@ -1,0 +1,74 @@
+[
+    {
+        "ClientType": "PERSON",
+        "Name": "Doc",
+        "Identifier": "5260101191114",
+        "Email": "doc@Grimm.com",
+        "Phone": "+4074123401",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Grumpy",
+        "Identifier": "5260101192220",
+        "Email": "grumpy@Grimm.com",
+        "Phone": "+4074123402",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Happy",
+        "Identifier": "5260101193337",
+        "Email": "happy@Grimm.com",
+        "Phone": "+4074123403",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Sleepy",
+        "Identifier": "5260101194443",
+        "Email": "sleepy@Grimm.com",
+        "Phone": "+4074123404",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Bashful",
+        "Identifier": "5260101195551",
+        "Email": "bashful@Grimm.com",
+        "Phone": "+4074123405",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Sneezy",
+        "Identifier": "5260101196666",
+        "Email": "sneezy@Grimm.com",
+        "Phone": "+4074123406",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "PERSON",
+        "Name": "Dopey",
+        "Identifier": "5260101197772",
+        "Email": "dopey@Grimm.com",
+        "Phone": "+4074123407",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "COMPANY",
+        "Name": "Grimm_Brothers_Inc.",
+        "Identifier": "RO1111111",
+        "Email": "contact@Grimm.com",
+        "Phone": "+4074123499",
+        "AddressLine": "BigForrest 7"
+    },
+    {
+        "ClientType": "COMPANY",
+        "Name": "Walt_Disney_Studio",
+        "Identifier": "RO2222222",
+        "Email": "info@disney.com",
+        "Phone": "+4074123488",
+        "AddressLine": "500 South Buena Vista Street, Burbank, CA"
+    }
+]

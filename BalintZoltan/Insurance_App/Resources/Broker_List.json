@@ -1,0 +1,50 @@
+[
+    {
+        "BrokerCode": "BRK48293017",
+        "Name": "Donald Duck",
+        "Email": "donald.duck@waltdisneystudio.com",
+        "Phone": "+40758120493",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    },
+    {
+        "BrokerCode": "BRK73910426",
+        "Name": "Tiki Duck",
+        "Email": "tiki.duck@waltdisneystudio.com",
+        "Phone": "+40761234985",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    },
+    {
+        "BrokerCode": "BRK85021679",
+        "Name": "Niki Duck",
+        "Email": "niki.duck@waltdisneystudio.com",
+        "Phone": "+40773459812",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    },
+    {
+        "BrokerCode": "BRK19476283",
+        "Name": "Viki Duck",
+        "Email": "viki.duck@waltdisneystudio.com",
+        "Phone": "+40769845120",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    },
+    {
+        "BrokerCode": "BRK56130894",
+        "Name": "Daisy Duck",
+        "Email": "daisy.duck@waltdisneystudio.com",
+        "Phone": "+40790567241",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    },
+    {
+        "BrokerCode": "BRK32759048",
+        "Name": "Launchpad McQuack",
+        "Email": "launchpad.mcquack@waltdisneystudio.com",
+        "Phone": "+40764381957",
+        "Status": "Active",
+        "CommissionPercentage": 10
+    }
+]

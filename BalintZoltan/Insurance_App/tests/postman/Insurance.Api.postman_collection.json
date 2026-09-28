@@ -1,0 +1,788 @@
+{
+  "info": {
+    "_postman_id": "8f09f6c1-76e5-4df0-8b58-6a6d1b1f3a91",
+    "name": "Insurance API - Basic Tests",
+    "description": "Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "buildingId",
+      "value": ""
+    },
+    {
+      "key": "countryId",
+      "value": ""
+    },
+    {
+      "key": "countyId",
+      "value": ""
+    },
+    {
+      "key": "cityId",
+      "value": ""
+    },
+    {
+      "key": "identificationNumber",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "Create client",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('identificationNumber', String(Date.now()).slice(-13));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains client id', function () { pm.expect(body.id).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('clientId', body.id);",
+                  "pm.collectionVariables.set('identificationNumber', body.identificationNumber);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": 0,\n  \"name\": \"Postman Client\",\n  \"identificationNumber\": \"{{identificationNumber}}\",\n  \"email\": \"postman@example.com\",\n  \"phone\": \"+40712345678\",\n  \"address\": \"Postman Street 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/brokers/clients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brokers",
+                "clients"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search clients",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains paged items', function () { pm.expect(body.items).to.be.an('array'); });",
+                  "pm.test('Page number is 1', function () { pm.expect(body.pageNumber).to.eql(1); });",
+                  "pm.test('Page size is 10', function () { pm.expect(body.pageSize).to.eql(10); });",
+                  "pm.test('Total count is numeric', function () { pm.expect(body.totalCount).to.be.a('number'); });",
+                  "pm.test('Total pages is numeric', function () { pm.expect(body.totalPages).to.be.a('number'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/brokers/clients?name=Postman&pageNumber=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brokers",
+                "clients"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "Postman"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get client by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Returned id matches requested id', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('clientId')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/brokers/clients/{{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brokers",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Name was updated', function () { pm.expect(pm.response.json().name).to.eql('Postman Client Updated'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": 0,\n  \"name\": \"Postman Client Updated\",\n  \"identificationNumber\": \"{{identificationNumber}}\",\n  \"email\": \"updated@example.com\",\n  \"phone\": \"+40712345679\",\n  \"address\": \"Updated Street 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/brokers/clients/{{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brokers",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Geography",
+      "item": [
+        {
+          "name": "Get countries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });",
+                  "const countries = pm.response.json();",
+                  "pm.test('Countries are not empty', function () { pm.expect(countries).to.have.length.greaterThan(0); });",
+                  "if (countries.length > 0) pm.collectionVariables.set('countryId', countries[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/countries"
+          }
+        },
+        {
+          "name": "Get counties by country",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });",
+                  "const counties = pm.response.json();",
+                  "pm.test('Counties are not empty', function () { pm.expect(counties).to.have.length.greaterThan(0); });",
+                  "if (counties.length > 0) pm.collectionVariables.set('countyId', counties[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/countries/{{countryId}}/counties"
+          }
+        },
+        {
+          "name": "Get cities by county",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });",
+                  "const cities = pm.response.json();",
+                  "if (!pm.collectionVariables.get('cityId') && cities.length > 0) pm.collectionVariables.set('cityId', cities[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/counties/{{countyId}}/cities"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buildings",
+      "item": [
+        {
+          "name": "Create building",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains building id', function () { pm.expect(body.id).to.be.a('string').and.not.empty; });",
+                  "pm.collectionVariables.set('buildingId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"cityId\": \"{{cityId}}\",\n  \"street\": \"Postman Street\",\n  \"number\": \"10\",\n  \"constructionYear\": 2000,\n  \"type\": 5,\n  \"numberOfFloors\": 2,\n  \"surfaceArea\": 120.5,\n  \"insuredValue\": 150000,\n  \"isFloodRiskZone\": false,\n  \"isEarthquakeRiskZone\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/clients/{{clientId}}/buildings"
+          }
+        },
+        {
+          "name": "Get buildings by client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains paged items', function () { pm.expect(body.items).to.be.an('array'); });",
+                  "pm.test('Page number is 1', function () { pm.expect(body.pageNumber).to.eql(1); });",
+                  "pm.test('Page size is 10', function () { pm.expect(body.pageSize).to.eql(10); });",
+                  "pm.test('Total count is numeric', function () { pm.expect(body.totalCount).to.be.a('number'); });",
+                  "pm.test('Total pages is numeric', function () { pm.expect(body.totalPages).to.be.a('number'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/clients/{{clientId}}/buildings?pageNumber=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Get building by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Returned id matches requested id', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('buildingId')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+          }
+        },
+        {
+          "name": "Update building",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cityId\":\"{{cityId}}\",\"street\":\"Updated Postman Street\",\"number\":\"11\",\"constructionYear\":2001,\"type\":5,\"numberOfFloors\":2,\"surfaceArea\":125.5,\"insuredValue\":155000,\"isFloodRiskZone\":false,\"isEarthquakeRiskZone\":false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Negative tests",
+      "item": [
+        {
+          "name": "Get client - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/clients/{{missingId}}"
+          }
+        },
+        {
+          "name": "Create client - invalid CNP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": 0,\n  \"name\": \"Invalid Client\",\n  \"identificationNumber\": \"123\",\n  \"email\": \"invalid@example.com\",\n  \"phone\": \"+40712345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/clients"
+          }
+        },
+        {
+          "name": "Update client - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientType\": 0,\n  \"name\": \"Missing Client\",\n  \"identificationNumber\": \"1234567890123\",\n  \"email\": \"test@example.com\",\n  \"phone\": \"+40712345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/clients/{{missingId}}"
+          }
+        },
+        {
+          "name": "Get counties - country not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/countries/{{missingId}}/counties"
+          }
+        },
+        {
+          "name": "Get cities - county not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/counties/{{missingId}}/cities"
+          }
+        },
+        {
+          "name": "Get building - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/buildings/{{missingId}}"
+          }
+        },
+        {
+          "name": "Get buildings by client - client not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brokers/clients/{{missingId}}/buildings"
+          }
+        },
+        {
+          "name": "Create building - client not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityId\": \"{{$guid}}\",\n  \"street\": \"Invalid Street\",\n  \"number\": \"1\",\n  \"constructionYear\": 2000,\n  \"type\": 5,\n  \"numberOfFloors\": 1,\n  \"surfaceArea\": 50,\n  \"insuredValue\": 100000,\n  \"isFloodRiskZone\": false,\n  \"isEarthquakeRiskZone\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/clients/{{missingId}}/buildings"
+          }
+        },
+        {
+          "name": "Update building - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityId\": \"{{$guid}}\",\n  \"street\": \"Invalid Street\",\n  \"number\": \"1\",\n  \"constructionYear\": 2000,\n  \"type\": 5,\n  \"numberOfFloors\": 1,\n  \"surfaceArea\": 50,\n  \"insuredValue\": 100000,\n  \"isFloodRiskZone\": false,\n  \"isEarthquakeRiskZone\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/buildings/{{missingId}}"
+          }
+        },
+        {
+          "name": "Create building - city not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingCityId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });",
+                  "const body = pm.response.json();",
+                  "pm.test('ProblemDetails identifies missing city', function () { pm.expect(body.title).to.eql('The requested resource was not found.'); pm.expect(body.detail).to.eql('City was not found.'); });",
+                  "pm.test('Response contains trace id', function () { pm.expect(body.traceId).to.be.a('string').and.not.empty; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityId\": \"{{missingCityId}}\",\n  \"street\": \"Invalid City Street\",\n  \"number\": \"1\",\n  \"constructionYear\": 2000,\n  \"type\": 5,\n  \"numberOfFloors\": 1,\n  \"surfaceArea\": 50,\n  \"insuredValue\": 100000,\n  \"isFloodRiskZone\": false,\n  \"isEarthquakeRiskZone\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/clients/{{clientId}}/buildings"
+          }
+        },
+        {
+          "name": "Update building - city not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingCityId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });",
+                  "const body = pm.response.json();",
+                  "pm.test('ProblemDetails identifies missing city', function () { pm.expect(body.detail).to.eql('City was not found.'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityId\": \"{{missingCityId}}\",\n  \"street\": \"Invalid City Street\",\n  \"number\": \"1\",\n  \"constructionYear\": 2000,\n  \"type\": 5,\n  \"numberOfFloors\": 1,\n  \"surfaceArea\": 50,\n  \"insuredValue\": 100000,\n  \"isFloodRiskZone\": false,\n  \"isEarthquakeRiskZone\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
