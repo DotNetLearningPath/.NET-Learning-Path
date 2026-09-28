@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using InsuranceApp.Domain.Constants;
 using InsuranceApp.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace InsuranceApp.Infrastructure.Persistence.Configurations;
 
@@ -19,16 +20,24 @@ internal sealed class RiskFactorConfigConfiguration : IEntityTypeConfiguration<R
             .IsRequired();
 
         builder.Property(x => x.AdjustmentPercentage)
-            .HasPrecision(7, 4)
+            .HasPrecision(
+                RiskFactorConfigConstraints.AdjustmentPercentagePrecision,
+                RiskFactorConfigConstraints.AdjustmentPercentageScale)
             .IsRequired();
 
         builder.Property(x => x.IsActive)
             .IsRequired();
 
+        builder.Property(x => x.CreatedAt)
+            .IsRequired();
+
+        builder.Property(x => x.ModifiedAt);
+
         builder.HasIndex(x => new
-        {
-            x.Level,
-            x.ReferenceId
-        });
+            {
+                x.Level,
+                x.ReferenceId
+            })
+            .IsUnique();
     }
 }
