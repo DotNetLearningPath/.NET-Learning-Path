@@ -9,9 +9,10 @@ namespace InsuranceApp.Api.Controllers.Broker;
 /// Controller for managing geographical data such as countries, counties, and cities.
 /// </summary>
 /// <param name="geographyService">The geography service.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/brokers")]
-public sealed class GeographyController(IGeographyService geographyService) : ControllerBase
+public sealed class GeographyController(IGeographyService geographyService, ILogger<GeographyController> logger) : ControllerBase
 {
     /// <summary>
     /// Gets all available countries.
@@ -35,14 +36,14 @@ public sealed class GeographyController(IGeographyService geographyService) : Co
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyList<CountyDto>>> GetCountiesAsync(Guid countryId, CancellationToken cancellationToken)
     {
-        var countiesResult = await geographyService.GetCountiesByCountryAsync(countryId, cancellationToken);
+        var result = await geographyService.GetCountiesByCountryAsync(countryId, cancellationToken);
 
-        if (!countiesResult.IsSuccess)
+        if (!result.IsSuccess)
         {
-            return countiesResult.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
-        return Ok(countiesResult.Value);
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -55,13 +56,13 @@ public sealed class GeographyController(IGeographyService geographyService) : Co
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyList<CityDto>>> GetCitiesAsync(Guid countyId, CancellationToken cancellationToken)
     {
-        var citiesResult = await geographyService.GetCitiesByCountyAsync(countyId, cancellationToken);
+        var result = await geographyService.GetCitiesByCountyAsync(countyId, cancellationToken);
 
-        if (!citiesResult.IsSuccess)
+        if (!result.IsSuccess)
         {
-            return citiesResult.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
-        return Ok(citiesResult.Value);
+        return Ok(result.Value);
     }
 }

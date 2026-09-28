@@ -9,9 +9,10 @@ namespace InsuranceApp.Api.Controllers.Broker;
 /// Controller for managing buildings in the broker context.
 /// </summary>
 /// <param name="buildingService">The building service.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/brokers")]
-public sealed class BuildingsController(IBuildingService buildingService) : ControllerBase
+public sealed class BuildingsController(IBuildingService buildingService, ILogger<BuildingsController> logger) : ControllerBase
 {
     private const string GetBuildingByIdRouteName = "GetBuildingById";
 
@@ -28,7 +29,7 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -50,7 +51,7 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -73,7 +74,7 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return CreatedAtRoute(GetBuildingByIdRouteName, new { buildingId = result.Value!.BuildingId }, result.Value);
@@ -96,7 +97,7 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);

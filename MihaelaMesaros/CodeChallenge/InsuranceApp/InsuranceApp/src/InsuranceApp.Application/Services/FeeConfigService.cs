@@ -37,28 +37,34 @@ public sealed class FeeConfigService(IFeeConfigRepository feeConfigRepository, I
         return Result<FeeConfigDto>.Success(MapFeeConfigToDto(feeConfig));
     }
 
-    public async Task<Result<FeeConfigDto>> CreateFeeConfigAsync(CreateFeeConfigDto dto, CancellationToken cancellationToken)
+    public async Task<Result<FeeConfigDto>> CreateFeeConfigAsync(CreateFeeConfigDto createFeeConfigDto, CancellationToken cancellationToken)
     {
-        dto = dto with
+        createFeeConfigDto = createFeeConfigDto with
         {
-            Name = dto.Name?.Trim()!
+            Name = createFeeConfigDto.Name?.Trim()!
         };
 
-        var validationError = ValidateFeeConfig(dto.Name, dto.FeeType, dto.Percentage, dto.EffectiveFrom, dto.EffectiveTo);
+        var validationFeeConfig = ValidateFeeConfig(
+            createFeeConfigDto.Name, 
+            createFeeConfigDto.FeeType, 
+            createFeeConfigDto.Percentage, 
+            createFeeConfigDto.EffectiveFrom, 
+            createFeeConfigDto.EffectiveTo
+        );
 
-        if (validationError is not null)
+        if (validationFeeConfig is not null)
         {
-            return Result<FeeConfigDto>.Failure(validationError);
+            return Result<FeeConfigDto>.Failure(validationFeeConfig);
         }
 
         var fee = new FeeConfig
         {
-            Name = dto.Name,
-            FeeType = dto.FeeType,
-            Percentage = dto.Percentage,
-            EffectiveFrom = dto.EffectiveFrom,
-            EffectiveTo = dto.EffectiveTo,
-            IsActive = dto.IsActive,
+            Name = createFeeConfigDto.Name,
+            FeeType = createFeeConfigDto.FeeType,
+            Percentage = createFeeConfigDto.Percentage,
+            EffectiveFrom = createFeeConfigDto.EffectiveFrom,
+            EffectiveTo = createFeeConfigDto.EffectiveTo,
+            IsActive = createFeeConfigDto.IsActive,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -72,23 +78,29 @@ public sealed class FeeConfigService(IFeeConfigRepository feeConfigRepository, I
         return Result<FeeConfigDto>.Success(MapFeeConfigToDto(fee));
     }
 
-    public async Task<Result<FeeConfigDto>> UpdateFeeConfigAsync(Guid feeConfigId, UpdateFeeConfigDto dto, CancellationToken cancellationToken)
+    public async Task<Result<FeeConfigDto>> UpdateFeeConfigAsync(Guid feeConfigId, UpdateFeeConfigDto updateFeeConfigDto, CancellationToken cancellationToken)
     {
         if (feeConfigId == Guid.Empty)
         {
             return Result<FeeConfigDto>.Failure(FeeConfigErrors.InvalidFeeConfigId);
         }
 
-        dto = dto with
+        updateFeeConfigDto = updateFeeConfigDto with
         {
-            Name = dto.Name?.Trim()!
+            Name = updateFeeConfigDto.Name?.Trim()!
         };
 
-        var validationError = ValidateFeeConfig(dto.Name, dto.FeeType, dto.Percentage, dto.EffectiveFrom, dto.EffectiveTo);
+        var validationFeeConfig = ValidateFeeConfig(
+            updateFeeConfigDto.Name, 
+            updateFeeConfigDto.FeeType, 
+            updateFeeConfigDto.Percentage, 
+            updateFeeConfigDto.EffectiveFrom, 
+            updateFeeConfigDto.EffectiveTo
+        );
 
-        if (validationError is not null)
+        if (validationFeeConfig is not null)
         {
-            return Result<FeeConfigDto>.Failure(validationError);
+            return Result<FeeConfigDto>.Failure(validationFeeConfig);
         }
 
         var fee = await feeConfigRepository.GetFeeConfigForUpdateAsync(feeConfigId, cancellationToken);
@@ -98,12 +110,12 @@ public sealed class FeeConfigService(IFeeConfigRepository feeConfigRepository, I
             return Result<FeeConfigDto>.Failure(FeeConfigErrors.NotFound(feeConfigId));
         }
 
-        fee.Name = dto.Name;
-        fee.FeeType = dto.FeeType;
-        fee.Percentage = dto.Percentage;
-        fee.EffectiveFrom = dto.EffectiveFrom;
-        fee.EffectiveTo = dto.EffectiveTo;
-        fee.IsActive = dto.IsActive;
+        fee.Name = updateFeeConfigDto.Name;
+        fee.FeeType = updateFeeConfigDto.FeeType;
+        fee.Percentage = updateFeeConfigDto.Percentage;
+        fee.EffectiveFrom = updateFeeConfigDto.EffectiveFrom;
+        fee.EffectiveTo = updateFeeConfigDto.EffectiveTo;
+        fee.IsActive = updateFeeConfigDto.IsActive;
         fee.ModifiedAt = DateTime.UtcNow;
 
         await feeConfigRepository.SaveFeeConfigChangesAsync(cancellationToken);
