@@ -2,6 +2,6 @@ namespace Domain.Enums;
 
 public enum BrokerStatus
 {
-    Inactive = 0,
-    Active = 1
+    Active,
+    Inactive
 }
