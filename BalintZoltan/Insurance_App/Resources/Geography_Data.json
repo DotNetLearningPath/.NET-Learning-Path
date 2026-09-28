@@ -1,0 +1,405 @@
+{
+  "BUCUREŞTI": {
+    "BUCUREŞTI": "010000"
+  },
+  "ALBA": {
+    "ABRUD": "515100",
+    "AIUD": "515200",
+    "ALBA IULIA": "510000",
+    "BAIA DE ARIEŞ": "515300",
+    "BLAJ": "515400",
+    "CUGIR": "515600",
+    "CÂMPENI": "515500",
+    "OCNA MUREŞ": "515700",
+    "SEBEŞ": "515800",
+    "TEIUŞ": "515900",
+    "ZLATNA": "516100"
+  },
+  "ARAD": {
+    "ARAD": "310000",
+    "CHIŞINEU-CRIŞ": "315100",
+    "CURTICI": "315200",
+    "INEU": "315300",
+    "LIPOVA": "315400",
+    "NĂDLAC": "315500",
+    "PECICA": "317200",
+    "PÂNCOTA": "315600",
+    "SEBIŞ": "315700",
+    "SÂNTANA": "317200"
+  },
+  "ARGEŞ": {
+    "COSTEŞTI": "115200",
+    "CURTEA DE ARGEŞ": "115300",
+    "CÂMPULUNG": "115100",
+    "MIOVENI": "115400",
+    "PITEŞTI": "110000",
+    "TOPOLOVENI": "115500",
+    "ŞTEFĂNEŞTI": "117700"
+  },
+  "BACĂU": {
+    "BACĂU": "600000",
+    "BUHUŞI": "605100",
+    "COMĂNEŞTI": "605200",
+    "DĂRMĂNEŞTI": "605300",
+    "MOINEŞTI": "605400",
+    "ONEŞTI": "601000",
+    "SLĂNIC-MOLDOVA": "605500",
+    "TÂRGU OCNA": "605600"
+  },
+  "BIHOR": {
+    "ALEŞD": "415100",
+    "BEIUŞ": "415200",
+    "MARGHITA": "415300",
+    "NUCET": "415400",
+    "ORADEA": "410000",
+    "SALONTA": "415500",
+    "SĂCUENI": "417400",
+    "VALEA LUI MIHAI": "415700",
+    "VAŞCĂU": "415800",
+    "ŞTEI": "415600"
+  },
+  "BISTRIŢA-NĂSĂUD": {
+    "BECLEAN": "425100",
+    "BISTRIŢA": "420000",
+    "NĂSĂUD": "425200",
+    "SÂNGEORZ-BĂI": "425300"
+  },
+  "BOTOŞANI": {
+    "BOTOŞANI": "710000",
+    "BUCECEA": "717000",
+    "DARABANI": "715100",
+    "DOROHOI": "715200",
+    "FLĂMÂNZI": "717100",
+    "SĂVENI": "715300",
+    "ŞTEFĂNEŞTI": "717300"
+  },
+  "BRAŞOV": {
+    "BRAŞOV": "500000",
+    "CODLEA": "505100",
+    "FĂGĂRAŞ": "505200",
+    "GHIMBAV": "507000",
+    "PREDEAL": "505300",
+    "RUPEA": "505500",
+    "RÂŞNOV": "505400",
+    "SĂCELE": "505600",
+    "VICTORIA": "505700",
+    "ZĂRNEŞTI": "505800"
+  },
+  "BRĂILA": {
+    "BRĂILA": "810000",
+    "FĂUREI": "815100",
+    "IANCA": "815200",
+    "ÎNSURĂŢEI": "815300"
+  },
+  "BUZĂU": {
+    "BUZĂU": "120000",
+    "NEHOIU": "125100",
+    "POGOANELE": "125200",
+    "PĂTÂRLAGELE": "127400",
+    "RÂMNICU SĂRAT": "125300"
+  },
+  "CARAŞ-SEVERIN": {
+    "ANINA": "325100",
+    "BOCŞA": "325300",
+    "BĂILE HERCULANE": "325200",
+    "CARANSEBEŞ": "325400",
+    "MOLDOVA NOUĂ": "325500",
+    "ORAVIŢA": "325600",
+    "OŢELU ROŞU": "325700",
+    "REŞIŢA": "320000"
+  },
+  "CLUJ": {
+    "CLUJ-NAPOCA": "400000",
+    "CÂMPIA TURZII": "405100",
+    "DEJ": "405200",
+    "GHERLA": "405300",
+    "HUEDIN": "405400",
+    "TURDA": "401000"
+  },
+  "CONSTANŢA": {
+    "CERNAVODĂ": "905200",
+    "CONSTANŢA": "900000",
+    "EFORIE": "905300",
+    "HÂRŞOVA": "905400",
+    "MANGALIA": "905500",
+    "MEDGIDIA": "905600",
+    "MURFATLAR": "905100",
+    "NEGRU VODĂ": "905800",
+    "NĂVODARI": "905700",
+    "OVIDIU": "905900",
+    "TECHIRGHIOL": "906100"
+  },
+  "COVASNA": {
+    "BARAOLT": "525100",
+    "COVASNA": "525200",
+    "SFÂNTU GHEORGHE": "520000",
+    "TÂRGU SECUIESC": "525400",
+    "ÎNTORSURA BUZĂULUI": "525300"
+  },
+  "CĂLĂRAŞI": {
+    "BUDEŞTI": "915100",
+    "CĂLĂRAŞI": "910000",
+    "FUNDULEA": "915200",
+    "LEHLIU-GARĂ": "915300",
+    "OLTENIŢA": "915400"
+  },
+  "DOLJ": {
+    "BECHET": "207000",
+    "BĂILEŞTI": "205100",
+    "CALAFAT": "205200",
+    "CRAIOVA": "200000",
+    "DĂBULENI": "207200",
+    "FILIAŞI": "205300",
+    "SEGARCEA": "205400"
+  },
+  "DÂMBOVIŢA": {
+    "FIENI": "135100",
+    "GĂEŞTI": "135200",
+    "MORENI": "135300",
+    "PUCIOASA": "135400",
+    "RĂCARI": "137300",
+    "TITU": "135500",
+    "TÂRGOVIŞTE": "130000"
+  },
+  "GALAŢI": {
+    "BEREŞTI": "805100",
+    "GALAŢI": "800000",
+    "TECUCI": "805300",
+    "TÂRGU BUJOR": "805200"
+  },
+  "GIURGIU": {
+    "BOLINTIN-VALE": "085100",
+    "GIURGIU": "080000",
+    "MIHĂILEŞTI": "085200"
+  },
+  "GORJ": {
+    "BUMBEŞTI-JIU": "215100",
+    "MOTRU": "215200",
+    "NOVACI": "215300",
+    "ROVINARI": "215400",
+    "TISMANA": "217400",
+    "TURCENI": "217500",
+    "TÂRGU CĂRBUNEŞTI": "215500",
+    "TÂRGU JIU": "210100",
+    "ŢICLENI": "215600"
+  },
+  "HARGHITA": {
+    "BORSEC": "535300",
+    "BĂILE TUŞNAD": "535100",
+    "BĂLAN": "535200",
+    "CRISTURU SECUIESC": "535400",
+    "GHEORGHENI": "535500",
+    "MIERCUREA CIUC": "530100",
+    "ODORHEIU SECUIESC": "535600",
+    "TOPLIŢA": "535700",
+    "VLĂHIŢA": "535800"
+  },
+  "HUNEDOARA": {
+    "ANINOASA": "335100",
+    "BRAD": "335200",
+    "CĂLAN": "335300",
+    "DEVA": "330000",
+    "GEOAGIU": "335400",
+    "HAŢEG": "335500",
+    "HUNEDOARA": "331000",
+    "LUPENI": "335600",
+    "ORĂŞTIE": "335700",
+    "PETRILA": "335800",
+    "PETROŞANI": "332000",
+    "SIMERIA": "335900",
+    "URICANI": "336100",
+    "VULCAN": "336200"
+  },
+  "IALOMIŢA": {
+    "AMARA": "927000",
+    "CĂZĂNEŞTI": "927000",
+    "FETEŞTI": "925100",
+    "FIERBINŢI-TÂRG": "927100",
+    "SLOBOZIA": "920000",
+    "URZICENI": "925300",
+    "ŢĂNDĂREI": "925200"
+  },
+  "IAŞI": {
+    "HÂRLĂU": "705100",
+    "IAŞI": "700000",
+    "PAŞCANI": "705200",
+    "PODU ILOAIEI": "707300",
+    "TÂRGU FRUMOS": "705300"
+  },
+  "ILFOV": {
+    "BRAGADIRU": "077000",
+    "BUFTEA": "070000",
+    "CHITILA": "077000",
+    "MĂGURELE": "077100",
+    "OTOPENI": "075100",
+    "PANTELIMON": "077100",
+    "POPEŞTI-LEORDENI": "077100",
+    "VOLUNTARI": "077100"
+  },
+  "MARAMUREŞ": {
+    "BAIA MARE": "430000",
+    "BAIA SPRIE": "435100",
+    "BORŞA": "435200",
+    "CAVNIC": "435300",
+    "DRAGOMIREŞTI": "437100",
+    "SEINI": "435400",
+    "SIGHETU MARMAŢIEI": "435500",
+    "SĂLIŞTEA DE SUS": "437200",
+    "TÂRGU LĂPUŞ": "435600",
+    "TĂUŢII-MĂGHERĂUŞ": "437300",
+    "ULMENI": "437300",
+    "VIŞEU DE SUS": "435700",
+    "ŞOMCUTA MARE": "437300"
+  },
+  "MEHEDINŢI": {
+    "BAIA DE ARAMĂ": "225100",
+    "DROBETA-TURNU SEVERIN": "220000",
+    "ORŞOVA": "225200",
+    "STREHAIA": "225300",
+    "VÂNJU MARE": "225400"
+  },
+  "MUREŞ": {
+    "IERNUT": "545100",
+    "LUDUŞ": "545200",
+    "MIERCUREA NIRAJULUI": "547400",
+    "REGHIN": "545300",
+    "SIGHIŞOARA": "545400",
+    "SOVATA": "545500",
+    "SÂNGEORGIU DE PĂDURE": "547500",
+    "SĂRMAŞU": "547500",
+    "TÂRGU MUREŞ": "540000",
+    "TÂRNĂVENI": "545600",
+    "UNGHENI": "547600"
+  },
+  "NEAMŢ": {
+    "BICAZ": "615100",
+    "PIATRA-NEAMŢ": "610000",
+    "ROMAN": "611000",
+    "ROZNOV": "617300",
+    "TÂRGU NEAMŢ": "615200"
+  },
+  "OLT": {
+    "BALŞ": "235100",
+    "CARACAL": "235200",
+    "CORABIA": "235300",
+    "DRĂGĂNEŞTI-OLT": "235400",
+    "PIATRA-OLT": "235500",
+    "POTCOAVA": "237300",
+    "SCORNICEŞTI": "235600",
+    "SLATINA": "230000"
+  },
+  "PRAHOVA": {
+    "AZUGA": "105100",
+    "BOLDEŞTI-SCĂENI": "105300",
+    "BREAZA": "105400",
+    "BUŞTENI": "105500",
+    "BĂICOI": "105200",
+    "COMARNIC": "105700",
+    "CÂMPINA": "105600",
+    "MIZIL": "105800",
+    "PLOIEŞTI": "100000",
+    "PLOPENI": "105900",
+    "SINAIA": "106100",
+    "SLĂNIC": "106200",
+    "URLAŢI": "106300",
+    "VĂLENII DE MUNTE": "106400"
+  },
+  "SATU MARE": {
+    "ARDUD": "447000",
+    "CAREI": "445100",
+    "LIVADA": "447100",
+    "NEGREŞTI-OAŞ": "445200",
+    "SATU MARE": "440000",
+    "TĂŞNAD": "445300"
+  },
+  "SIBIU": {
+    "AGNITA": "555100",
+    "AVRIG": "555200",
+    "CISNĂDIE": "555300",
+    "COPŞA MICĂ": "555400",
+    "DUMBRĂVENI": "555500",
+    "MEDIAŞ": "551000",
+    "MIERCUREA SIBIULUI": "557100",
+    "OCNA SIBIULUI": "555600",
+    "SIBIU": "550000",
+    "SĂLIŞTE": "557200",
+    "TĂLMACIU": "555700"
+  },
+  "SUCEAVA": {
+    "BROŞTENI": "727000",
+    "CAJVANA": "727100",
+    "CÂMPULUNG MOLDOVENESC": "725100",
+    "DOLHASCA": "727100",
+    "FRASIN": "727200",
+    "FĂLTICENI": "725200",
+    "GURA HUMORULUI": "725300",
+    "LITENI": "727300",
+    "MILIŞĂUŢI": "727300",
+    "RĂDĂUŢI": "725400",
+    "SALCEA": "727400",
+    "SIRET": "725500",
+    "SOLCA": "725600",
+    "SUCEAVA": "720000",
+    "VATRA DORNEI": "725700",
+    "VICOVU DE SUS": "727600"
+  },
+  "SĂLAJ": {
+    "CEHU SILVANIEI": "455100",
+    "JIBOU": "455200",
+    "ZALĂU": "450000",
+    "ŞIMLEU SILVANIEI": "455300"
+  },
+  "TELEORMAN": {
+    "ALEXANDRIA": "140000",
+    "ROŞIORI DE VEDE": "145100",
+    "TURNU MĂGURELE": "145200",
+    "VIDELE": "145300",
+    "ZIMNICEA": "145400"
+  },
+  "TIMIŞ": {
+    "BUZIAŞ": "305100",
+    "CIACOVA": "307100",
+    "DETA": "305200",
+    "FĂGET": "305300",
+    "GĂTAIA": "307100",
+    "JIMBOLIA": "305400",
+    "LUGOJ": "305500",
+    "RECAŞ": "307300",
+    "SÂNNICOLAU MARE": "305600",
+    "TIMIŞOARA": "300000"
+  },
+  "TULCEA": {
+    "BABADAG": "825100",
+    "ISACCEA": "825200",
+    "MĂCIN": "825300",
+    "SULINA": "825400",
+    "TULCEA": "820000"
+  },
+  "VASLUI": {
+    "BÂRLAD": "731000",
+    "HUŞI": "735100",
+    "MURGENI": "737300",
+    "NEGREŞTI": "735200",
+    "VASLUI": "730000"
+  },
+  "VRANCEA": {
+    "ADJUD": "625100",
+    "FOCŞANI": "620000",
+    "MĂRĂŞEŞTI": "625200",
+    "ODOBEŞTI": "625300",
+    "PANCIU": "625400"
+  },
+  "VÂLCEA": {
+    "BERBEŞTI": "247000",
+    "BREZOI": "245500",
+    "BĂBENI": "245100",
+    "BĂILE GOVORA": "245200",
+    "BĂILE OLĂNEŞTI": "245300",
+    "BĂLCEŞTI": "245400",
+    "CĂLIMĂNEŞTI": "245600",
+    "DRĂGĂŞANI": "245700",
+    "HOREZU": "245800",
+    "OCNELE MARI": "245900",
+    "RÂMNICU VÂLCEA": "240000"
+  }
+}

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>Library</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+    <ItemGroup>
+	    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+	    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+        <ProjectReference Include="..\Insurance.Application\Insurance.Application.csproj" />
+        <ProjectReference Include="..\Insurance.Domain\Insurance.Domain.csproj" />
+    </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Seed\" />
+  </ItemGroup>
+
+</Project>

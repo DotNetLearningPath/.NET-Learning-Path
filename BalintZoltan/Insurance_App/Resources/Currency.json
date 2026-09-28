@@ -1,0 +1,14 @@
+[
+  {
+    "Code": "RON",
+    "Name": "Romanian Leu",
+    "ExchangeRateToBase": 1.0,
+    "IsActive": true
+  },
+  {
+    "Code": "EUR",
+    "Name": "Euro",
+    "ExchangeRateToBase": 4.97,
+    "IsActive": true
+  }
+]

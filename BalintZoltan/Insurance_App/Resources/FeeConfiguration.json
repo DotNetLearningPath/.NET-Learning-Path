@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "Standard Policy Fee",
+    "Type": "Percentage",
+    "Value": 2.5,
+    "EffectiveFrom": "2026-01-01T00:00:00Z",
+    "EffectiveTo": null,
+    "IsActive": true
+  },
+  {
+    "Name": "Renewal Fee",
+    "Type": "Percentage",
+    "Value": 1.5,
+    "EffectiveFrom": "2026-01-01T00:00:00Z",
+    "EffectiveTo": null,
+    "IsActive": true
+  }
+]

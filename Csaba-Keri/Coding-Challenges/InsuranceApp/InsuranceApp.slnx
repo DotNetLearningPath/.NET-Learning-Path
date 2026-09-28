@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yaml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/InsuranceApp.Application/InsuranceApp.Application.csproj" />
+    <Project Path="src/InsuranceApp.Domain/InsuranceApp.Domain.csproj" />
+    <Project Path="src/InsuranceApp.Infrastructure/InsuranceApp.Infrastructure.csproj" />
+    <Project Path="src/InsuranceApp.WebApi/InsuranceApp.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/InsuranceApp.IntegrationTests/InsuranceApp.IntegrationTests.csproj" />
+    <Project Path="tests/InsuranceApp.UnitTests/InsuranceApp.UnitTests.csproj" />
+  </Folder>
+</Solution>
