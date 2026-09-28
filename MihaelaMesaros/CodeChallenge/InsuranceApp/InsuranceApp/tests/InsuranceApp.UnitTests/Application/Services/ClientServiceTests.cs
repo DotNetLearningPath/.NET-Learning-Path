@@ -17,6 +17,11 @@ public sealed class ClientServiceTests
     private readonly Mock<ILogger<ClientService>> _loggerMock;
     private readonly ClientService _service;
 
+    private readonly Guid _clientId;
+    private readonly CreateClientDto _validCreateDto;
+    private readonly UpdateClientDto _validUpdateDto;
+    private readonly Client _existingClient;
+
     public ClientServiceTests()
     {
         _repositoryMock = new Mock<IClientRepository>();
@@ -25,6 +30,34 @@ public sealed class ClientServiceTests
         _service = new ClientService(
             _repositoryMock.Object,
             _loggerMock.Object);
+
+        _clientId = Guid.NewGuid();
+
+        _validCreateDto = new CreateClientDto(
+            ClientType.Individual,
+            "John Doe",
+            "1980101223344",
+            "john@test.com",
+            "0712345678",
+            "Cluj-Napoca");
+
+        _validUpdateDto = new UpdateClientDto(
+            "John Updated",
+            "john.updated@test.com",
+            "0700123456",
+            "Bucharest");
+
+        _existingClient = new Client
+        {
+            ClientId = _clientId,
+            ClientType = ClientType.Individual,
+            Name = "John Doe",
+            IdentificationNumber = "1980101223344",
+            Email = "john@test.com",
+            Phone = "0712345678",
+            Address = "Cluj-Napoca",
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     #region Read Client Tests
@@ -33,30 +66,28 @@ public sealed class ClientServiceTests
     public async Task GetClientByIdAsync_ExistingClient_ReturnsSuccess()
     {
         // Arrange
-        var client = CreateClientEntity();
-
         _repositoryMock
             .Setup(x => x.GetClientByIdAsync(
-                client.ClientId,
+                _clientId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(client);
+            .ReturnsAsync(_existingClient);
 
         // Act
         var result = await _service.GetClientByIdAsync(
-            client.ClientId,
+            _clientId,
             CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
 
-        Assert.Equal(client.ClientId, result.Value.ClientId);
-        Assert.Equal(client.ClientType, result.Value.ClientType);
-        Assert.Equal(client.Name, result.Value.Name);
+        Assert.Equal(_clientId, result.Value.ClientId);
+        Assert.Equal(_existingClient.ClientType, result.Value.ClientType);
+        Assert.Equal(_existingClient.Name, result.Value.Name);
         Assert.Equal(
-            client.IdentificationNumber,
+            _existingClient.IdentificationNumber,
             result.Value.IdentificationNumber);
-        Assert.Equal(client.Email, result.Value.Email);
+        Assert.Equal(_existingClient.Email, result.Value.Email);
     }
 
     [Fact]
@@ -118,19 +149,20 @@ public sealed class ClientServiceTests
             1,
             20);
 
+        var secondClient = new Client
+        {
+            ClientId = Guid.NewGuid(),
+            ClientType = ClientType.Individual,
+            Name = "John Smith",
+            IdentificationNumber = "2990101223344",
+            Email = "john.smith@test.com",
+            CreatedAt = DateTime.UtcNow
+        };
+
         var clients = new List<Client>
         {
-            CreateClientEntity(),
-
-            new()
-            {
-                ClientId = Guid.NewGuid(),
-                ClientType = ClientType.Individual,
-                Name = "John Smith",
-                IdentificationNumber = "2990101223344",
-                Email = "john.smith@test.com",
-                CreatedAt = DateTime.UtcNow
-            }
+            _existingClient,
+            secondClient
         };
 
         _repositoryMock
@@ -272,38 +304,33 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_ValidClient_ReturnsSuccess()
     {
         // Arrange
-        var dto = CreateValidClientDto();
-
-        _repositoryMock
-            .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                dto.IdentificationNumber,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        SetupIdentificationNumberDoesNotExist();
 
         // Act
         var result = await _service.CreateClientAsync(
-            dto,
+            _validCreateDto,
             CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
 
-        Assert.Equal(dto.ClientType, result.Value.ClientType);
-        Assert.Equal(dto.Name, result.Value.Name);
+        Assert.Equal(_validCreateDto.ClientType, result.Value.ClientType);
+        Assert.Equal(_validCreateDto.Name, result.Value.Name);
         Assert.Equal(
-            dto.IdentificationNumber,
+            _validCreateDto.IdentificationNumber,
             result.Value.IdentificationNumber);
-        Assert.Equal(dto.Email, result.Value.Email);
-        Assert.Equal(dto.Phone, result.Value.Phone);
-        Assert.Equal(dto.Address, result.Value.Address);
+        Assert.Equal(_validCreateDto.Email, result.Value.Email);
+        Assert.Equal(_validCreateDto.Phone, result.Value.Phone);
+        Assert.Equal(_validCreateDto.Address, result.Value.Address);
 
         _repositoryMock.Verify(
             x => x.AddClientAsync(
                 It.Is<Client>(client =>
-                    client.Name == dto.Name &&
-                    client.IdentificationNumber == dto.IdentificationNumber &&
-                    client.ClientType == dto.ClientType),
+                    client.Name == _validCreateDto.Name &&
+                    client.IdentificationNumber ==
+                        _validCreateDto.IdentificationNumber &&
+                    client.ClientType == _validCreateDto.ClientType),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -311,7 +338,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task CreateClientAsync_MissingName_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Name = ""
         };
@@ -324,17 +351,13 @@ public sealed class ClientServiceTests
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Fact]
     public async Task CreateClientAsync_MissingIdentificationNumber_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             IdentificationNumber = ""
         };
@@ -347,18 +370,13 @@ public sealed class ClientServiceTests
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Fact]
     public async Task CreateClientAsync_InvalidClientType_ReturnsValidationError()
     {
-        // ClientType is still an enum, so use an invalid int value.
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             ClientType = (ClientType)999
         };
@@ -371,17 +389,13 @@ public sealed class ClientServiceTests
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Fact]
     public async Task CreateClientAsync_InvalidEmail_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Email = "invalid-email"
         };
@@ -394,28 +408,22 @@ public sealed class ClientServiceTests
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Fact]
     public async Task CreateClientAsync_DuplicateIdentificationNumber_ReturnsConflict()
     {
         // Arrange
-        var dto = CreateValidClientDto();
-
         _repositoryMock
             .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                dto.IdentificationNumber,
+                _validCreateDto.IdentificationNumber,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         // Act
         var result = await _service.CreateClientAsync(
-            dto,
+            _validCreateDto,
             CancellationToken.None);
 
         // Assert
@@ -423,11 +431,7 @@ public sealed class ClientServiceTests
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Conflict, result.Error.Type);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Theory]
@@ -436,7 +440,7 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_NameTooShort_ReturnsValidationError(
         string name)
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Name = name
         };
@@ -450,17 +454,13 @@ public sealed class ClientServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(ClientErrors.InvalidNameLength.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyAddClientNeverCalled();
     }
 
     [Fact]
     public async Task CreateClientAsync_NameTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Name = new string('A', 201)
         };
@@ -481,7 +481,7 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_IdentificationNumberTooShort_ReturnsValidationError(
         string identificationNumber)
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             IdentificationNumber = identificationNumber
         };
@@ -505,7 +505,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task CreateClientAsync_IdentificationNumberTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             IdentificationNumber = new string('1', 51)
         };
@@ -523,7 +523,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task CreateClientAsync_EmailTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Email = $"{new string('a', 195)}@test.com"
         };
@@ -541,7 +541,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task CreateClientAsync_PhoneTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Phone = new string('1', 51)
         };
@@ -559,7 +559,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task CreateClientAsync_AddressTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Address = new string('A', 301)
         };
@@ -578,7 +578,7 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_ValidClient_TrimsInputValues()
     {
         // Arrange
-        var dto = CreateValidClientDto() with
+        var dto = _validCreateDto with
         {
             Name = "  John Doe  ",
             IdentificationNumber = "  1980101223344  ",
@@ -600,7 +600,6 @@ public sealed class ClientServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-
         Assert.Equal("John Doe", result.Value!.Name);
         Assert.Equal(
             "1980101223344",
@@ -614,13 +613,7 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_DuplicateOnInsertConcurrency_ReturnsConflict()
     {
         // Arrange
-        var dto = CreateValidClientDto();
-
-        _repositoryMock
-            .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                dto.IdentificationNumber,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        SetupIdentificationNumberDoesNotExist();
 
         _repositoryMock
             .Setup(x => x.AddClientAsync(
@@ -631,7 +624,7 @@ public sealed class ClientServiceTests
 
         // Act
         var result = await _service.CreateClientAsync(
-            dto,
+            _validCreateDto,
             CancellationToken.None);
 
         // Assert
@@ -657,43 +650,31 @@ public sealed class ClientServiceTests
     public async Task UpdateClientAsync_ValidClient_ReturnsUpdatedClient()
     {
         // Arrange
-        var client = CreateClientEntity();
-
         var originalIdentificationNumber =
-            client.IdentificationNumber;
+            _existingClient.IdentificationNumber;
 
-        var dto = new UpdateClientDto(
-            "John Updated",
-            "john.updated@test.com",
-            "0700123456",
-            "Bucharest");
-
-        _repositoryMock
-            .Setup(x => x.GetClientForUpdateAsync(
-                client.ClientId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(client);
+        SetupExistingClientForUpdate();
 
         // Act
         var result = await _service.UpdateClientAsync(
-            client.ClientId,
-            dto,
+            _clientId,
+            _validUpdateDto,
             CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
 
-        Assert.Equal("John Updated", result.Value.Name);
-        Assert.Equal("john.updated@test.com", result.Value.Email);
-        Assert.Equal("0700123456", result.Value.Phone);
-        Assert.Equal("Bucharest", result.Value.Address);
+        Assert.Equal(_validUpdateDto.Name, result.Value.Name);
+        Assert.Equal(_validUpdateDto.Email, result.Value.Email);
+        Assert.Equal(_validUpdateDto.Phone, result.Value.Phone);
+        Assert.Equal(_validUpdateDto.Address, result.Value.Address);
 
         Assert.Equal(
             originalIdentificationNumber,
             result.Value.IdentificationNumber);
 
-        Assert.NotNull(client.ModifiedAt);
+        Assert.NotNull(_existingClient.ModifiedAt);
 
         _repositoryMock.Verify(
             x => x.SaveClientChangesAsync(
@@ -706,7 +687,6 @@ public sealed class ClientServiceTests
     {
         // Arrange
         var clientId = TestConstants.NonExistingId;
-        var dto = CreateValidUpdateClientDto();
 
         _repositoryMock
             .Setup(x => x.GetClientForUpdateAsync(
@@ -717,7 +697,7 @@ public sealed class ClientServiceTests
         // Act
         var result = await _service.UpdateClientAsync(
             clientId,
-            dto,
+            _validUpdateDto,
             CancellationToken.None);
 
         // Assert
@@ -734,13 +714,10 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_EmptyClientId_ReturnsValidationError()
     {
-        // Arrange
-        var dto = CreateValidUpdateClientDto();
-
         // Act
         var result = await _service.UpdateClientAsync(
             Guid.Empty,
-            dto,
+            _validUpdateDto,
             CancellationToken.None);
 
         // Assert
@@ -759,7 +736,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_MissingName_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Name = ""
         };
@@ -770,7 +747,7 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_InvalidEmail_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Email = "invalid-email"
         };
@@ -784,13 +761,13 @@ public sealed class ClientServiceTests
     public async Task UpdateClientAsync_NameTooShort_ReturnsValidationError(
         string name)
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Name = name
         };
 
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -809,13 +786,13 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_NameTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Name = new string('A', 201)
         };
 
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -828,13 +805,13 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_EmailTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Email = $"{new string('a', 195)}@test.com"
         };
 
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -847,13 +824,13 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_PhoneTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Phone = new string('1', 51)
         };
 
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -866,13 +843,13 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task UpdateClientAsync_AddressTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateClientDto() with
+        var dto = _validUpdateDto with
         {
             Address = new string('A', 301)
         };
 
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -886,10 +863,38 @@ public sealed class ClientServiceTests
 
     #region Helpers
 
-    private async Task AssertInvalidUpdateAsync(UpdateClientDto dto)
+    private void SetupIdentificationNumberDoesNotExist()
+    {
+        _repositoryMock
+            .Setup(x => x.ClientIdentificationNumberExistsAsync(
+                _validCreateDto.IdentificationNumber,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+    }
+
+    private void SetupExistingClientForUpdate()
+    {
+        _repositoryMock
+            .Setup(x => x.GetClientForUpdateAsync(
+                _clientId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_existingClient);
+    }
+
+    private void VerifyAddClientNeverCalled()
+    {
+        _repositoryMock.Verify(
+            x => x.AddClientAsync(
+                It.IsAny<Client>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private async Task AssertInvalidUpdateAsync(
+        UpdateClientDto dto)
     {
         var result = await _service.UpdateClientAsync(
-            Guid.NewGuid(),
+            _clientId,
             dto,
             CancellationToken.None);
 
@@ -902,41 +907,6 @@ public sealed class ClientServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
-    }
-
-    private static CreateClientDto CreateValidClientDto()
-    {
-        return new CreateClientDto(
-            ClientType.Individual,
-            "John Doe",
-            "1980101223344",
-            "john@test.com",
-            "0712345678",
-            "Cluj-Napoca");
-    }
-
-    private static UpdateClientDto CreateValidUpdateClientDto()
-    {
-        return new UpdateClientDto(
-            "John Updated",
-            "john.updated@test.com",
-            "0700123456",
-            "Bucharest");
-    }
-
-    private static Client CreateClientEntity(Guid? clientId = null)
-    {
-        return new Client
-        {
-            ClientId = clientId ?? Guid.NewGuid(),
-            ClientType = ClientType.Individual,
-            Name = "John Doe",
-            IdentificationNumber = "1980101223344",
-            Email = "john@test.com",
-            Phone = "0712345678",
-            Address = "Cluj-Napoca",
-            CreatedAt = DateTime.UtcNow
-        };
     }
 
     #endregion
