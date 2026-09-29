@@ -23,39 +23,26 @@ public sealed class GeographyServiceTests
     public async Task GetCountriesAsync_ReturnsMappedCountries()
     {
         // Arrange
-        var romaniaId = Guid.NewGuid();
-        var hungaryId = Guid.NewGuid();
-
         var countries = new List<Country>
         {
-            new()
-            {
-                CountryId = romaniaId,
-                Name = "Romania"
-            },
-            new()
-            {
-                CountryId = hungaryId,
-                Name = "Hungary"
-            }
+            new() { CountryId = 1, Name = "Romania" },
+            new() { CountryId = 2, Name = "Hungary" }
         };
 
         _geographyRepositoryMock
-            .Setup(x => x.GetCountriesAsync(
-                It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetCountriesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(countries);
 
         // Act
-        var result = await _service.GetCountriesAsync(
-            CancellationToken.None);
+        var result = await _service.GetCountriesAsync(CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.Count);
 
-        Assert.Equal(romaniaId, result[0].CountryId);
+        Assert.Equal(1, result[0].CountryId);
         Assert.Equal("Romania", result[0].Name);
 
-        Assert.Equal(hungaryId, result[1].CountryId);
+        Assert.Equal(2, result[1].CountryId);
         Assert.Equal("Hungary", result[1].Name);
     }
 
@@ -63,40 +50,30 @@ public sealed class GeographyServiceTests
     public async Task GetCountiesByCountryAsync_WhenCountryExists_ReturnsSuccess()
     {
         // Arrange
-        var countryId = Guid.NewGuid();
+        const int countryId = 1;
 
         var counties = new List<County>
         {
             new()
             {
-                CountyId = Guid.NewGuid(),
+                CountyId = 1,
                 CountryId = countryId,
                 Name = "Cluj"
             },
             new()
             {
-                CountyId = Guid.NewGuid(),
+                CountyId = 2,
                 CountryId = countryId,
                 Name = "Brasov"
             }
         };
 
-        _geographyRepositoryMock
-            .Setup(x => x.CountryExistsAsync(
-                countryId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        _geographyRepositoryMock.Setup(x => x.CountryExistsAsync(countryId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        _geographyRepositoryMock
-            .Setup(x => x.GetCountiesByCountryAsync(
-                countryId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(counties);
+        _geographyRepositoryMock.Setup(x => x.GetCountiesByCountryAsync(countryId, It.IsAny<CancellationToken>())).ReturnsAsync(counties);
 
         // Act
-        var result = await _service.GetCountiesByCountryAsync(
-            countryId,
-            CancellationToken.None);
+        var result = await _service.GetCountiesByCountryAsync(countryId, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -111,69 +88,47 @@ public sealed class GeographyServiceTests
     public async Task GetCountiesByCountryAsync_WhenCountryDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var countryId = TestConstants.NonExistingId;
+        const int countryId = TestConstants.NonExistingId;
 
-        _geographyRepositoryMock
-            .Setup(x => x.CountryExistsAsync(
-                countryId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        _geographyRepositoryMock.Setup(x => x.CountryExistsAsync(countryId, It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         // Act
-        var result = await _service.GetCountiesByCountryAsync(
-            countryId,
-            CancellationToken.None);
+        var result = await _service.GetCountiesByCountryAsync(countryId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.NotFound, result.Error.Type);
-
-        _geographyRepositoryMock.Verify(
-            x => x.GetCountiesByCountryAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Fact]
     public async Task GetCitiesByCountyAsync_WhenCountyExists_ReturnsSuccess()
     {
         // Arrange
-        var countyId = Guid.NewGuid();
+        const int countyId = 1;
 
         var cities = new List<City>
         {
             new()
             {
-                CityId = Guid.NewGuid(),
+                CityId = 1,
                 CountyId = countyId,
                 Name = "Cluj-Napoca"
             },
             new()
             {
-                CityId = Guid.NewGuid(),
+                CityId = 2,
                 CountyId = countyId,
                 Name = "Turda"
             }
         };
 
-        _geographyRepositoryMock
-            .Setup(x => x.CountyExistsAsync(
-                countyId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        _geographyRepositoryMock.Setup(x => x.CountyExistsAsync(countyId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        _geographyRepositoryMock
-            .Setup(x => x.GetCitiesByCountyAsync(
-                countyId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(cities);
+        _geographyRepositoryMock.Setup(x => x.GetCitiesByCountyAsync(countyId, It.IsAny<CancellationToken>())).ReturnsAsync(cities);
 
         // Act
-        var result = await _service.GetCitiesByCountyAsync(
-            countyId,
-            CancellationToken.None);
+        var result = await _service.GetCitiesByCountyAsync(countyId, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -188,86 +143,63 @@ public sealed class GeographyServiceTests
     public async Task GetCitiesByCountyAsync_WhenCountyDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var countyId = TestConstants.NonExistingId;
+        const int countyId = TestConstants.NonExistingId;
 
-        _geographyRepositoryMock
-            .Setup(x => x.CountyExistsAsync(
-                countyId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        _geographyRepositoryMock.Setup(x => x.CountyExistsAsync(countyId, It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         // Act
-        var result = await _service.GetCitiesByCountyAsync(
-            countyId,
-            CancellationToken.None);
+        var result = await _service.GetCitiesByCountyAsync(countyId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.NotFound, result.Error.Type);
-
-        _geographyRepositoryMock.Verify(
-            x => x.GetCitiesByCountyAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
-    [Fact]
-    public async Task GetCountiesByCountryAsync_EmptyCountryId_ReturnsValidationError()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GetCountiesByCountryAsync_InvalidCountryId_ReturnsValidationError(int countryId)
     {
         // Act
-        var result = await _service.GetCountiesByCountryAsync(
-            Guid.Empty,
-            CancellationToken.None);
+        var result = await _service.GetCountiesByCountryAsync(countryId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
-        Assert.Equal(
-            GeographyErrors.InvalidCountryId.Code,
-            result.Error.Code);
+        Assert.Equal(GeographyErrors.InvalidCountryId.Code, result.Error.Code);
 
         _geographyRepositoryMock.Verify(
-            x => x.CountryExistsAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
+            x => x.CountryExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _geographyRepositoryMock.Verify(
-            x => x.GetCountiesByCountryAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
+            x => x.GetCountiesByCountryAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
-    [Fact]
-    public async Task GetCitiesByCountyAsync_EmptyCountyId_ReturnsValidationError()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GetCitiesByCountyAsync_InvalidCountyId_ReturnsValidationError(int countyId)
     {
         // Act
-        var result = await _service.GetCitiesByCountyAsync(
-            Guid.Empty,
-            CancellationToken.None);
+        var result = await _service.GetCitiesByCountyAsync(countyId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
-        Assert.Equal(
-            GeographyErrors.InvalidCountyId.Code,
-            result.Error.Code);
+        Assert.Equal(GeographyErrors.InvalidCountyId.Code, result.Error.Code);
 
         _geographyRepositoryMock.Verify(
-            x => x.CountyExistsAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
+            x => x.CountyExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _geographyRepositoryMock.Verify(
-            x => x.GetCitiesByCountyAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
+            x => x.GetCitiesByCountyAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
 }

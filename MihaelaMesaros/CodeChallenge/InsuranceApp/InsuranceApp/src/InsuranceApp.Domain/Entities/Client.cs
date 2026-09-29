@@ -4,7 +4,7 @@ namespace InsuranceApp.Domain.Entities;
 
 public sealed class Client
 {
-    public Guid ClientId { get; set; }
+    public int ClientId { get; set; }
     public ClientType ClientType { get; set; }
     public string Name { get; set; } = null!;
     public string IdentificationNumber { get; set; } = null!;
