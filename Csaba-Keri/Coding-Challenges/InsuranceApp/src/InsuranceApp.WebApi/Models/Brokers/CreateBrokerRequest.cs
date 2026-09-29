@@ -4,16 +4,16 @@ namespace InsuranceApp.WebApi.Models.Brokers;
 
 public record CreateBrokerRequest(
     [Required]
-    string? Code,
+    string Code,
 
     [Required]
-    string? Name,
+    string Name,
     
     [Required]
-    string? Email,
+    string Email,
     
     [Required]
-    string? Phone,
+    string Phone,
     
     [Required]
     BrokerStatusDto? Status

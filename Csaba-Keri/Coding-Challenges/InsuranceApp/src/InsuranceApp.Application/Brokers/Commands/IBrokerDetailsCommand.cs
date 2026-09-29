@@ -2,7 +2,7 @@
 
 public interface IBrokerDetailsCommand
 {
-    string? Name { get; }
-    string? Email { get; }
-    string? Phone { get; }
+    string Name { get; }
+    string Email { get; }
+    string Phone { get; }
 }

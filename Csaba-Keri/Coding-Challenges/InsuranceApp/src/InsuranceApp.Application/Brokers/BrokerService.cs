@@ -67,10 +67,10 @@ public class BrokerService : IBrokerService
 
         var broker = new Broker(
             id: Guid.NewGuid(),
-            code: command.Code!,
-            name: command.Name!,
-            email: command.Email!,
-            phone: command.Phone!,
+            code: command.Code,
+            name: command.Name,
+            email: command.Email,
+            phone: command.Phone,
             status: command.Status
         );
 
@@ -89,9 +89,9 @@ public class BrokerService : IBrokerService
         var broker = await GetBrokerByIdOrThrowAsync(command.BrokerId, cancellationToken);
 
         broker.UpdateDetails(
-            name: command.Name!,
-            email: command.Email!,
-            phone: command.Phone!
+            name: command.Name,
+            email: command.Email,
+            phone: command.Phone
         );
 
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);

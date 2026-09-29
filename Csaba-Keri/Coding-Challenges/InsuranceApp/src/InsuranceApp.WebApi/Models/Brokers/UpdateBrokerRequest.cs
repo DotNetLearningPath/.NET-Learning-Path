@@ -4,11 +4,11 @@ namespace InsuranceApp.WebApi.Models.Brokers;
 
 public record UpdateBrokerRequest(
     [Required]
-    string? Name,
+    string Name,
     
     [Required]
-    string? Email,
+    string Email,
     
     [Required]
-    string? Phone
+    string Phone
 );

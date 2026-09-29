@@ -10,7 +10,7 @@ public class CreateBrokerCommandValidator : BrokerDetailsValidator<CreateBrokerC
     {
         RuleFor(command => command.Code)
             .NotEmpty().WithMessage("Broker code is required.")
-            .Must(value => value!.Trim().Length <= Broker.MaxCodeLength)
+            .Must(value => value.Trim().Length <= Broker.MaxCodeLength)
             .WithMessage($"Broker code must not exceed {Broker.MaxCodeLength} characters.");
         
         RuleFor(command => command.Status)

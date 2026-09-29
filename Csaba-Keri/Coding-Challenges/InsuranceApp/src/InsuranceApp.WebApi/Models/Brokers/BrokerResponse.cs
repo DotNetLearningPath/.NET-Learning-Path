@@ -7,17 +7,4 @@ public record BrokerResponse(
     string Email,
     string Phone,
     BrokerStatusDto Status
-)
-{
-    public Guid Id { get; } = Id;
-
-    public string Code { get; } = Code;
-
-    public string Name { get; } = Name;
-
-    public string Email { get; } = Email;
-
-    public string Phone { get; } = Phone;
-
-    public BrokerStatusDto Status { get; } = Status;
-}
+);
