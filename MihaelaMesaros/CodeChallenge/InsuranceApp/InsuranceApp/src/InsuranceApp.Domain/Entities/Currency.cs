@@ -15,6 +15,4 @@ public sealed class Currency
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-
-    public ICollection<Policy> Policies { get; set; } = [];
 }

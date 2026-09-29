@@ -5,5 +5,4 @@ public sealed class Country
 {
     public Guid CountryId { get; set; }
     public required string Name { get; set; }
-    public ICollection<County> Counties { get; set; } = [];
 }
