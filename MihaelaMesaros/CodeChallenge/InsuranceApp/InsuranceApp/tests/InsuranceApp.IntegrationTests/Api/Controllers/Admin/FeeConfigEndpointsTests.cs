@@ -1,59 +1,39 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using InsuranceApp.Application.Common;
+﻿using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.FeeConfig;
-using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
-using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.IntegrationTests.Common;
 using InsuranceApp.IntegrationTests.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Admin;
 
-public sealed class FeeConfigEndpointsTests(
-    InsuranceAppWebApplicationFactory factory)
-    : IClassFixture<InsuranceAppWebApplicationFactory>, IAsyncLifetime
+public sealed class FeeConfigEndpointsTests(InsuranceAppWebApplicationFactory factory)
+    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
 {
-    private readonly InsuranceAppWebApplicationFactory _factory = factory;
-    private readonly HttpClient _client = factory.CreateClient();
-
-    public async Task InitializeAsync()
-    {
-        await _factory.ResetDatabaseAsync();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
-
     #region Create Fee Config Tests
 
     [Fact]
     public async Task CreateFeeConfig_ValidRequest_ReturnsCreatedAndPersistsFeeConfig()
     {
         // Arrange
-        var request = CreateValidFeeConfigDto();
+        var request = TestData.FeeConfigDtoForCreate;
 
         // Act
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
         // Assert - HTTP
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-        var createdFee =
-            await response.Content.ReadFromJsonAsync<FeeConfigDto>();
+        var createdFee = await response.Content.ReadFromJsonAsync<FeeConfigDto>();
 
         Assert.NotNull(createdFee);
         Assert.NotEqual(Guid.Empty, createdFee.FeeConfigId);
-
         Assert.NotNull(response.Headers.Location);
-        Assert.Equal(
-            $"/api/admin/fees/{createdFee.FeeConfigId}",
-            response.Headers.Location.AbsolutePath);
-
+        Assert.Equal($"/api/admin/fees/{createdFee.FeeConfigId}", response.Headers.Location.AbsolutePath);
         Assert.Equal(request.Name, createdFee.Name);
         Assert.Equal(request.FeeType, createdFee.FeeType);
         Assert.Equal(request.Percentage, createdFee.Percentage);
@@ -62,141 +42,128 @@ public sealed class FeeConfigEndpointsTests(
         Assert.Equal(request.IsActive, createdFee.IsActive);
 
         // Assert - persistence
-        using var scope = _factory.Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<InsuranceDbContext>();
-
-        var persistedFee = await dbContext.FeeConfigs
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.FeeConfigId == createdFee.FeeConfigId);
+        var persistedFee = await DbContext.FeeConfigs.AsNoTracking().FirstOrDefaultAsync(x => x.FeeConfigId == createdFee.FeeConfigId);
 
         Assert.NotNull(persistedFee);
         Assert.Equal(request.Name, persistedFee.Name);
         Assert.Equal(request.FeeType, persistedFee.FeeType);
         Assert.Equal(request.Percentage, persistedFee.Percentage);
+        Assert.Equal(request.EffectiveFrom, persistedFee.EffectiveFrom);
+        Assert.Equal(request.EffectiveTo, persistedFee.EffectiveTo);
+        Assert.Equal(request.IsActive, persistedFee.IsActive);
     }
 
     [Fact]
     public async Task CreateFeeConfig_NormalizesName()
     {
         // Arrange
-        var request = CreateValidFeeConfigDto() with
+        var request = TestData.FeeConfigDtoForCreate with
         {
-            Name = "  Standard broker fee  "
+            Name = $"  {TestData.FeeConfigDtoForCreate.Name}  "
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-        var createdFee =
-            await response.Content.ReadFromJsonAsync<FeeConfigDto>();
+        var createdFee = await response.Content.ReadFromJsonAsync<FeeConfigDto>();
 
         Assert.NotNull(createdFee);
-        Assert.Equal("Standard broker fee", createdFee.Name);
+        Assert.Equal(request.Name.Trim(), createdFee.Name);
     }
 
     [Fact]
     public async Task CreateFeeConfig_MissingName_ReturnsBadRequest()
     {
         // Arrange
-        var request = CreateValidFeeConfigDto() with
+        var request = TestData.FeeConfigDtoForCreate with
         {
             Name = ""
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        var problem =
-            await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
 
         Assert.NotNull(problem);
-        Assert.Equal(400, problem.Status);
-        Assert.Equal(
-            FeeConfigErrors.NameRequired.Code,
-            problem.Extensions["code"]?.ToString());
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.Status);
+        Assert.Equal(FeeConfigErrors.NameRequired.Code, problem.Extensions["code"]?.ToString());
     }
 
     [Fact]
     public async Task CreateFeeConfig_InvalidFeeType_ReturnsBadRequest()
     {
-        // FeeType remains an enum, so use an invalid numeric value.
-        var request = CreateValidFeeConfigDto() with
+        // Arrange
+        var request = TestData.FeeConfigDtoForCreate with
         {
             FeeType = (FeeType)999
         };
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task CreateFeeConfig_InvalidPercentage_ReturnsBadRequest()
     {
-        var request = CreateValidFeeConfigDto() with
+        // Arrange
+        var request = TestData.FeeConfigDtoForCreate with
         {
             Percentage = 101m
         };
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task CreateFeeConfig_PercentageWithTooManyDecimals_ReturnsBadRequest()
     {
-        var request = CreateValidFeeConfigDto() with
+        // Arrange
+        var request = TestData.FeeConfigDtoForCreate with
         {
             Percentage = 2.12345m
         };
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task CreateFeeConfig_InvalidEffectivePeriod_ReturnsBadRequest()
     {
-        var request = CreateValidFeeConfigDto() with
+        // Arrange
+        var request = TestData.FeeConfigDtoForCreate with
         {
             EffectiveFrom = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
             EffectiveTo = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
         };
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/admin/fees",
-            request);
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("/api/admin/fees", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        var problem =
-            await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
 
         Assert.NotNull(problem);
-        Assert.Equal(
-            FeeConfigErrors.InvalidEffectivePeriod.Code,
-            problem.Extensions["code"]?.ToString());
+        Assert.Equal(FeeConfigErrors.InvalidEffectivePeriod.Code, problem.Extensions["code"]?.ToString());
     }
 
     #endregion
@@ -207,76 +174,77 @@ public sealed class FeeConfigEndpointsTests(
     public async Task GetFees_ReturnsOkWithFeeConfigs()
     {
         // Arrange
-        await SeedFeeConfigsAsync();
+        await SeedAsync(TestData.FeeConfigsList);
 
         // Act
-        var response = await _client.GetAsync(
-            "/api/admin/fees");
+        var response = await HttpClient.GetAsync("/api/admin/fees");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var fees =
-            await response.Content.ReadFromJsonAsync<List<FeeConfigDto>>();
+        var fees = await response.Content.ReadFromJsonAsync<List<FeeConfigDto>>();
 
         Assert.NotNull(fees);
-        Assert.Equal(2, fees.Count);
+        Assert.Equal(TestData.FeeConfigsList.Count, fees.Count);
 
-        Assert.Contains(
-            fees,
-            x => x.Name == "Standard broker fee");
-
-        Assert.Contains(
-            fees,
-            x => x.Name == "Admin fee");
+        foreach (var expectedFee in TestData.FeeConfigsList)
+        {
+            Assert.Contains(
+                fees,
+                fee =>
+                    fee.FeeConfigId == expectedFee.FeeConfigId &&
+                    fee.Name == expectedFee.Name &&
+                    fee.FeeType == expectedFee.FeeType &&
+                    fee.Percentage == expectedFee.Percentage &&
+                    fee.EffectiveFrom == expectedFee.EffectiveFrom &&
+                    fee.EffectiveTo == expectedFee.EffectiveTo &&
+                    fee.IsActive == expectedFee.IsActive);
+        }
     }
 
     [Fact]
     public async Task GetFeeById_ExistingFeeConfig_ReturnsOk()
     {
         // Arrange
-        var feeConfigId = await SeedFeeConfigAsync();
+        var feeConfig = TestData.FeeConfigsList[0];
+        await SeedAsync(feeConfig);
 
         // Act
-        var response = await _client.GetAsync(
-            $"/api/admin/fees/{feeConfigId}");
+        var response = await HttpClient.GetAsync($"/api/admin/fees/{feeConfig.FeeConfigId}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var fee =
-            await response.Content.ReadFromJsonAsync<FeeConfigDto>();
+        var fee = await response.Content.ReadFromJsonAsync<FeeConfigDto>();
 
         Assert.NotNull(fee);
-        Assert.Equal(feeConfigId, fee.FeeConfigId);
-        Assert.Equal("Standard broker fee", fee.Name);
-        Assert.Equal(FeeType.BrokerCommission, fee.FeeType);
+        Assert.Equal(feeConfig.FeeConfigId, fee.FeeConfigId);
+        Assert.Equal(feeConfig.Name, fee.Name);
+        Assert.Equal(feeConfig.FeeType, fee.FeeType);
+        Assert.Equal(feeConfig.Percentage, fee.Percentage);
+        Assert.Equal(feeConfig.EffectiveFrom, fee.EffectiveFrom);
+        Assert.Equal(feeConfig.EffectiveTo, fee.EffectiveTo);
+        Assert.Equal(feeConfig.IsActive, fee.IsActive);
     }
 
     [Fact]
     public async Task GetFeeById_NonExistingFeeConfig_ReturnsNotFound()
     {
         // Act
-        var response = await _client.GetAsync(
-            $"/api/admin/fees/{TestConstants.NonExistingId}");
+        var response = await HttpClient.GetAsync($"/api/admin/fees/{TestData.NonExistingId}");
 
         // Assert
-        Assert.Equal(
-            HttpStatusCode.NotFound,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
     public async Task GetFeeById_EmptyFeeConfigId_ReturnsBadRequest()
     {
         // Act
-        var response = await _client.GetAsync(
-            $"/api/admin/fees/{Guid.Empty}");
+        var response = await HttpClient.GetAsync($"/api/admin/fees/{Guid.Empty}");
 
         // Assert
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     #endregion
@@ -287,46 +255,42 @@ public sealed class FeeConfigEndpointsTests(
     public async Task UpdateFeeConfig_ValidRequest_ReturnsOkAndPersistsChanges()
     {
         // Arrange
-        var feeConfigId = await SeedFeeConfigAsync();
+        var feeConfig = TestData.FeeConfigsList[0];
+        await SeedAsync(feeConfig);
 
-        var request = new UpdateFeeConfigDto(
-            "Updated broker fee",
-            FeeType.BrokerCommission,
-            5.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            false);
+        var request = TestData.FeeConfigDtoForUpdate with
+        {
+            Name = "Updated broker fee",
+            Percentage = 5.5000m,
+            IsActive = false
+        };
 
         // Act
-        var response = await _client.PutAsJsonAsync(
-            $"/api/admin/fees/{feeConfigId}",
-            request);
+        var response = await HttpClient.PutAsJsonAsync($"/api/admin/fees/{feeConfig.FeeConfigId}", request);
 
         // Assert - HTTP
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var updatedFee =
-            await response.Content.ReadFromJsonAsync<FeeConfigDto>();
+        var updatedFee = await response.Content.ReadFromJsonAsync<FeeConfigDto>();
 
         Assert.NotNull(updatedFee);
-        Assert.Equal(feeConfigId, updatedFee.FeeConfigId);
-        Assert.Equal("Updated broker fee", updatedFee.Name);
-        Assert.Equal(5.5000m, updatedFee.Percentage);
-        Assert.False(updatedFee.IsActive);
+        Assert.Equal(feeConfig.FeeConfigId, updatedFee.FeeConfigId);
+        Assert.Equal(request.Name, updatedFee.Name);
+        Assert.Equal(request.FeeType, updatedFee.FeeType);
+        Assert.Equal(request.Percentage, updatedFee.Percentage);
+        Assert.Equal(request.EffectiveFrom, updatedFee.EffectiveFrom);
+        Assert.Equal(request.EffectiveTo, updatedFee.EffectiveTo);
+        Assert.Equal(request.IsActive, updatedFee.IsActive);
 
         // Assert - persistence
-        using var scope = _factory.Services.CreateScope();
+        var persistedFee = await DbContext.FeeConfigs.AsNoTracking().FirstAsync(x => x.FeeConfigId == feeConfig.FeeConfigId);
 
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<InsuranceDbContext>();
-
-        var persistedFee = await dbContext.FeeConfigs
-            .AsNoTracking()
-            .FirstAsync(x => x.FeeConfigId == feeConfigId);
-
-        Assert.Equal("Updated broker fee", persistedFee.Name);
-        Assert.Equal(5.5000m, persistedFee.Percentage);
-        Assert.False(persistedFee.IsActive);
+        Assert.Equal(request.Name, persistedFee.Name);
+        Assert.Equal(request.FeeType, persistedFee.FeeType);
+        Assert.Equal(request.Percentage, persistedFee.Percentage);
+        Assert.Equal(request.EffectiveFrom, persistedFee.EffectiveFrom);
+        Assert.Equal(request.EffectiveTo, persistedFee.EffectiveTo);
+        Assert.Equal(request.IsActive, persistedFee.IsActive);
         Assert.NotNull(persistedFee.ModifiedAt);
     }
 
@@ -334,143 +298,46 @@ public sealed class FeeConfigEndpointsTests(
     public async Task UpdateFeeConfig_NonExistingFeeConfig_ReturnsNotFound()
     {
         // Arrange
-        var request = CreateValidUpdateFeeConfigDto();
+        var request = TestData.FeeConfigDtoForUpdate;
 
         // Act
-        var response = await _client.PutAsJsonAsync(
-            $"/api/admin/fees/{TestConstants.NonExistingId}",
-            request);
+        var response = await HttpClient.PutAsJsonAsync($"/api/admin/fees/{TestData.NonExistingId}", request);
 
         // Assert
-        Assert.Equal(
-            HttpStatusCode.NotFound,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
     public async Task UpdateFeeConfig_EmptyFeeConfigId_ReturnsBadRequest()
     {
         // Arrange
-        var request = CreateValidUpdateFeeConfigDto();
+        var request = TestData.FeeConfigDtoForUpdate;
 
         // Act
-        var response = await _client.PutAsJsonAsync(
-            $"/api/admin/fees/{Guid.Empty}",
-            request);
+        var response = await HttpClient.PutAsJsonAsync($"/api/admin/fees/{Guid.Empty}", request);
 
         // Assert
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
     public async Task UpdateFeeConfig_InvalidEffectivePeriod_ReturnsBadRequest()
     {
         // Arrange
-        var feeConfigId = await SeedFeeConfigAsync();
+        var feeConfig = TestData.FeeConfigsList[0];
+        await SeedAsync(feeConfig);
 
-        var request = CreateValidUpdateFeeConfigDto() with
+        var request = TestData.FeeConfigDtoForUpdate with
         {
             EffectiveFrom = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
             EffectiveTo = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync(
-            $"/api/admin/fees/{feeConfigId}",
-            request);
+        var response = await HttpClient.PutAsJsonAsync($"/api/admin/fees/{feeConfig.FeeConfigId}", request);
 
         // Assert
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode);
-    }
-
-    #endregion
-
-    #region Helpers
-
-    private static CreateFeeConfigDto CreateValidFeeConfigDto()
-    {
-        return new CreateFeeConfigDto(
-            "Standard broker fee",
-            FeeType.BrokerCommission,
-            2.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            true);
-    }
-
-    private static UpdateFeeConfigDto CreateValidUpdateFeeConfigDto()
-    {
-        return new UpdateFeeConfigDto(
-            "Standard broker fee",
-            FeeType.BrokerCommission,
-            2.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            true);
-    }
-
-    private async Task<Guid> SeedFeeConfigAsync()
-    {
-        using var scope = _factory.Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<InsuranceDbContext>();
-
-        var fee = new FeeConfig
-        {
-            FeeConfigId = Guid.NewGuid(),
-            Name = "Standard broker fee",
-            FeeType = FeeType.BrokerCommission,
-            Percentage = 2.5000m,
-            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            EffectiveTo = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        dbContext.FeeConfigs.Add(fee);
-
-        await dbContext.SaveChangesAsync();
-
-        return fee.FeeConfigId;
-    }
-
-    private async Task SeedFeeConfigsAsync()
-    {
-        using var scope = _factory.Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<InsuranceDbContext>();
-
-        dbContext.FeeConfigs.AddRange(
-            new FeeConfig
-            {
-                FeeConfigId = Guid.NewGuid(),
-                Name = "Standard broker fee",
-                FeeType = FeeType.BrokerCommission,
-                Percentage = 2.5000m,
-                EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                EffectiveTo = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new FeeConfig
-            {
-                FeeConfigId = Guid.NewGuid(),
-                Name = "Admin fee",
-                FeeType = FeeType.AdminFee,
-                Percentage = 1.0000m,
-                EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                EffectiveTo = null,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            });
-
-        await dbContext.SaveChangesAsync();
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     #endregion

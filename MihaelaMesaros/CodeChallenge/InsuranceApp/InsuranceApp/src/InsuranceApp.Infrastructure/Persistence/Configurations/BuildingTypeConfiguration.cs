@@ -20,10 +20,5 @@ internal sealed class BuildingTypeConfiguration : IEntityTypeConfiguration<Build
             .IsRequired();
 
         builder.HasIndex(x => x.Name).IsUnique();
-
-        builder.HasMany(x => x.Buildings)
-            .WithOne(x => x.BuildingType)
-            .HasForeignKey(x => x.BuildingTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
