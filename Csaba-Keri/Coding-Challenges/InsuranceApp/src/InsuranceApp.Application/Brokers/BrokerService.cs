@@ -10,34 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace InsuranceApp.Application.Brokers;
 
-public class BrokerService : IBrokerService
+public class BrokerService(
+    IBrokerRepository brokerRepository,
+    IValidator<CreateBrokerCommand> createValidator,
+    IValidator<UpdateBrokerCommand> updateValidator,
+    IValidator<PageQuery> pageValidator,
+    ILogger<BrokerService> logger
+) : IBrokerService
 {
-    private readonly IBrokerRepository _brokerRepository;
-    private readonly IValidator<CreateBrokerCommand> _createValidator;
-    private readonly IValidator<UpdateBrokerCommand> _updateValidator;
-    private readonly IValidator<PageQuery> _pageValidator;
-    private readonly ILogger<BrokerService> _logger;
-
-    public BrokerService(
-        IBrokerRepository brokerRepository,
-        IValidator<CreateBrokerCommand> createValidator,
-        IValidator<UpdateBrokerCommand> updateValidator,
-        IValidator<PageQuery> pageValidator,
-        ILogger<BrokerService> logger
-    )
-    {
-        ArgumentNullException.ThrowIfNull(brokerRepository);
-        ArgumentNullException.ThrowIfNull(createValidator);
-        ArgumentNullException.ThrowIfNull(updateValidator);
-        ArgumentNullException.ThrowIfNull(pageValidator);
-        ArgumentNullException.ThrowIfNull(logger);
-        
-        _brokerRepository = brokerRepository;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
-        _pageValidator = pageValidator;
-        _logger = logger;
-    }
+    private readonly IBrokerRepository _brokerRepository = brokerRepository;
+    private readonly IValidator<CreateBrokerCommand> _createValidator = createValidator;
+    private readonly IValidator<UpdateBrokerCommand> _updateValidator = updateValidator;
+    private readonly IValidator<PageQuery> _pageValidator = pageValidator;
+    private readonly ILogger<BrokerService> _logger = logger;
 
     public async Task<BrokerResult> GetBrokerByIdAsync(Guid brokerId, CancellationToken cancellationToken)
     {

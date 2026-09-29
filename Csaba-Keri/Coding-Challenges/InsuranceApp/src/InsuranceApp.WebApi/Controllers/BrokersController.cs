@@ -9,16 +9,9 @@ namespace InsuranceApp.WebApi.Controllers;
 [ApiController]
 [Route("api/admin/brokers")]
 [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-public class BrokersController : ControllerBase
+public class BrokersController(IBrokerService brokerService) : ControllerBase
 {
-    private readonly IBrokerService _brokerService;
-
-    public BrokersController(IBrokerService brokerService)
-    {
-        ArgumentNullException.ThrowIfNull(brokerService);
-        
-        _brokerService = brokerService;
-    }
+    private readonly IBrokerService _brokerService = brokerService;
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]

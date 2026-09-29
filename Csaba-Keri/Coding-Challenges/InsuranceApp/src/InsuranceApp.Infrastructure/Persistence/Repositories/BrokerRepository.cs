@@ -9,16 +9,9 @@ using Npgsql;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
-public class BrokerRepository : IBrokerRepository
+public class BrokerRepository(InsuranceDbContext context) : IBrokerRepository
 {
-    private readonly InsuranceDbContext _context;
-
-    public BrokerRepository(InsuranceDbContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        _context = context;
-    }
+    private readonly InsuranceDbContext _context = context;
 
     public async Task<Broker?> GetBrokerByIdAsync(Guid brokerId, CancellationToken cancellationToken)
     {
