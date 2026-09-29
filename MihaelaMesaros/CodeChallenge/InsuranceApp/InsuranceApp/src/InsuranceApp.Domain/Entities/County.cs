@@ -2,9 +2,10 @@
 {
     public sealed class County
     {
-        public Guid CountyId { get; set; }
+        public int CountyId { get; set; }
         public required string Name { get; set; }
-        public Guid CountryId { get; set; }
+        public int CountryId { get; set; }
         public Country Country { get; set; } = null!;
+        public ICollection<City> Cities { get; set; } = [];
     }
 }

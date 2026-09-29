@@ -1,13 +1,15 @@
-﻿namespace InsuranceApp.Application.DTOs.Building;
+﻿using InsuranceApp.Domain.Enums;
+
+namespace InsuranceApp.Application.DTOs.Building;
 
 public sealed record BuildingDto(
-    Guid BuildingId,
-    Guid ClientId,
+    int BuildingId,
+    int ClientId,
     string AddressStreet,
     string AddressStreetNumber,
-    Guid CityId,
+    int CityId,
     int ConstructionYear,
-    Guid BuildingTypeId,
+    BuildingType BuildingType,
     int NumberOfFloors,
     decimal SurfaceArea,
     decimal InsuredValue,

@@ -14,7 +14,6 @@ namespace InsuranceApp.Api.Controllers.Broker;
 [Route("api/brokers/clients")]
 public sealed class ClientsController(IClientService clientService) : ControllerBase
 {
-    private const string GetClientByIdRouteName = "GetClientById";
 
     /// <summary>
     /// Searches for clients based on the provided search criteria.
@@ -40,10 +39,10 @@ public sealed class ClientsController(IClientService clientService) : Controller
     /// <summary>
     /// Gets a client by identifier.
     /// </summary>
-    [HttpGet("{clientId:guid}", Name = GetClientByIdRouteName)]
+    [HttpGet("{clientId:int}")]
     [ProducesResponseType(typeof(ClientDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ClientDto>> GetClientByIdAsync(Guid clientId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ClientDto>> GetClientByIdAsync(int clientId, CancellationToken cancellationToken)
     {
         var result = await clientService.GetClientByIdAsync(clientId, cancellationToken);
 
@@ -74,7 +73,7 @@ public sealed class ClientsController(IClientService clientService) : Controller
             return result.Error!.ToProblemResult();
         }
 
-        return CreatedAtRoute(GetClientByIdRouteName, new { clientId = result.Value!.ClientId }, result.Value);
+        return StatusCode(StatusCodes.Status201Created, result.Value);
     }
 
     /// <summary>
@@ -84,11 +83,11 @@ public sealed class ClientsController(IClientService clientService) : Controller
     /// <param name="request">The client update request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated client.</returns>
-    [HttpPut("{clientId:guid}")]
+    [HttpPut("{clientId:int}")]
     [ProducesResponseType(typeof(ClientDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ClientDto>> UpdateClientAsync(Guid clientId, UpdateClientDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ClientDto>> UpdateClientAsync(int clientId, UpdateClientDto request, CancellationToken cancellationToken)
     {
         var result = await clientService.UpdateClientAsync(clientId, request, cancellationToken);
 

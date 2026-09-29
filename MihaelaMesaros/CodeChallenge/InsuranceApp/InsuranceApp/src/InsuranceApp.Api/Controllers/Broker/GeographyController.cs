@@ -30,10 +30,10 @@ public sealed class GeographyController(IGeographyService geographyService) : Co
     /// </summary>
     /// <param name="countryId">The country identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    [HttpGet("countries/{countryId:guid}/counties")]
+    [HttpGet("countries/{countryId:int}/counties")]
     [ProducesResponseType(typeof(IReadOnlyList<CountyDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<CountyDto>>> GetCountiesAsync(Guid countryId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<CountyDto>>> GetCountiesAsync(int countryId, CancellationToken cancellationToken)
     {
         var countiesResult = await geographyService.GetCountiesByCountryAsync(countryId, cancellationToken);
 
@@ -50,10 +50,10 @@ public sealed class GeographyController(IGeographyService geographyService) : Co
     /// </summary>
     /// <param name="countyId">The county identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    [HttpGet("counties/{countyId:guid}/cities")]
+    [HttpGet("counties/{countyId:int}/cities")]
     [ProducesResponseType(typeof(IReadOnlyList<CityDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<CityDto>>> GetCitiesAsync(Guid countyId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<CityDto>>> GetCitiesAsync(int countyId, CancellationToken cancellationToken)
     {
         var citiesResult = await geographyService.GetCitiesByCountyAsync(countyId, cancellationToken);
 

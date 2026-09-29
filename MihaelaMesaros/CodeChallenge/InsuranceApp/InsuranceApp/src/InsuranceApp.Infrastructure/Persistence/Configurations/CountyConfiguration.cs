@@ -17,7 +17,7 @@ internal sealed class CountyConfiguration : IEntityTypeConfiguration<County>
             .IsRequired();
 
         builder.HasOne(x => x.Country)
-            .WithMany()
+            .WithMany(x => x.Counties)
             .HasForeignKey(x => x.CountryId)
             .OnDelete(DeleteBehavior.Restrict);
 
