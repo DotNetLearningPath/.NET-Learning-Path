@@ -50,8 +50,6 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         DbContext.Brokers.RemoveRange(DbContext.Brokers);
 
         await DbContext.SaveChangesAsync();
-
-        DbContext.ChangeTracker.Clear();
     }
 
     protected async Task SeedAsync<TEntity>(TEntity entity) where TEntity : class
@@ -59,8 +57,6 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         DbContext.Set<TEntity>().Add(entity);
 
         await DbContext.SaveChangesAsync();
-
-        DbContext.ChangeTracker.Clear();
     }
 
     protected async Task SeedAsync<TEntity>(List<TEntity> entities) where TEntity : class
@@ -68,8 +64,6 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         DbContext.Set<TEntity>().AddRange(entities);
 
         await DbContext.SaveChangesAsync();
-
-        DbContext.ChangeTracker.Clear();
     }
 
     protected async Task SeedBuildingDependenciesAsync()
