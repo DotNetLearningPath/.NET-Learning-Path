@@ -2,6 +2,7 @@
 using InsuranceApp.Application.Brokers.Exceptions;
 using InsuranceApp.Application.Clients.Exceptions;
 using InsuranceApp.Application.Common.Exceptions;
+using InsuranceApp.Application.Currencies.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace InsuranceApp.WebApi.Errors;
@@ -59,6 +60,9 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             DuplicateBrokerCodeException =>
                 (StatusCodes.Status409Conflict, "Broker already exists."),
+
+            DuplicateCurrencyCodeException =>
+                (StatusCodes.Status409Conflict, "Currency already exists."),
 
             _ =>
                 (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")

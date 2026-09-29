@@ -7,6 +7,8 @@ using InsuranceApp.Application.Clients.Commands;
 using InsuranceApp.Application.Clients.Queries;
 using InsuranceApp.Application.Clients.Results;
 using InsuranceApp.Application.Common.Pagination;
+using InsuranceApp.Application.Currencies.Commands;
+using InsuranceApp.Application.Currencies.Results;
 using InsuranceApp.Application.Geography.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
@@ -15,6 +17,7 @@ using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
 using InsuranceApp.WebApi.Models.Common;
+using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Geography;
 
 namespace InsuranceApp.WebApi.Mappings;
@@ -168,6 +171,26 @@ internal static class ApiMappings
         );
     }
 
+    public static CreateCurrencyCommand ToCommand(this CreateCurrencyRequest request)
+    {
+        return new(
+            Code: request.Code,
+            Name: request.Name,
+            ExchangeRateToBase: request.ExchangeRateToBase!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateCurrencyCommand ToCommand(this UpdateCurrencyRequest request, Guid currencyId)
+    {
+        return new(
+            CurrencyId: currencyId,
+            Name: request.Name,
+            ExchangeRateToBase: request.ExchangeRateToBase!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
     public static PageQuery ToQuery(this PageRequest request)
     {
         return new(
@@ -279,6 +302,17 @@ internal static class ApiMappings
             Email: result.Email,
             Phone: result.Phone,
             Status: result.Status.ToDto()
+        );
+    }
+
+    public static CurrencyResponse ToResponse(this CurrencyResult result)
+    {
+        return new(
+            Id: result.Id,
+            Code: result.Code,
+            Name: result.Name,
+            ExchangeRateToBase: result.ExchangeRateToBase,
+            IsActive: result.IsActive
         );
     }
 
