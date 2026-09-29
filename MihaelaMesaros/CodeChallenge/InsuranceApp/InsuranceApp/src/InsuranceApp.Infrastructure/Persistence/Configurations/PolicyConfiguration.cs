@@ -44,17 +44,17 @@ internal sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .IsRequired();
 
         builder.HasOne(x => x.Client)
-            .WithMany(x => x.Policies)
+            .WithMany()
             .HasForeignKey(x => x.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Broker)
-            .WithMany(x => x.Policies)
+            .WithMany()
             .HasForeignKey(x => x.BrokerId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Currency)
-            .WithMany(x => x.Policies)
+            .WithMany()
             .HasForeignKey(x => x.CurrencyId)
             .OnDelete(DeleteBehavior.Restrict);
 
