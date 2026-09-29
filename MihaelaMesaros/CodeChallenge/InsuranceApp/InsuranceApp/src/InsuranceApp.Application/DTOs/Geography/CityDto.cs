@@ -1,3 +1,3 @@
 ﻿namespace InsuranceApp.Application.DTOs.Geography;
 
-public sealed record CityDto(int CityId, string Name);
+public sealed record CityDto(Guid CityId, string Name);

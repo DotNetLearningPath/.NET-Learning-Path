@@ -14,12 +14,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 
 // Configure log file paths
-string logFolder = builder.Configuration["LoggingSettings:LogFolder"] ?? throw new InvalidOperationException("LoggingSettings > LogFolder is not configured.");
-string logFileNameInfo = builder.Configuration["LoggingSettings:LogFileNameInfo"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameInfo is not configured.");
-string logFileNameError = builder.Configuration["LoggingSettings:LogFileNameError"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameError is not configured.");
+var logFolder = builder.Configuration["LoggingSettings:LogFolder"] ?? throw new InvalidOperationException("LoggingSettings > LogFolder is not configured.");
+var logFileNameInfo = builder.Configuration["LoggingSettings:LogFileNameInfo"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameInfo is not configured.");
+var logFileNameError = builder.Configuration["LoggingSettings:LogFileNameError"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameError is not configured.");
 
-string logPathInfo = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameInfo);
-string logPathError = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameError);
+var logPathInfo = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameInfo);
+var logPathError = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameError);
 
 
 builder.Host.UseSerilog((context, configuration) =>
@@ -62,7 +62,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
 {
     var httpsUrl = app.Urls.FirstOrDefault(url => url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 
-    Console.WriteLine($"Base URL: {httpsUrl}");
+    Console.WriteLine($"Application started: {httpsUrl}");
 });
 
 app.UseExceptionHandler();
