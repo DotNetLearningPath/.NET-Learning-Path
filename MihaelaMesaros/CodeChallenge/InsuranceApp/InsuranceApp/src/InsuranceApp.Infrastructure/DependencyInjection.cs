@@ -31,6 +31,12 @@ public static class DependencyInjection
 
         services.AddScoped<IBuildingRepository, BuildingRepository>();
 
+        services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+
+        services.AddScoped<IFeeConfigRepository, FeeConfigRepository>();
+
+        //services.AddScoped<IRiskFactorConfigRepository, RiskFactorConfigRepository>();
+
         return services;
     }
 }

@@ -42,35 +42,40 @@ public sealed class BuildingServiceTests
         var building = CreateBuildingEntity();
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingByIdAsync(building.BuildingId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingByIdAsync(
+                building.BuildingId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(building);
 
         // Act
-        var result = await _service.GetBuildingByIdAsync(building.BuildingId, CancellationToken.None);
+        var result = await _service.GetBuildingByIdAsync(
+            building.BuildingId,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
+
         Assert.Equal(building.BuildingId, result.Value.BuildingId);
         Assert.Equal(building.ClientId, result.Value.ClientId);
         Assert.Equal(building.CityId, result.Value.CityId);
+        Assert.Equal(building.BuildingTypeId, result.Value.BuildingTypeId);
         Assert.Equal(building.AddressStreet, result.Value.AddressStreet);
         Assert.Equal(building.AddressStreetNumber, result.Value.AddressStreetNumber);
         Assert.Equal(building.ConstructionYear, result.Value.ConstructionYear);
-        Assert.Equal(building.BuildingType, result.Value.BuildingType);
         Assert.Equal(building.NumberOfFloors, result.Value.NumberOfFloors);
         Assert.Equal(building.SurfaceArea, result.Value.SurfaceArea);
         Assert.Equal(building.InsuredValue, result.Value.InsuredValue);
         Assert.Equal(building.RiskIndicators, result.Value.RiskIndicators);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task GetBuildingByIdAsync_InvalidBuildingId_ReturnsValidationError(int buildingId)
+    [Fact]
+    public async Task GetBuildingByIdAsync_EmptyBuildingId_ReturnsValidationError()
     {
         // Act
-        var result = await _service.GetBuildingByIdAsync(buildingId, CancellationToken.None);
+        var result = await _service.GetBuildingByIdAsync(
+            Guid.Empty,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -79,7 +84,9 @@ public sealed class BuildingServiceTests
         Assert.Equal(BuildingErrors.InvalidBuildingId.Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetBuildingByIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -87,14 +94,18 @@ public sealed class BuildingServiceTests
     public async Task GetBuildingByIdAsync_NonExistingBuilding_ReturnsNotFound()
     {
         // Arrange
-        const int buildingId = TestConstants.NonExistingId;
+        var buildingId = TestConstants.NonExistingId;
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingByIdAsync(buildingId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingByIdAsync(
+                buildingId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((Building?)null);
 
         // Act
-        var result = await _service.GetBuildingByIdAsync(buildingId, CancellationToken.None);
+        var result = await _service.GetBuildingByIdAsync(
+            buildingId,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -105,38 +116,45 @@ public sealed class BuildingServiceTests
 
     #endregion
 
-
     #region Get Buildings By Client Tests
 
     [Fact]
     public async Task GetBuildingsByClientAsync_ExistingClient_ReturnsBuildings()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
 
         var buildings = new List<Building>
         {
-            CreateBuildingEntity(1, clientId),
-            CreateBuildingEntity(2, clientId)
+            CreateBuildingEntity(clientId: clientId),
+            CreateBuildingEntity(clientId: clientId)
         };
 
         SetupExistingClient(clientId);
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingsByClientAsync(clientId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingsByClientAsync(
+                clientId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(buildings);
 
         // Act
-        var result = await _service.GetBuildingsByClientAsync(clientId, CancellationToken.None);
+        var result = await _service.GetBuildingsByClientAsync(
+            clientId,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
         Assert.Equal(2, result.Value.Count);
-        Assert.All(result.Value, building => Assert.Equal(clientId, building.ClientId));
+        Assert.All(
+            result.Value,
+            building => Assert.Equal(clientId, building.ClientId));
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingsByClientAsync(clientId, It.IsAny<CancellationToken>()),
+            x => x.GetBuildingsByClientAsync(
+                clientId,
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -144,16 +162,20 @@ public sealed class BuildingServiceTests
     public async Task GetBuildingsByClientAsync_ClientWithoutBuildings_ReturnsEmptyList()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
 
         SetupExistingClient(clientId);
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingsByClientAsync(clientId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingsByClientAsync(
+                clientId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         // Act
-        var result = await _service.GetBuildingsByClientAsync(clientId, CancellationToken.None);
+        var result = await _service.GetBuildingsByClientAsync(
+            clientId,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -161,13 +183,13 @@ public sealed class BuildingServiceTests
         Assert.Empty(result.Value);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task GetBuildingsByClientAsync_InvalidClientId_ReturnsValidationError(int clientId)
+    [Fact]
+    public async Task GetBuildingsByClientAsync_EmptyClientId_ReturnsValidationError()
     {
         // Act
-        var result = await _service.GetBuildingsByClientAsync(clientId, CancellationToken.None);
+        var result = await _service.GetBuildingsByClientAsync(
+            Guid.Empty,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -176,11 +198,15 @@ public sealed class BuildingServiceTests
         Assert.Equal(BuildingErrors.InvalidClientId.Code, result.Error.Code);
 
         _clientRepositoryMock.Verify(
-            x => x.GetClientByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetClientByIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingsByClientAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetBuildingsByClientAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -188,14 +214,18 @@ public sealed class BuildingServiceTests
     public async Task GetBuildingsByClientAsync_NonExistingClient_ReturnsNotFound()
     {
         // Arrange
-        const int clientId = TestConstants.NonExistingId;
+        var clientId = TestConstants.NonExistingId;
 
         _clientRepositoryMock
-            .Setup(x => x.GetClientByIdAsync(clientId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetClientByIdAsync(
+                clientId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((Client?)null);
 
         // Act
-        var result = await _service.GetBuildingsByClientAsync(clientId, CancellationToken.None);
+        var result = await _service.GetBuildingsByClientAsync(
+            clientId,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -204,12 +234,13 @@ public sealed class BuildingServiceTests
         Assert.Equal(ClientErrors.NotFound(clientId).Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingsByClientAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetBuildingsByClientAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     #endregion
-
 
     #region Create Building Tests
 
@@ -217,14 +248,18 @@ public sealed class BuildingServiceTests
     public async Task CreateBuildingForClientAsync_ValidBuilding_ReturnsSuccess()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
         var dto = CreateValidBuildingDto();
 
         SetupExistingClient(clientId);
         SetupExistingCity(dto.CityId);
+        SetupExistingBuildingType(dto.BuildingTypeId);
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -232,10 +267,10 @@ public sealed class BuildingServiceTests
 
         Assert.Equal(clientId, result.Value.ClientId);
         Assert.Equal(dto.CityId, result.Value.CityId);
+        Assert.Equal(dto.BuildingTypeId, result.Value.BuildingTypeId);
         Assert.Equal(dto.AddressStreet, result.Value.AddressStreet);
         Assert.Equal(dto.AddressStreetNumber, result.Value.AddressStreetNumber);
         Assert.Equal(dto.ConstructionYear, result.Value.ConstructionYear);
-        Assert.Equal(dto.BuildingType, result.Value.BuildingType);
         Assert.Equal(dto.NumberOfFloors, result.Value.NumberOfFloors);
         Assert.Equal(dto.SurfaceArea, result.Value.SurfaceArea);
         Assert.Equal(dto.InsuredValue, result.Value.InsuredValue);
@@ -246,25 +281,26 @@ public sealed class BuildingServiceTests
                 It.Is<Building>(building =>
                     building.ClientId == clientId &&
                     building.CityId == dto.CityId &&
+                    building.BuildingTypeId == dto.BuildingTypeId &&
                     building.AddressStreet == dto.AddressStreet &&
                     building.AddressStreetNumber == dto.AddressStreetNumber &&
-                    building.BuildingType == dto.BuildingType &&
                     building.SurfaceArea == dto.SurfaceArea &&
                     building.InsuredValue == dto.InsuredValue),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task CreateBuildingForClientAsync_InvalidClientId_ReturnsValidationError(int clientId)
+    [Fact]
+    public async Task CreateBuildingForClientAsync_EmptyClientId_ReturnsValidationError()
     {
         // Arrange
         var dto = CreateValidBuildingDto();
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            Guid.Empty,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -273,11 +309,15 @@ public sealed class BuildingServiceTests
         Assert.Equal(BuildingErrors.InvalidClientId.Code, result.Error.Code);
 
         _clientRepositoryMock.Verify(
-            x => x.GetClientByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetClientByIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.AddBuildingAsync(It.IsAny<Building>(), It.IsAny<CancellationToken>()),
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -285,61 +325,79 @@ public sealed class BuildingServiceTests
     public async Task CreateBuildingForClientAsync_NonExistingClient_ReturnsNotFound()
     {
         // Arrange
-        const int clientId = TestConstants.NonExistingId;
+        var clientId = TestConstants.NonExistingId;
         var dto = CreateValidBuildingDto();
 
         _clientRepositoryMock
-            .Setup(x => x.GetClientByIdAsync(clientId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetClientByIdAsync(
+                clientId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((Client?)null);
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.NotFound, result.Error.Type);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
         Assert.Equal(ClientErrors.NotFound(clientId).Code, result.Error.Code);
 
         _geographyRepositoryMock.Verify(
-            x => x.CityExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.CityExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.AddBuildingAsync(It.IsAny<Building>(), It.IsAny<CancellationToken>()),
+            x => x.BuildingTypeExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _buildingRepositoryMock.Verify(
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task CreateBuildingForClientAsync_InvalidCityId_ReturnsValidationError(int cityId)
+    [Fact]
+    public async Task CreateBuildingForClientAsync_EmptyCityId_ReturnsValidationError()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
 
         var dto = CreateValidBuildingDto() with
         {
-            CityId = cityId
+            CityId = Guid.Empty
         };
 
         SetupExistingClient(clientId);
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
         Assert.Equal(BuildingErrors.InvalidCityId.Code, result.Error.Code);
 
         _geographyRepositoryMock.Verify(
-            x => x.CityExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.CityExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.AddBuildingAsync(It.IsAny<Building>(), It.IsAny<CancellationToken>()),
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -347,35 +405,122 @@ public sealed class BuildingServiceTests
     public async Task CreateBuildingForClientAsync_NonExistingCity_ReturnsNotFound()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
         var dto = CreateValidBuildingDto();
 
         SetupExistingClient(clientId);
 
         _geographyRepositoryMock
-            .Setup(x => x.CityExistsAsync(dto.CityId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CityExistsAsync(
+                dto.CityId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.NotFound, result.Error.Type);
-        Assert.Equal(BuildingErrors.CityNotFound(dto.CityId).Code, result.Error.Code);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
+        Assert.Equal(
+            BuildingErrors.CityNotFound(dto.CityId).Code,
+            result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.AddBuildingAsync(It.IsAny<Building>(), It.IsAny<CancellationToken>()),
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateBuildingForClientAsync_EmptyBuildingTypeId_ReturnsValidationError()
+    {
+        // Arrange
+        var clientId = Guid.NewGuid();
+
+        var dto = CreateValidBuildingDto() with
+        {
+            BuildingTypeId = Guid.Empty
+        };
+
+        SetupExistingClient(clientId);
+        SetupExistingCity(dto.CityId);
+
+        // Act
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal(BuildingErrors.InvalidBuildingType.Code, result.Error.Code);
+
+        _buildingRepositoryMock.Verify(
+            x => x.BuildingTypeExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _buildingRepositoryMock.Verify(
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateBuildingForClientAsync_NonExistingBuildingType_ReturnsNotFound()
+    {
+        // Arrange
+        var clientId = Guid.NewGuid();
+        var dto = CreateValidBuildingDto();
+
+        SetupExistingClient(clientId);
+        SetupExistingCity(dto.CityId);
+
+        _buildingRepositoryMock
+            .Setup(x => x.BuildingTypeExistsAsync(
+                dto.BuildingTypeId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
+        Assert.Equal(
+            BuildingErrors.BuildingTypeNotFound(dto.BuildingTypeId).Code,
+            result.Error.Code);
+
+        _buildingRepositoryMock.Verify(
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Fact]
     public async Task CreateBuildingForClientAsync_MissingStreet_ReturnsValidationError()
     {
-        var dto = CreateValidBuildingDto() with { AddressStreet = "" };
+        var dto = CreateValidBuildingDto() with
+        {
+            AddressStreet = ""
+        };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.AddressStreetRequired);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.AddressStreetRequired);
     }
 
     [Fact]
@@ -383,18 +528,26 @@ public sealed class BuildingServiceTests
     {
         var dto = CreateValidBuildingDto() with
         {
-            AddressStreet = new string('A', BuildingConstraints.AddressStreetMaxLength + 1)
+            AddressStreet =
+                new string('A', BuildingConstraints.AddressStreetMaxLength + 1)
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidAddressStreetLength);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidAddressStreetLength);
     }
 
     [Fact]
     public async Task CreateBuildingForClientAsync_MissingStreetNumber_ReturnsValidationError()
     {
-        var dto = CreateValidBuildingDto() with { AddressStreetNumber = "" };
+        var dto = CreateValidBuildingDto() with
+        {
+            AddressStreetNumber = ""
+        };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.AddressStreetNumberRequired);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.AddressStreetNumberRequired);
     }
 
     [Fact]
@@ -402,10 +555,13 @@ public sealed class BuildingServiceTests
     {
         var dto = CreateValidBuildingDto() with
         {
-            AddressStreetNumber = new string('1', BuildingConstraints.AddressStreetNumberMaxLength + 1)
+            AddressStreetNumber =
+                new string('1', BuildingConstraints.AddressStreetNumberMaxLength + 1)
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidAddressStreetNumberLength);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidAddressStreetNumberLength);
     }
 
     [Fact]
@@ -416,7 +572,9 @@ public sealed class BuildingServiceTests
             ConstructionYear = BuildingConstraints.MinConstructionYear - 1
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidConstructionYear);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidConstructionYear);
     }
 
     [Fact]
@@ -427,15 +585,9 @@ public sealed class BuildingServiceTests
             ConstructionYear = DateTime.UtcNow.Year + 1
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidConstructionYear);
-    }
-
-    [Fact]
-    public async Task CreateBuildingForClientAsync_InvalidBuildingType_ReturnsValidationError()
-    {
-        var dto = CreateValidBuildingDto() with { BuildingType = (BuildingType)TestConstants.NonExistingId };
-
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidBuildingType);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidConstructionYear);
     }
 
     [Fact]
@@ -446,7 +598,9 @@ public sealed class BuildingServiceTests
             NumberOfFloors = BuildingConstraints.MinNumberOfFloors - 1
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidNumberOfFloors);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidNumberOfFloors);
     }
 
     [Fact]
@@ -457,7 +611,9 @@ public sealed class BuildingServiceTests
             NumberOfFloors = BuildingConstraints.MaxNumberOfFloors + 1
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidNumberOfFloors);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidNumberOfFloors);
     }
 
     [Fact]
@@ -468,7 +624,9 @@ public sealed class BuildingServiceTests
             SurfaceArea = BuildingConstraints.MinSurfaceArea - 0.01m
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidSurfaceArea);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidSurfaceArea);
     }
 
     [Fact]
@@ -479,15 +637,22 @@ public sealed class BuildingServiceTests
             SurfaceArea = BuildingConstraints.MaxSurfaceArea + 0.01m
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidSurfaceArea);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidSurfaceArea);
     }
 
     [Fact]
     public async Task CreateBuildingForClientAsync_SurfaceAreaWithTooManyDecimals_ReturnsValidationError()
     {
-        var dto = CreateValidBuildingDto() with { SurfaceArea = 123.456m };
+        var dto = CreateValidBuildingDto() with
+        {
+            SurfaceArea = 123.456m
+        };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidSurfaceAreaScale);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidSurfaceAreaScale);
     }
 
     [Fact]
@@ -498,7 +663,9 @@ public sealed class BuildingServiceTests
             InsuredValue = BuildingConstraints.MinInsuredValue - 0.01m
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidInsuredValue);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidInsuredValue);
     }
 
     [Fact]
@@ -509,15 +676,22 @@ public sealed class BuildingServiceTests
             InsuredValue = BuildingConstraints.MaxInsuredValue + 0.01m
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidInsuredValue);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidInsuredValue);
     }
 
     [Fact]
     public async Task CreateBuildingForClientAsync_InsuredValueWithTooManyDecimals_ReturnsValidationError()
     {
-        var dto = CreateValidBuildingDto() with { InsuredValue = 1000.999m };
+        var dto = CreateValidBuildingDto() with
+        {
+            InsuredValue = 1000.999m
+        };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidInsuredValueScale);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidInsuredValueScale);
     }
 
     [Fact]
@@ -525,17 +699,20 @@ public sealed class BuildingServiceTests
     {
         var dto = CreateValidBuildingDto() with
         {
-            RiskIndicators = new string('A', BuildingConstraints.RiskIndicatorsMaxLength + 1)
+            RiskIndicators =
+                new string('A', BuildingConstraints.RiskIndicatorsMaxLength + 1)
         };
 
-        await AssertInvalidCreateAsync(dto, BuildingErrors.InvalidRiskIndicatorsLength);
+        await AssertInvalidCreateAsync(
+            dto,
+            BuildingErrors.InvalidRiskIndicatorsLength);
     }
 
     [Fact]
     public async Task CreateBuildingForClientAsync_ValidBuilding_TrimsTextValues()
     {
         // Arrange
-        const int clientId = 1;
+        var clientId = Guid.NewGuid();
 
         var dto = CreateValidBuildingDto() with
         {
@@ -546,9 +723,13 @@ public sealed class BuildingServiceTests
 
         SetupExistingClient(clientId);
         SetupExistingCity(dto.CityId);
+        SetupExistingBuildingType(dto.BuildingTypeId);
 
         // Act
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -559,7 +740,6 @@ public sealed class BuildingServiceTests
     }
 
     #endregion
-
 
     #region Update Building Tests
 
@@ -572,13 +752,19 @@ public sealed class BuildingServiceTests
         var dto = CreateValidUpdateBuildingDto();
 
         SetupExistingCity(dto.CityId);
+        SetupExistingBuildingType(dto.BuildingTypeId);
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingForUpdateAsync(building.BuildingId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingForUpdateAsync(
+                building.BuildingId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(building);
 
         // Act
-        var result = await _service.UpdateBuildingAsync(building.BuildingId, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            building.BuildingId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -586,10 +772,10 @@ public sealed class BuildingServiceTests
 
         Assert.Equal(originalClientId, result.Value.ClientId);
         Assert.Equal(dto.CityId, result.Value.CityId);
+        Assert.Equal(dto.BuildingTypeId, result.Value.BuildingTypeId);
         Assert.Equal(dto.AddressStreet, result.Value.AddressStreet);
         Assert.Equal(dto.AddressStreetNumber, result.Value.AddressStreetNumber);
         Assert.Equal(dto.ConstructionYear, result.Value.ConstructionYear);
-        Assert.Equal(dto.BuildingType, result.Value.BuildingType);
         Assert.Equal(dto.NumberOfFloors, result.Value.NumberOfFloors);
         Assert.Equal(dto.SurfaceArea, result.Value.SurfaceArea);
         Assert.Equal(dto.InsuredValue, result.Value.InsuredValue);
@@ -598,29 +784,32 @@ public sealed class BuildingServiceTests
         Assert.NotNull(building.ModifiedAt);
 
         _buildingRepositoryMock.Verify(
-            x => x.SaveBuildingChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task UpdateBuildingAsync_InvalidBuildingId_ReturnsValidationError(int buildingId)
+    [Fact]
+    public async Task UpdateBuildingAsync_EmptyBuildingId_ReturnsValidationError()
     {
         // Arrange
         var dto = CreateValidUpdateBuildingDto();
 
         // Act
-        var result = await _service.UpdateBuildingAsync(buildingId, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            Guid.Empty,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
         Assert.Equal(BuildingErrors.InvalidBuildingId.Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingForUpdateAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.GetBuildingForUpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -628,52 +817,64 @@ public sealed class BuildingServiceTests
     public async Task UpdateBuildingAsync_NonExistingBuilding_ReturnsNotFound()
     {
         // Arrange
-        const int buildingId = TestConstants.NonExistingId;
+        var buildingId = TestConstants.NonExistingId;
         var dto = CreateValidUpdateBuildingDto();
 
         SetupExistingCity(dto.CityId);
+        SetupExistingBuildingType(dto.BuildingTypeId);
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingForUpdateAsync(buildingId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingForUpdateAsync(
+                buildingId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((Building?)null);
 
         // Act
-        var result = await _service.UpdateBuildingAsync(buildingId, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            buildingId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.NotFound, result.Error.Type);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
         Assert.Equal(BuildingErrors.NotFound(buildingId).Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.SaveBuildingChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task UpdateBuildingAsync_InvalidCityId_ReturnsValidationError(int cityId)
+    [Fact]
+    public async Task UpdateBuildingAsync_EmptyCityId_ReturnsValidationError()
     {
         // Arrange
-        var dto = CreateValidUpdateBuildingDto() with { CityId = cityId };
+        var dto = CreateValidUpdateBuildingDto() with
+        {
+            CityId = Guid.Empty
+        };
 
         // Act
-        var result = await _service.UpdateBuildingAsync(1, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            Guid.NewGuid(),
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
         Assert.Equal(BuildingErrors.InvalidCityId.Code, result.Error.Code);
 
         _geographyRepositoryMock.Verify(
-            x => x.CityExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.CityExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.SaveBuildingChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -684,57 +885,155 @@ public sealed class BuildingServiceTests
         var dto = CreateValidUpdateBuildingDto();
 
         _geographyRepositoryMock
-            .Setup(x => x.CityExistsAsync(dto.CityId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CityExistsAsync(
+                dto.CityId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         // Act
-        var result = await _service.UpdateBuildingAsync(1, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            Guid.NewGuid(),
+            dto,
+            CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
+        Assert.Equal(
+            BuildingErrors.CityNotFound(dto.CityId).Code,
+            result.Error.Code);
+
+        _buildingRepositoryMock.Verify(
+            x => x.GetBuildingForUpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _buildingRepositoryMock.Verify(
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateBuildingAsync_EmptyBuildingTypeId_ReturnsValidationError()
+    {
+        // Arrange
+        var dto = CreateValidUpdateBuildingDto() with
+        {
+            BuildingTypeId = Guid.Empty
+        };
+
+        SetupExistingCity(dto.CityId);
+
+        // Act
+        var result = await _service.UpdateBuildingAsync(
+            Guid.NewGuid(),
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.NotFound, result.Error.Type);
-        Assert.Equal(BuildingErrors.CityNotFound(dto.CityId).Code, result.Error.Code);
+        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(
+            BuildingErrors.InvalidBuildingType.Code,
+            result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.GetBuildingForUpdateAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.BuildingTypeExistsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _buildingRepositoryMock.Verify(
-            x => x.SaveBuildingChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.GetBuildingForUpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _buildingRepositoryMock.Verify(
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateBuildingAsync_NonExistingBuildingType_ReturnsNotFound()
+    {
+        // Arrange
+        var dto = CreateValidUpdateBuildingDto();
+
+        SetupExistingCity(dto.CityId);
+
+        _buildingRepositoryMock
+            .Setup(x => x.BuildingTypeExistsAsync(
+                dto.BuildingTypeId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _service.UpdateBuildingAsync(
+            Guid.NewGuid(),
+            dto,
+            CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.NotFound, result.Error!.Type);
+        Assert.Equal(
+            BuildingErrors.BuildingTypeNotFound(dto.BuildingTypeId).Code,
+            result.Error.Code);
+
+        _buildingRepositoryMock.Verify(
+            x => x.GetBuildingForUpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _buildingRepositoryMock.Verify(
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Fact]
     public async Task UpdateBuildingAsync_MissingStreet_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateBuildingDto() with { AddressStreet = "" };
+        var dto = CreateValidUpdateBuildingDto() with
+        {
+            AddressStreet = ""
+        };
 
-        await AssertInvalidUpdateAsync(dto, BuildingErrors.AddressStreetRequired);
-    }
-
-    [Fact]
-    public async Task UpdateBuildingAsync_InvalidBuildingType_ReturnsValidationError()
-    {
-        var dto = CreateValidUpdateBuildingDto() with { BuildingType = (BuildingType)TestConstants.NonExistingId };
-
-        await AssertInvalidUpdateAsync(dto, BuildingErrors.InvalidBuildingType);
+        await AssertInvalidUpdateAsync(
+            dto,
+            BuildingErrors.AddressStreetRequired);
     }
 
     [Fact]
     public async Task UpdateBuildingAsync_SurfaceAreaWithTooManyDecimals_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateBuildingDto() with { SurfaceArea = 123.456m };
+        var dto = CreateValidUpdateBuildingDto() with
+        {
+            SurfaceArea = 123.456m
+        };
 
-        await AssertInvalidUpdateAsync(dto, BuildingErrors.InvalidSurfaceAreaScale);
+        await AssertInvalidUpdateAsync(
+            dto,
+            BuildingErrors.InvalidSurfaceAreaScale);
     }
 
     [Fact]
     public async Task UpdateBuildingAsync_InsuredValueWithTooManyDecimals_ReturnsValidationError()
     {
-        var dto = CreateValidUpdateBuildingDto() with { InsuredValue = 1000.999m };
+        var dto = CreateValidUpdateBuildingDto() with
+        {
+            InsuredValue = 1000.999m
+        };
 
-        await AssertInvalidUpdateAsync(dto, BuildingErrors.InvalidInsuredValueScale);
+        await AssertInvalidUpdateAsync(
+            dto,
+            BuildingErrors.InvalidInsuredValueScale);
     }
 
     [Fact]
@@ -742,10 +1041,13 @@ public sealed class BuildingServiceTests
     {
         var dto = CreateValidUpdateBuildingDto() with
         {
-            RiskIndicators = new string('A', BuildingConstraints.RiskIndicatorsMaxLength + 1)
+            RiskIndicators =
+                new string('A', BuildingConstraints.RiskIndicatorsMaxLength + 1)
         };
 
-        await AssertInvalidUpdateAsync(dto, BuildingErrors.InvalidRiskIndicatorsLength);
+        await AssertInvalidUpdateAsync(
+            dto,
+            BuildingErrors.InvalidRiskIndicatorsLength);
     }
 
     [Fact]
@@ -762,13 +1064,19 @@ public sealed class BuildingServiceTests
         };
 
         SetupExistingCity(dto.CityId);
+        SetupExistingBuildingType(dto.BuildingTypeId);
 
         _buildingRepositoryMock
-            .Setup(x => x.GetBuildingForUpdateAsync(building.BuildingId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetBuildingForUpdateAsync(
+                building.BuildingId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(building);
 
         // Act
-        var result = await _service.UpdateBuildingAsync(building.BuildingId, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            building.BuildingId,
+            dto,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -780,30 +1088,47 @@ public sealed class BuildingServiceTests
 
     #endregion
 
-
     #region Helpers
 
-    private void SetupExistingClient(int clientId)
+    private void SetupExistingClient(Guid clientId)
     {
         _clientRepositoryMock
-            .Setup(x => x.GetClientByIdAsync(clientId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetClientByIdAsync(
+                clientId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateClientEntity(clientId));
     }
 
-    private void SetupExistingCity(int cityId)
+    private void SetupExistingCity(Guid cityId)
     {
         _geographyRepositoryMock
-            .Setup(x => x.CityExistsAsync(cityId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CityExistsAsync(
+                cityId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
     }
 
-    private async Task AssertInvalidCreateAsync(CreateBuildingDto dto, Error expectedError)
+    private void SetupExistingBuildingType(Guid buildingTypeId)
     {
-        const int clientId = 1;
+        _buildingRepositoryMock
+            .Setup(x => x.BuildingTypeExistsAsync(
+                buildingTypeId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+    }
+
+    private async Task AssertInvalidCreateAsync(
+        CreateBuildingDto dto,
+        Error expectedError)
+    {
+        var clientId = Guid.NewGuid();
 
         SetupExistingClient(clientId);
 
-        var result = await _service.CreateBuildingForClientAsync(clientId, dto, CancellationToken.None);
+        var result = await _service.CreateBuildingForClientAsync(
+            clientId,
+            dto,
+            CancellationToken.None);
 
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
@@ -811,13 +1136,20 @@ public sealed class BuildingServiceTests
         Assert.Equal(expectedError.Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.AddBuildingAsync(It.IsAny<Building>(), It.IsAny<CancellationToken>()),
+            x => x.AddBuildingAsync(
+                It.IsAny<Building>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
-    private async Task AssertInvalidUpdateAsync(UpdateBuildingDto dto, Error expectedError)
+    private async Task AssertInvalidUpdateAsync(
+        UpdateBuildingDto dto,
+        Error expectedError)
     {
-        var result = await _service.UpdateBuildingAsync(1, dto, CancellationToken.None);
+        var result = await _service.UpdateBuildingAsync(
+            Guid.NewGuid(),
+            dto,
+            CancellationToken.None);
 
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
@@ -825,17 +1157,18 @@ public sealed class BuildingServiceTests
         Assert.Equal(expectedError.Code, result.Error.Code);
 
         _buildingRepositoryMock.Verify(
-            x => x.SaveBuildingChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveBuildingChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     private static CreateBuildingDto CreateValidBuildingDto()
     {
         return new CreateBuildingDto(
-            BuildingType.Residential,
+            Guid.NewGuid(),
             "Memorandumului",
             "25A",
-            1,
+            Guid.NewGuid(),
             2015,
             4,
             185.50m,
@@ -846,10 +1179,10 @@ public sealed class BuildingServiceTests
     private static UpdateBuildingDto CreateValidUpdateBuildingDto()
     {
         return new UpdateBuildingDto(
-            BuildingType.Office,
+            Guid.NewGuid(),
             "Republicii",
             "10",
-            2,
+            Guid.NewGuid(),
             2020,
             6,
             300.50m,
@@ -857,17 +1190,21 @@ public sealed class BuildingServiceTests
             "Earthquake risk zone");
     }
 
-    private static Building CreateBuildingEntity(int buildingId = 1, int clientId = 1)
+    private static Building CreateBuildingEntity(
+        Guid? buildingId = null,
+        Guid? clientId = null,
+        Guid? cityId = null,
+        Guid? buildingTypeId = null)
     {
         return new Building
         {
-            BuildingId = buildingId,
-            ClientId = clientId,
-            CityId = 1,
+            BuildingId = buildingId ?? Guid.NewGuid(),
+            ClientId = clientId ?? Guid.NewGuid(),
+            CityId = cityId ?? Guid.NewGuid(),
+            BuildingTypeId = buildingTypeId ?? Guid.NewGuid(),
             AddressStreet = "Memorandumului",
             AddressStreetNumber = "25A",
             ConstructionYear = 2015,
-            BuildingType = BuildingType.Residential,
             NumberOfFloors = 4,
             SurfaceArea = 185.50m,
             InsuredValue = 750_000.00m,
@@ -876,11 +1213,11 @@ public sealed class BuildingServiceTests
         };
     }
 
-    private static Client CreateClientEntity(int clientId = 1)
+    private static Client CreateClientEntity(Guid? clientId = null)
     {
         return new Client
         {
-            ClientId = clientId,
+            ClientId = clientId ?? Guid.NewGuid(),
             ClientType = ClientType.Individual,
             Name = "John Doe",
             IdentificationNumber = "1980101223344",

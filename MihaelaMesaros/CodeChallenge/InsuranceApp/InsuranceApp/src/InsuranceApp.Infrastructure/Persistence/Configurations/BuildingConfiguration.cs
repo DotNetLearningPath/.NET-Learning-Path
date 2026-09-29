@@ -19,7 +19,6 @@ internal sealed class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.Property(x => x.AddressStreet).HasMaxLength(BuildingConstraints.AddressStreetMaxLength).IsRequired();
         builder.Property(x => x.AddressStreetNumber).HasMaxLength(BuildingConstraints.AddressStreetNumberMaxLength).IsRequired();
         builder.Property(x => x.ConstructionYear).IsRequired();
-        builder.Property(x => x.BuildingType).IsRequired();
         builder.Property(x => x.NumberOfFloors).IsRequired();
         builder.Property(x => x.SurfaceArea).HasPrecision(18, CommonConstraints.DecimalScale).IsRequired();
         builder.Property(x => x.InsuredValue).HasPrecision(18, CommonConstraints.DecimalScale).IsRequired();
@@ -36,6 +35,11 @@ internal sealed class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.HasOne(x => x.City)
             .WithMany()
             .HasForeignKey(x => x.CityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.BuildingType)
+            .WithMany()
+            .HasForeignKey(x => x.BuildingTypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => x.ClientId);

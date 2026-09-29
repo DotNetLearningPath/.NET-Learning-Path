@@ -3,7 +3,7 @@
 namespace InsuranceApp.Application.DTOs.Client;
 
 public sealed record ClientDto(
-    int ClientId,
+    Guid ClientId,
     ClientType ClientType,
     string Name,
     string IdentificationNumber,
