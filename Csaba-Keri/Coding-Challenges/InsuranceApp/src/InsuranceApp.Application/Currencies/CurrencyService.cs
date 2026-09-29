@@ -10,34 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace InsuranceApp.Application.Currencies;
 
-public class CurrencyService : ICurrencyService
+public class CurrencyService(
+    ICurrencyRepository currencyRepository,
+    IValidator<CreateCurrencyCommand> createValidator,
+    IValidator<UpdateCurrencyCommand> updateValidator,
+    IValidator<PageQuery> pageValidator,
+    ILogger<CurrencyService> logger
+) : ICurrencyService
 {
-    private readonly ICurrencyRepository _currencyRepository;
-    private readonly IValidator<CreateCurrencyCommand> _createValidator;
-    private readonly IValidator<UpdateCurrencyCommand> _updateValidator;
-    private readonly IValidator<PageQuery> _pageValidator;
-    private readonly ILogger<CurrencyService> _logger;
-
-    public CurrencyService(
-        ICurrencyRepository currencyRepository,
-        IValidator<CreateCurrencyCommand> createValidator,
-        IValidator<UpdateCurrencyCommand> updateValidator,
-        IValidator<PageQuery> pageValidator,
-        ILogger<CurrencyService> logger
-    )
-    {
-        ArgumentNullException.ThrowIfNull(currencyRepository);
-        ArgumentNullException.ThrowIfNull(createValidator);
-        ArgumentNullException.ThrowIfNull(updateValidator);
-        ArgumentNullException.ThrowIfNull(pageValidator);
-        ArgumentNullException.ThrowIfNull(logger);
-        
-        _currencyRepository = currencyRepository;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
-        _pageValidator = pageValidator;
-        _logger = logger;
-    }
+    private readonly ICurrencyRepository _currencyRepository = currencyRepository;
+    private readonly IValidator<CreateCurrencyCommand> _createValidator = createValidator;
+    private readonly IValidator<UpdateCurrencyCommand> _updateValidator = updateValidator;
+    private readonly IValidator<PageQuery> _pageValidator = pageValidator;
+    private readonly ILogger<CurrencyService> _logger = logger;
 
     public async Task<CurrencyResult> GetCurrencyByIdAsync(Guid currencyId, CancellationToken cancellationToken)
     {

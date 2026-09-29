@@ -9,16 +9,9 @@ using Npgsql;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
-public class CurrencyRepository : ICurrencyRepository
+public class CurrencyRepository(InsuranceDbContext context) : ICurrencyRepository
 {
-    private readonly InsuranceDbContext _context;
-
-    public CurrencyRepository(InsuranceDbContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        _context = context;
-    }
+    private readonly InsuranceDbContext _context = context;
 
     public async Task<Currency?> GetCurrencyByIdAsync(Guid currencyId, CancellationToken cancellationToken)
     {

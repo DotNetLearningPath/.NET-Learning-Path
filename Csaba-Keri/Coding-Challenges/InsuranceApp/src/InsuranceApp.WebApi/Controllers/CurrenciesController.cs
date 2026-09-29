@@ -9,16 +9,9 @@ namespace InsuranceApp.WebApi.Controllers;
 [ApiController]
 [Route("api/admin/currencies")]
 [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-public class CurrenciesController : ControllerBase
+public class CurrenciesController(ICurrencyService currencyService) : ControllerBase
 {
-    private readonly ICurrencyService _currencyService;
-
-    public CurrenciesController(ICurrencyService currencyService)
-    {
-        ArgumentNullException.ThrowIfNull(currencyService);
-
-        _currencyService = currencyService;
-    }
+    private readonly ICurrencyService _currencyService = currencyService;
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
