@@ -1,12 +1,14 @@
 ﻿using Application.Abstractions;
-using Infrastructure.Persistence;
-using Infrastructure.Repositories;
 using Infrastructure.Seed;
+using Insurance.Application.Abstractions;
+using Insurance.Infrastructure.Persistence;
+using Insurance.Infrastructure.Repositories;
+using Insurance.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure;
+namespace Insurance.Infrastructure;
 
 public static class DependencyInjection
 {

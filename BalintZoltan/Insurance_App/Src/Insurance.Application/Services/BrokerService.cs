@@ -3,9 +3,10 @@ using Application.Abstractions;
 using Application.DTO.Brokers;
 using Application.DTO.Common;
 using Application.Exceptions;
-using Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Domain.Entities;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public sealed class BrokerService : IBrokerService
 {

@@ -1,8 +1,9 @@
 using Application.Abstractions;
 using Application.Services;
-using Infrastructure;
-using Infrastructure.Persistence;
-using Infrastructure.Seed;
+using Insurance.Application.Services;
+using Insurance.Infrastructure;
+using Insurance.Infrastructure.Persistence;
+using Insurance.Infrastructure.Seed;
 using InsuranceApp.Api.Logging;
 using InsuranceApp.Api.Middleware;
 using Microsoft.EntityFrameworkCore;

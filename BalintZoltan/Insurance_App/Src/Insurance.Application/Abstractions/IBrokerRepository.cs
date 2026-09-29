@@ -1,7 +1,7 @@
 using Application.DTO.Common;
-using Domain.Entities;
+using Insurance.Domain.Entities;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IBrokerRepository
 {

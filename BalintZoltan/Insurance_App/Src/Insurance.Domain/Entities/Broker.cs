@@ -1,6 +1,6 @@
 using Domain.Enums;
 
-namespace Domain.Entities;
+namespace Insurance.Domain.Entities;
 
 public class Broker
 {

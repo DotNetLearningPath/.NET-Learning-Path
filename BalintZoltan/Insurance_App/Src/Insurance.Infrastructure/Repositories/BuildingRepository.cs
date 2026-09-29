@@ -2,10 +2,10 @@ using Application.Abstractions;
 using Application.DTO.Common;
 using Domain.Entities;
 using Infrastructure.Extensions;
-using Infrastructure.Persistence;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
+namespace Insurance.Infrastructure.Repositories;
 
 public sealed class BuildingRepository : IBuildingRepository
 {
