@@ -13,6 +13,7 @@ public class InsuranceDbContext(
     public DbSet<CountyEntity> Counties => Set<CountyEntity>();
     public DbSet<CityEntity> Cities => Set<CityEntity>();
     public DbSet<BrokerEntity> Brokers => Set<BrokerEntity>();
+    public DbSet<CurrencyEntity> Currencies => Set<CurrencyEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
