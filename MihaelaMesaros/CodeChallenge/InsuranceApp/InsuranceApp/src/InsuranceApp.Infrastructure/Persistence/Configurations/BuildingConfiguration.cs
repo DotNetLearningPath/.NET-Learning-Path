@@ -38,7 +38,7 @@ internal sealed class BuildingConfiguration : IEntityTypeConfiguration<Building>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.BuildingType)
-            .WithMany(x => x.Buildings)
+            .WithMany()
             .HasForeignKey(x => x.BuildingTypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
