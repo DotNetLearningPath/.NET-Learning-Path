@@ -1,5 +1,4 @@
-﻿using InsuranceApp.Application.Abstractions.Persistence;
-using InsuranceApp.Application.Abstractions.Services;
+﻿using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +13,12 @@ public static class DependencyInjection
         services.AddScoped<IClientService, ClientService>();
 
         services.AddScoped<IBuildingService, BuildingService>();
+
+        services.AddScoped<ICurrencyService, CurrencyService>();
+
+        services.AddScoped<IFeeConfigService, FeeConfigService>();
+
+        //services.AddScoped<IRiskFactorConfigService, RiskFactorConfigService>();
 
         return services;
     }
