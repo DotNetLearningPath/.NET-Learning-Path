@@ -23,6 +23,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IGeographyService, GeographyService>();
+builder.Services.AddScoped<IPremiumCalculationService, PremiumCalculationService>();
 
 var app = builder.Build();
 

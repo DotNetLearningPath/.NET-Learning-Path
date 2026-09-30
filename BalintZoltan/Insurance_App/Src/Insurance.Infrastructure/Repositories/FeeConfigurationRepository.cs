@@ -40,6 +40,42 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
             .OrderByDescending(configuration => configuration.EffectiveFrom)
             .FirstOrDefaultAsync(cancellationToken);
 
+    public async Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
+        DateTime effectiveAt,
+        CancellationToken cancellationToken = default) =>
+        await _dbContext.FeeConfigurations
+            .AsNoTracking()
+            .Where(configuration =>
+                configuration.IsActive
+                && configuration.EffectiveFrom <= effectiveAt
+                && (!configuration.EffectiveTo.HasValue
+                    || configuration.EffectiveTo.Value >= effectiveAt))
+            .OrderBy(configuration => configuration.Type)
+            .ThenBy(configuration => configuration.Name)
+            .ToListAsync(cancellationToken);
+
+    public Task<FeeConfiguration?> GetFeeConfigurationByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        _dbContext.FeeConfigurations
+            .FirstOrDefaultAsync(configuration => configuration.Id == id, cancellationToken);
+
+    public async Task UpdateFeeConfigurationAsync(
+        FeeConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        _dbContext.FeeConfigurations.Update(configuration);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeactivateFeeConfigurationAsync(
+        FeeConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        configuration.Deactivate();
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<PagedResult<FeeConfiguration>> ListFeeConfigurationsAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken = default)

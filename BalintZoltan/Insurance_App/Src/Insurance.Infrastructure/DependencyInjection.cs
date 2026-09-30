@@ -35,7 +35,9 @@ public static class DependencyInjection
                 options.CurrencyFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.CurrencyFile));
                 options.BrokerFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.BrokerFile));
                 options.FeeConfigurationFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.FeeConfigurationFile));
-                options.RiskFactorConfigurationFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.RiskFactorConfigurationFile));
+                options.RiskFactorConfigurationFile = GetRequiredSeedSetting(
+                    seedDataSection,
+                    nameof(SeedDataOptions.RiskFactorConfigurationFile));
             });
 
         services.AddScoped<GeographySeeder>();

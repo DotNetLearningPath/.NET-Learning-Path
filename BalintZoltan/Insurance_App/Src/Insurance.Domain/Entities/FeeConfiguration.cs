@@ -25,7 +25,12 @@ public class FeeConfiguration
         if (percentage < 0) throw new ArgumentOutOfRangeException(nameof(percentage));
         if (type == FeeType.Percentage && percentage > 100)
             throw new ArgumentOutOfRangeException(nameof(percentage));
-        if (effectiveTo.HasValue && effectiveTo < effectiveFrom) throw new ArgumentException("Effective end cannot precede effective start.", nameof(effectiveTo));
+        if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
+        {
+            throw new ArgumentException(
+                "Effective end cannot precede effective start.",
+                nameof(effectiveTo));
+        }
 
         Id = Guid.NewGuid();
         Name = name;
