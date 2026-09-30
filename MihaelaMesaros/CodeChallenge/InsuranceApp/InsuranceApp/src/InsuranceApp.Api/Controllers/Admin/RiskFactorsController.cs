@@ -9,10 +9,9 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// Controller for managing risk factor configurations in the admin context.
 /// </summary>
 /// <param name="riskFactorConfigService">The service used to manage risk factor configurations.</param>
-/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/admin/risk-factors")]
-public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService, ILogger<RiskFactorsController> logger) : ControllerBase
+public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService) : ControllerBase
 {
     private const string GetRiskFactorConfigByIdRouteName = "GetRiskFactorConfigById";
 

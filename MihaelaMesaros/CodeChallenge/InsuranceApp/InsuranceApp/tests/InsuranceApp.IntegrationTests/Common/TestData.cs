@@ -202,7 +202,7 @@ internal static class TestData
 
 
     #region Currency
-    public static readonly Currency CurrencyForCreate = new Currency
+    public static readonly Currency CurrencyForCreate = new()
     {
         CurrencyId = Guid.NewGuid(),
         Code = "EUR",
@@ -211,7 +211,7 @@ internal static class TestData
         IsActive = true
     };
 
-    public static readonly Currency CurrencyForUpdate = new Currency
+    public static readonly Currency CurrencyForUpdate = new()
     {
         CurrencyId = Guid.NewGuid(),
         Code = "EUR",
@@ -222,8 +222,8 @@ internal static class TestData
         ModifiedAt = DateTime.UtcNow
     };
 
-    public static readonly List<Currency> CurrenciesList = new List<Currency>
-    {
+    public static readonly List<Currency> CurrenciesList =
+    [
         new Currency
         {
             CurrencyId = Guid.NewGuid(),
@@ -242,12 +242,12 @@ internal static class TestData
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         }
-    };
+    ];
     #endregion
 
 
     #region FeeConfig
-    public static readonly CreateFeeConfigDto FeeConfigDtoForCreate = new CreateFeeConfigDto(
+    public static readonly CreateFeeConfigDto FeeConfigDtoForCreate = new(
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
@@ -256,7 +256,7 @@ internal static class TestData
         true
     );
 
-    public static readonly UpdateFeeConfigDto FeeConfigDtoForUpdate = new UpdateFeeConfigDto(
+    public static readonly UpdateFeeConfigDto FeeConfigDtoForUpdate = new(
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
@@ -265,8 +265,8 @@ internal static class TestData
         true
     );
 
-    public static readonly List<FeeConfig> FeeConfigsList = new List<FeeConfig>
-    {
+    public static readonly List<FeeConfig> FeeConfigsList =
+    [
         new FeeConfig
         {
             FeeConfigId = Guid.NewGuid(),
@@ -289,7 +289,7 @@ internal static class TestData
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         }
-    };
+    ];
     #endregion
 
 
