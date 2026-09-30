@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
+using InsuranceApp.Domain.Currencies;
 using InsuranceApp.Domain.Geography;
 using InsuranceApp.Infrastructure.Persistence.Entities;
 
@@ -77,6 +78,17 @@ internal static class PersistenceMappings
         );
     }
 
+    public static Currency ToDomain(this CurrencyEntity entity)
+    {
+        return new(
+            id: entity.Id,
+            code: entity.Code,
+            name: entity.Name,
+            exchangeRateToBase: entity.ExchangeRateToBase,
+            isActive: entity.IsActive
+        );
+    }
+
     public static ClientEntity ToEntity(this Client client)
     {
         return new(
@@ -115,6 +127,17 @@ internal static class PersistenceMappings
             email: broker.Email,
             phone: broker.Phone,
             status: broker.Status
+        );
+    }
+
+    public static CurrencyEntity ToEntity(this Currency currency)
+    {
+        return new(
+            id: currency.Id,
+            code: currency.Code,
+            name: currency.Name,
+            exchangeRateToBase: currency.ExchangeRateToBase,
+            isActive: currency.IsActive
         );
     }
 }

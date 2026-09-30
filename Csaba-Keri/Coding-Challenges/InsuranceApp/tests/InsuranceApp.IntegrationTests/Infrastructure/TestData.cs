@@ -70,4 +70,17 @@ internal static class TestData
         ["phone"] = phone,
         ["status"] = status
     };
+
+    public static JsonObject Currency(
+        string code = "EUR",
+        string name = "Euro",
+        decimal exchangeRateToBase = 5m,
+        bool isActive = true
+    ) => new()
+    {
+        ["code"] = code,
+        ["name"] = name,
+        ["exchangeRateToBase"] = exchangeRateToBase,
+        ["isActive"] = isActive
+    };
 }
