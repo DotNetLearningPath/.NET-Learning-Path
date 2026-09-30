@@ -21,10 +21,13 @@ public sealed class AdminBrokersControllerTest
     [Fact]
     public async Task GetByIdAsync_Should_Return_Ok_When_Broker_Exists()
     {
+        // Arrange
         _service.BrokerToReturn = CreateDto();
 
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         Assert.IsType<BrokerDto>(ok.Value);
     }
@@ -32,14 +35,17 @@ public sealed class AdminBrokersControllerTest
     [Fact]
     public async Task GetByIdAsync_Should_Return_NotFound_When_Broker_Does_Not_Exist()
     {
+        // Act
         var result = await _controller.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
     public async Task ListAsync_Should_Return_Ok_With_Paged_Result()
     {
+        // Arrange
         _service.BrokersToReturn = new PagedResult<BrokerDto>
         {
             Items = [CreateDto()],
@@ -48,8 +54,10 @@ public sealed class AdminBrokersControllerTest
             TotalCount = 1
         };
 
+        // Act
         var result = await _controller.ListAsync(new(), CancellationToken.None);
 
+        // Assert
         var ok = Assert.IsType<OkObjectResult>(result.Result);
         Assert.IsType<PagedResult<BrokerDto>>(ok.Value);
     }
@@ -57,10 +65,13 @@ public sealed class AdminBrokersControllerTest
     [Fact]
     public async Task CreateAsync_Should_Return_Created_At_Route()
     {
+        // Arrange
         _service.BrokerToReturn = CreateDto();
 
+        // Act
         var result = await _controller.CreateAsync(new(), CancellationToken.None);
 
+        // Assert
         var created = Assert.IsType<CreatedAtRouteResult>(result.Result);
         Assert.Equal(nameof(AdminBrokersController.GetByIdAsync), created.RouteName);
         Assert.IsType<BrokerDto>(created.Value);
@@ -69,27 +80,39 @@ public sealed class AdminBrokersControllerTest
     [Fact]
     public async Task UpdateAsync_Should_Return_Ok()
     {
+        // Arrange
         _service.BrokerToReturn = CreateDto();
+
+        // Act
         var result = await _controller.UpdateAsync(Guid.NewGuid(), new(), CancellationToken.None);
 
+        // Assert
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
     [Fact]
     public async Task ActivateAsync_Should_Return_Ok()
     {
+        // Arrange
         _service.BrokerToReturn = CreateDto();
+
+        // Act
         var result = await _controller.ActivateAsync(Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
     [Fact]
     public async Task DeactivateAsync_Should_Return_Ok()
     {
+        // Arrange
         _service.BrokerToReturn = CreateDto();
+
+        // Act
         var result = await _controller.DeactivateAsync(Guid.NewGuid(), CancellationToken.None);
 
+        // Assert
         Assert.IsType<OkObjectResult>(result.Result);
     }
 
