@@ -12,11 +12,6 @@ public interface IBrokerRepository
         CancellationToken cancellationToken,
         Guid? excludedBrokerId = null);
 
-    Task<bool> ExistsBrokerByCodeAsync(
-        string brokerCode,
-        Guid? excludedBrokerId = null,
-        CancellationToken cancellationToken = default);
-
     Task<Broker?> GetBrokerByIdAsync(
         Guid id,
         CancellationToken cancellationToken);

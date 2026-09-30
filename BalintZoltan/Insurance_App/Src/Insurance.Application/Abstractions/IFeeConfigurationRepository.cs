@@ -31,22 +31,6 @@ public interface IFeeConfigurationRepository
         FeeConfiguration configuration,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
-        DateTime effectiveAt,
-        CancellationToken cancellationToken = default);
-
-    Task<FeeConfiguration?> GetFeeConfigurationByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken = default);
-
-    Task UpdateFeeConfigurationAsync(
-        FeeConfiguration configuration,
-        CancellationToken cancellationToken = default);
-
-    Task DeactivateFeeConfigurationAsync(
-        FeeConfiguration configuration,
-        CancellationToken cancellationToken = default);
-
     Task<PagedResult<FeeConfiguration>> ListFeeConfigurationsAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken);

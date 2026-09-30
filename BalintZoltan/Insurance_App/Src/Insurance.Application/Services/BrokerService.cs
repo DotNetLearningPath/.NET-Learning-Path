@@ -1,14 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using Application.Abstractions;
-using Application.DTO.Brokers;
-using Application.DTO.Common;
-using Application.Exceptions;
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Brokers;
 using Insurance.Application.DTO.Common;
+using Insurance.Application.Exceptions;
 using Insurance.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
-using Insurance.Application.Exceptions;
 
 namespace Insurance.Application.Services;
 
