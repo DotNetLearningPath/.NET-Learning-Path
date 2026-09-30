@@ -18,7 +18,7 @@ public static class DependencyInjection
 
         services.AddScoped<IFeeConfigService, FeeConfigService>();
 
-        //services.AddScoped<IRiskFactorConfigService, RiskFactorConfigService>();
+        services.AddScoped<IRiskFactorConfigService, RiskFactorConfigService>();
 
         return services;
     }
