@@ -1,4 +1,4 @@
-namespace Application.Exceptions;
+namespace Insurance.Application.Exceptions;
 
 public sealed class NotFoundException : Exception
 {

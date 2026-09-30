@@ -1,4 +1,4 @@
-namespace InsuranceApp.Api.Logging;
+namespace Insurance.Api.Logging;
 
 public sealed class DailyFileLoggerProvider : ILoggerProvider
 {

@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Application.DTOs.Building;
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.FeeConfig;
+using InsuranceApp.Application.DTOs.RiskFactorConfig;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
 
@@ -201,7 +202,7 @@ internal static class TestData
 
 
     #region Currency
-    public static Currency CurrencyForCreate = new Currency
+    public static readonly Currency CurrencyForCreate = new()
     {
         CurrencyId = Guid.NewGuid(),
         Code = "EUR",
@@ -210,7 +211,7 @@ internal static class TestData
         IsActive = true
     };
 
-    public static Currency CurrencyForUpdate = new Currency
+    public static readonly Currency CurrencyForUpdate = new()
     {
         CurrencyId = Guid.NewGuid(),
         Code = "EUR",
@@ -221,8 +222,8 @@ internal static class TestData
         ModifiedAt = DateTime.UtcNow
     };
 
-    public static List<Currency> CurrenciesList = new List<Currency>
-    {
+    public static readonly List<Currency> CurrenciesList =
+    [
         new Currency
         {
             CurrencyId = Guid.NewGuid(),
@@ -241,12 +242,12 @@ internal static class TestData
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         }
-    };
+    ];
     #endregion
 
 
     #region FeeConfig
-    public static CreateFeeConfigDto FeeConfigDtoForCreate = new CreateFeeConfigDto(
+    public static readonly CreateFeeConfigDto FeeConfigDtoForCreate = new(
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
@@ -255,7 +256,7 @@ internal static class TestData
         true
     );
 
-    public static UpdateFeeConfigDto FeeConfigDtoForUpdate = new UpdateFeeConfigDto(
+    public static readonly UpdateFeeConfigDto FeeConfigDtoForUpdate = new(
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
@@ -264,8 +265,8 @@ internal static class TestData
         true
     );
 
-    public static List<FeeConfig> FeeConfigsList = new List<FeeConfig>
-    {
+    public static readonly List<FeeConfig> FeeConfigsList =
+    [
         new FeeConfig
         {
             FeeConfigId = Guid.NewGuid(),
@@ -288,7 +289,44 @@ internal static class TestData
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         }
-    };
+    ];
+    #endregion
+
+
+    #region RiskFactorConfig
+    public static readonly CreateRiskFactorConfigDto RiskFactorConfigDtoForCreate = new(
+        RiskFactorLevel.Country,
+        Countries[0].CountryId,
+        5.25m,
+        true);
+
+    public static readonly UpdateRiskFactorConfigDto RiskFactorConfigDtoForUpdate = new(
+            RiskFactorLevel.Country,
+            Countries[1].CountryId,
+            -3.50m,
+            false);
+
+    public static readonly List<RiskFactorConfig> RiskFactorConfigsList =
+    [
+        new()
+        {
+            RiskFactorConfigId = Guid.NewGuid(),
+            Level = RiskFactorLevel.Country,
+            ReferenceId = Countries[0].CountryId,
+            AdjustmentPercentage = 5.25m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        },
+        new()
+        {
+            RiskFactorConfigId = Guid.NewGuid(),
+            Level = RiskFactorLevel.Country,
+            ReferenceId = Countries[1].CountryId,
+            AdjustmentPercentage = -2.50m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
     #endregion
 
     #region Brokers

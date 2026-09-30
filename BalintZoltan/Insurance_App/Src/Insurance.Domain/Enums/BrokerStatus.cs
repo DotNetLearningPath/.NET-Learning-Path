@@ -1,7 +1,7 @@
-namespace Domain.Enums;
+namespace Insurance.Domain.Enums;
 
 public enum BrokerStatus
 {
-    Active,
-    Inactive
+    Inactive = 0,
+    Active = 1
 }

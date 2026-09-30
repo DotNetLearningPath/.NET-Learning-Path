@@ -1,4 +1,6 @@
-namespace Application.DTO.Common;
+using Insurance.Application.DTO.Common;
+
+namespace Insurance.UnitTest.Application.DTO.Common;
 
 public class PagedResultTest
 {

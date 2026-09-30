@@ -1,8 +1,9 @@
-using Application.Exceptions;
-using Application.Helper;
-using Domain.Entities;
+using Insurance.UnitTest.Application.Helper;
+using Insurance.Domain.Entities;
+using Insurance.Application.Exceptions;
+using Insurance.Application.Services;
 
-namespace Application.Services
+namespace Insurance.UnitTest.Application.Services
 {
     public class GeographyServiceTest
     {
@@ -23,7 +24,7 @@ namespace Application.Services
             _fakeRepositories.Geography.SeedCountry(c1);
             _fakeRepositories.Geography.SeedCountry(c2);
 
-            var list = await _service.GetCountriesAsync();
+            var list = await _service.GetCountriesAsync(CancellationToken.None);
 
             Assert.Equal(2, list.Count);
             Assert.Contains(list, x => x.Id == c1.Id && x.Name == "CountryA");
@@ -33,7 +34,7 @@ namespace Application.Services
         [Fact]
         public async Task GetCountriesAsync_Should_Return_Empty_When_None()
         {
-            var list = await _service.GetCountriesAsync();
+            var list = await _service.GetCountriesAsync(CancellationToken.None);
 
             Assert.NotNull(list);
             Assert.Empty(list);
@@ -51,7 +52,7 @@ namespace Application.Services
             _fakeRepositories.Geography.SeedCounty(county2);
             _fakeRepositories.Geography.SeedCounty(other);
 
-            var list = await _service.GetCountiesByCountryIdAsync(country.Id);
+            var list = await _service.GetCountiesByCountryIdAsync(country.Id, CancellationToken.None);
 
             Assert.Equal(2, list.Count);
             Assert.All(list, c => Assert.Equal(country.Id, c.CountryId));
@@ -61,7 +62,7 @@ namespace Application.Services
         public async Task GetCountiesByCountryIdAsync_Should_Throw_When_Country_Does_Not_Exist()
         {
             var exception = await Assert.ThrowsAsync<NotFoundException>(
-                () => _service.GetCountiesByCountryIdAsync(Guid.NewGuid()));
+                () => _service.GetCountiesByCountryIdAsync(Guid.NewGuid(), CancellationToken.None));
 
             Assert.Equal("Country was not found.", exception.Message);
         }
@@ -78,7 +79,7 @@ namespace Application.Services
             _fakeRepositories.Geography.SeedCity(city2);
             _fakeRepositories.Geography.SeedCity(other);
 
-            var list = await _service.GetCitiesByCountyIdAsync(county.Id);
+            var list = await _service.GetCitiesByCountyIdAsync(county.Id, CancellationToken.None);
 
             Assert.Equal(2, list.Count);
             Assert.All(list, c => Assert.Equal(county.Id, c.CountyId));
@@ -88,7 +89,7 @@ namespace Application.Services
         public async Task GetCitiesByCountyIdAsync_Should_Throw_When_County_Does_Not_Exist()
         {
             var exception = await Assert.ThrowsAsync<NotFoundException>(
-                () => _service.GetCitiesByCountyIdAsync(Guid.NewGuid()));
+                () => _service.GetCitiesByCountyIdAsync(Guid.NewGuid(), CancellationToken.None));
 
             Assert.Equal("County was not found.", exception.Message);
         }

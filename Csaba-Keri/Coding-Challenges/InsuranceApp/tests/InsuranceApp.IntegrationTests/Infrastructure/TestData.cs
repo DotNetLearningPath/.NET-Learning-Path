@@ -55,4 +55,32 @@ internal static class TestData
         ["surfaceArea"] = surfaceArea,
         ["insuredValue"] = insuredValue
     };
+
+    public static JsonObject Broker(
+        string code = "BR-001",
+        string name = "Test Broker",
+        string email = "broker@example.com",
+        string phone = "123",
+        string status = "Active"
+    ) => new()
+    {
+        ["code"] = code,
+        ["name"] = name,
+        ["email"] = email,
+        ["phone"] = phone,
+        ["status"] = status
+    };
+
+    public static JsonObject Currency(
+        string code = "EUR",
+        string name = "Euro",
+        decimal exchangeRateToBase = 5m,
+        bool isActive = true
+    ) => new()
+    {
+        ["code"] = code,
+        ["name"] = name,
+        ["exchangeRateToBase"] = exchangeRateToBase,
+        ["isActive"] = isActive
+    };
 }
