@@ -1,11 +1,11 @@
-using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
+namespace Insurance.Infrastructure.Repositories;
 
 public sealed class CurrencyRepository : ICurrencyRepository
 {
@@ -18,7 +18,7 @@ public sealed class CurrencyRepository : ICurrencyRepository
 
     public async Task AddCurrencyAsync(
         Currency currency,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _dbContext.Currencies.AddAsync(currency, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -26,21 +26,21 @@ public sealed class CurrencyRepository : ICurrencyRepository
 
     public Task<Currency?> GetCurrencyByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Currencies
             .AsNoTracking()
             .FirstOrDefaultAsync(currency => currency.Id == id, cancellationToken);
 
     public Task<Currency?> GetCurrencyByCodeAsync(
         string code,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Currencies
             .AsNoTracking()
             .FirstOrDefaultAsync(currency => currency.Code == code, cancellationToken);
 
     public async Task<PagedResult<Currency>> ListCurrenciesAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Currencies.AsNoTracking();
         return await query

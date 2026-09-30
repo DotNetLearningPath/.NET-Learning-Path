@@ -1,7 +1,7 @@
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 
-namespace Domain.UnitTests.Entities
+namespace Insurance.Domain.UnitTests.Entities
 {
     public class BuildingTest
     {

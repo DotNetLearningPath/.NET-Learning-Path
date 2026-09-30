@@ -1,11 +1,11 @@
-﻿using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
+﻿using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
+namespace Insurance.Infrastructure.Repositories;
 
 public sealed class ClientRepository : IClientRepository
 {
@@ -16,7 +16,7 @@ public sealed class ClientRepository : IClientRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddClientAsync(Client client, CancellationToken cancellationToken = default)
+    public async Task AddClientAsync(Client client, CancellationToken cancellationToken)
     {
         await _dbContext.Clients.AddAsync(client, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -24,8 +24,8 @@ public sealed class ClientRepository : IClientRepository
 
     public async Task<bool> ExistsClientByIdentificationNumberAsync(
         string identificationNumber,
-        Guid? excludedClientId = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken, 
+        Guid? excludedClientId = null)
     {
         return await _dbContext.Clients.AnyAsync(client =>
             client.IdentificationNumber == identificationNumber
@@ -33,7 +33,7 @@ public sealed class ClientRepository : IClientRepository
                 || client.Id != excludedClientId.Value), cancellationToken);
     }
 
-    public async Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbContext.Clients
             .FirstOrDefaultAsync(client => client.Id == id, cancellationToken);
@@ -43,7 +43,7 @@ public sealed class ClientRepository : IClientRepository
         string? name,
         string? identifier,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Clients
             .AsNoTracking()
@@ -69,7 +69,7 @@ public sealed class ClientRepository : IClientRepository
             .ToPagedResultAsync(pagination, cancellationToken);
     }
 
-    public async Task UpdateClientAsync(Client client, CancellationToken cancellationToken = default)
+    public async Task UpdateClientAsync(Client client, CancellationToken cancellationToken)
     {
         _dbContext.Clients.Update(client);
         await _dbContext.SaveChangesAsync(cancellationToken);
