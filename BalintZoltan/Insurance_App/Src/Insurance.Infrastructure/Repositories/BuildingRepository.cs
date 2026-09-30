@@ -1,7 +1,7 @@
-using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
-using Infrastructure.Extensions;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,13 +16,13 @@ public sealed class BuildingRepository : IBuildingRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddBuildingAsync(Building building, CancellationToken cancellationToken = default)
+    public async Task AddBuildingAsync(Building building, CancellationToken cancellationToken)
     {
         await _dbContext.Buildings.AddAsync(building, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Building?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Building?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _dbContext.Buildings
             .AsNoTracking()
@@ -32,7 +32,7 @@ public sealed class BuildingRepository : IBuildingRepository
     public async Task<PagedResult<Building>> GetBuildingByClientIdAsync(
         Guid clientId,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Buildings
             .AsNoTracking()
@@ -45,7 +45,7 @@ public sealed class BuildingRepository : IBuildingRepository
             .ToPagedResultAsync(pagination, cancellationToken);
     }
 
-    public async Task UpdateBuildingAsync(Building building, CancellationToken cancellationToken = default)
+    public async Task UpdateBuildingAsync(Building building, CancellationToken cancellationToken)
     {
         _dbContext.Buildings.Update(building);
         await _dbContext.SaveChangesAsync(cancellationToken);

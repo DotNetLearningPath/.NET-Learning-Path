@@ -1,11 +1,12 @@
-using Application.DTO.Buildings;
-using Application.DTO.Common;
-using Application.Exceptions;
-using Application.Helper;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Application.DTO.Buildings;
+using Insurance.Application.DTO.Common;
+using Insurance.UnitTest.Application.Helper;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.Exceptions;
+using Insurance.Application.Services;
 
-namespace Application.Services
+namespace Insurance.UnitTest.Application.Services
 {
     public class BuildingServiceTest
     {
@@ -21,7 +22,7 @@ namespace Application.Services
         [Fact]
         public async Task CreateAsync_Should_Create_When_Client_And_City_Exist()
         {
-            var existingClient = new Domain.Entities.Client(ClientType.Individual, "John", "ID1");
+            var existingClient = new Client(ClientType.Individual, "John", "ID1");
             _fakeRepositories.Client.Seed(existingClient);
 
             var cityId = Guid.NewGuid();
@@ -42,7 +43,7 @@ namespace Application.Services
                 IsEarthquakeRiskZone = true
             };
 
-            var dto = await _service.CreateBuildingAsync(request);
+            var dto = await _service.CreateBuildingAsync(request, CancellationToken.None);
 
             Assert.NotNull(dto);
             Assert.Equal(request.ClientId, dto.ClientId);
@@ -73,14 +74,14 @@ namespace Application.Services
                 IsEarthquakeRiskZone = true
             };
 
-            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.CreateBuildingAsync(request));
+            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.CreateBuildingAsync(request, CancellationToken.None));
             Assert.Equal("Client was not found.", ex.Message);
         }
 
         [Fact]
         public async Task CreateBuildingAsync_Should_Throw_When_City_Not_Found()
         {
-            var existingClient = new Domain.Entities.Client(ClientType.Individual, "John", "ID1");
+            var existingClient = new Client(ClientType.Individual, "John", "ID1");
             _fakeRepositories.Client.Seed(existingClient);
 
             var request = new CreateBuildingRequest
@@ -98,14 +99,14 @@ namespace Application.Services
                 IsEarthquakeRiskZone = true
             };
 
-            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.CreateBuildingAsync(request));
+            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.CreateBuildingAsync(request, CancellationToken.None));
             Assert.Equal("City was not found.", ex.Message);
         }
 
         [Fact]
         public async Task UpdateBuildingAsync_Should_Update_When_Building_Exists()
         {
-            var client = new Domain.Entities.Client(ClientType.Individual, "John", "1234567890123");
+            var client = new Client(ClientType.Individual, "John", "1234567890123");
             _fakeRepositories.Client.Seed(client);
             var clientId = client.Id;
             var cityId = Guid.NewGuid();
@@ -127,7 +128,7 @@ namespace Application.Services
                 IsEarthquakeRiskZone = false
             };
 
-            var dto = await _service.UpdateBuildingAsync(building.Id, update);
+            var dto = await _service.UpdateBuildingAsync(building.Id, update, CancellationToken.None);
 
             Assert.Equal(building.Id, dto.Id);
             Assert.Equal(update.Street, dto.Street);
@@ -154,7 +155,7 @@ namespace Application.Services
                 IsEarthquakeRiskZone = false
             };
 
-            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.UpdateBuildingAsync(Guid.NewGuid(), update));
+            var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.UpdateBuildingAsync(Guid.NewGuid(), update, CancellationToken.None));
             Assert.Equal("Building was not found.", ex.Message);
         }
 
@@ -166,7 +167,7 @@ namespace Application.Services
             var building = new Building(clientId, cityId, "St", "1", 1995, BuildingType.Residential, 2, 80m, 2000m);
             _fakeRepositories.Building.Storage.Add(building);
 
-            var dto = await _service.GetBuildingByIdAsync(building.Id);
+            var dto = await _service.GetBuildingByIdAsync(building.Id, CancellationToken.None);
 
             Assert.NotNull(dto);
             Assert.Equal(building.Id, dto!.Id);
@@ -176,7 +177,7 @@ namespace Application.Services
         [Fact]
         public async Task GetBuildingByIdAsync_Should_Return_Null_When_Not_Found()
         {
-            var dto = await _service.GetBuildingByIdAsync(Guid.NewGuid());
+            var dto = await _service.GetBuildingByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
             Assert.Null(dto);
         }
@@ -184,7 +185,7 @@ namespace Application.Services
         [Fact]
         public async Task GetBuildingByClientIdAsync_Should_Return_Buildings_For_Client()
         {
-            var client = new Domain.Entities.Client(ClientType.Individual, "John", "1234567890123");
+            var client = new Client(ClientType.Individual, "John", "1234567890123");
             _fakeRepositories.Client.Seed(client);
             var clientId = client.Id;
             var cityId = Guid.NewGuid();
@@ -195,7 +196,8 @@ namespace Application.Services
 
             var list = await _service.GetBuildingByClientIdAsync(
                 clientId,
-                new PaginationRequest { PageSize = 10 });
+                new PaginationRequest { PageSize = 10 },
+                CancellationToken.None);
 
             Assert.Equal(2, list.TotalCount);
             Assert.Equal(2, list.Items.Count);
@@ -206,12 +208,13 @@ namespace Application.Services
         [Fact]
         public async Task GetBuildingByClientIdAsync_Should_Return_Empty_When_None()
         {
-            var client = new Domain.Entities.Client(ClientType.Individual, "John", "1234567890123");
+            var client = new Client(ClientType.Individual, "John", "1234567890123");
             _fakeRepositories.Client.Seed(client);
 
             var list = await _service.GetBuildingByClientIdAsync(
                 client.Id,
-                new PaginationRequest());
+                new PaginationRequest(),
+                CancellationToken.None);
 
             Assert.NotNull(list);
             Assert.Empty(list.Items);

@@ -1,6 +1,6 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
-namespace Application.DTO.Brokers;
+namespace Insurance.Application.DTO.Brokers;
 
 public sealed class BrokerDto
 {

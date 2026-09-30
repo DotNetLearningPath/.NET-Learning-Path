@@ -1,21 +1,21 @@
-using Application.DTO.Common;
-using Domain.Entities;
+using Insurance.Domain.Entities;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface ICurrencyRepository
 {
-    Task AddCurrencyAsync(Currency currency, CancellationToken cancellationToken = default);
+    Task AddCurrencyAsync(Currency currency, CancellationToken cancellationToken);
 
     Task<Currency?> GetCurrencyByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<Currency?> GetCurrencyByCodeAsync(
         string code,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<PagedResult<Currency>> ListCurrenciesAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 }

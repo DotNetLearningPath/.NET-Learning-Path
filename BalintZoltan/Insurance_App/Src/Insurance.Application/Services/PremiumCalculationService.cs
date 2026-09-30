@@ -1,7 +1,7 @@
-using Application.Abstractions;
-using Domain.Enums;
+using Insurance.Domain.Enums;
+using Insurance.Application.Abstractions;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public sealed class PremiumCalculationService : IPremiumCalculationService
 {
@@ -17,7 +17,7 @@ public sealed class PremiumCalculationService : IPremiumCalculationService
     public async Task<decimal> CalculateFinalPremiumAsync(
         decimal basePremium,
         DateTime effectiveAt,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         if (basePremium < 0)
             throw new ArgumentOutOfRangeException(nameof(basePremium));

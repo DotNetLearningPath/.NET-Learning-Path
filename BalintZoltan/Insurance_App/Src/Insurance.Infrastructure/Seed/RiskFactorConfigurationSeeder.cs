@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ public sealed class RiskFactorConfigurationSeeder
         _options = options.Value;
     }
 
-    public async Task SeedAsync(InsuranceDbContext dbContext, string contentRootPath, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(InsuranceDbContext dbContext, string contentRootPath, CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(SeedFilePath.Get(
             contentRootPath,

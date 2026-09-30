@@ -1,8 +1,8 @@
-using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
-using Domain.Enums;
-using Infrastructure.Extensions;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +19,7 @@ public sealed class RiskFactorRepository : IRiskFactorRepository
 
     public async Task AddRiskFactorAsync(
         RiskFactorConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _dbContext.RiskFactorConfigurations
             .AddAsync(configuration, cancellationToken);
@@ -29,7 +29,7 @@ public sealed class RiskFactorRepository : IRiskFactorRepository
     public Task<RiskFactorConfiguration?> GetByLevelAndReferenceAsync(
         RiskFactorLevel level,
         string reference,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.RiskFactorConfigurations
             .AsNoTracking()
             .FirstOrDefaultAsync(configuration =>
@@ -40,7 +40,7 @@ public sealed class RiskFactorRepository : IRiskFactorRepository
 
     public Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
         BuildingType buildingType,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.RiskFactorConfigurations
             .AsNoTracking()
             .FirstOrDefaultAsync(configuration =>
@@ -51,7 +51,7 @@ public sealed class RiskFactorRepository : IRiskFactorRepository
 
     public async Task<PagedResult<RiskFactorConfiguration>> ListRiskFactorsAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.RiskFactorConfigurations.AsNoTracking();
         return await query

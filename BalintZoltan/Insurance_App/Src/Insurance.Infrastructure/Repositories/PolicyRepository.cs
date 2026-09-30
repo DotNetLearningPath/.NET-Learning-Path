@@ -1,8 +1,8 @@
-using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
-using Domain.Enums;
-using Infrastructure.Extensions;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +19,7 @@ public sealed class PolicyRepository : IPolicyRepository
 
     public async Task AddPolicyAsync(
         Policy policy,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var brokerStatus = await _dbContext.Brokers
             .Where(broker => broker.Id == policy.BrokerId)
@@ -37,14 +37,14 @@ public sealed class PolicyRepository : IPolicyRepository
 
     public Task<Policy?> GetPolicyByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Policies
             .AsNoTracking()
             .FirstOrDefaultAsync(policy => policy.Id == id, cancellationToken);
 
     public Task<Policy?> GetPolicyByNumberAsync(
         string policyNumber,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Policies
             .AsNoTracking()
             .FirstOrDefaultAsync(
@@ -55,7 +55,7 @@ public sealed class PolicyRepository : IPolicyRepository
         string? policyNumber,
         PolicyStatus? status,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Policies.AsNoTracking().AsQueryable();
 
@@ -79,7 +79,7 @@ public sealed class PolicyRepository : IPolicyRepository
 
     public async Task UpdatePolicyAsync(
         Policy policy,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         _dbContext.Policies.Update(policy);
         await _dbContext.SaveChangesAsync(cancellationToken);
