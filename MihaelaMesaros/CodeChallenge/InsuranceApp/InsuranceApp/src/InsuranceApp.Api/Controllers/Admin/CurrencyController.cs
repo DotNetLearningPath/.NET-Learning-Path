@@ -9,9 +9,10 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// Controller for managing currencies in the administrator context.
 /// </summary>
 /// <param name="currencyService">The currency service.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/admin/currencies")]
-public sealed class CurrenciesController(ICurrencyService currencyService) : ControllerBase
+public sealed class CurrenciesController(ICurrencyService currencyService, ILogger<CurrenciesController> logger) : ControllerBase
 {
     private const string GetCurrencyByIdRouteName = "GetCurrencyById";
 
@@ -43,7 +44,7 @@ public sealed class CurrenciesController(ICurrencyService currencyService) : Con
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -62,7 +63,7 @@ public sealed class CurrenciesController(ICurrencyService currencyService) : Con
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return CreatedAtRoute(GetCurrencyByIdRouteName, new { currencyId = result.Value!.CurrencyId }, result.Value);
@@ -82,7 +83,7 @@ public sealed class CurrenciesController(ICurrencyService currencyService) : Con
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);

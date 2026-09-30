@@ -45,16 +45,16 @@ public sealed class CurrencyService(ICurrencyRepository currencyRepository, ILog
             Name = createCurrencyDto.Name?.Trim()!
         };
 
-        var validationError = ValidateCurrencyDetails(createCurrencyDto.Code, createCurrencyDto.Name, createCurrencyDto.ExchangeRateToBase);
+        var validationCurrencyDetails = ValidateCurrencyDetails(createCurrencyDto.Code, createCurrencyDto.Name, createCurrencyDto.ExchangeRateToBase);
 
-        if (validationError is not null)
+        if (validationCurrencyDetails is not null)
         {
-            return Result<CurrencyDto>.Failure(validationError);
+            return Result<CurrencyDto>.Failure(validationCurrencyDetails);
         }
 
-        var codeExists = await currencyRepository.CurrencyCodeExistsAsync(createCurrencyDto.Code, null, cancellationToken);
+        var currencyCodeExists = await currencyRepository.CurrencyCodeExistsAsync(createCurrencyDto.Code, null, cancellationToken);
 
-        if (codeExists)
+        if (currencyCodeExists)
         {
             return Result<CurrencyDto>.Failure(CurrencyErrors.DuplicateCode);
         }
@@ -99,11 +99,11 @@ public sealed class CurrencyService(ICurrencyRepository currencyRepository, ILog
             Name = updateCurrencyDto.Name?.Trim()!
         };
 
-        var validationError = ValidateCurrencyDetails(updateCurrencyDto.Code, updateCurrencyDto.Name, updateCurrencyDto.ExchangeRateToBase);
+        var validationCurrencyDetails = ValidateCurrencyDetails(updateCurrencyDto.Code, updateCurrencyDto.Name, updateCurrencyDto.ExchangeRateToBase);
 
-        if (validationError is not null)
+        if (validationCurrencyDetails is not null)
         {
-            return Result<CurrencyDto>.Failure(validationError);
+            return Result<CurrencyDto>.Failure(validationCurrencyDetails);
         }
 
         var currency = await currencyRepository.GetCurrencyForUpdateAsync(currencyId, cancellationToken);
@@ -113,9 +113,9 @@ public sealed class CurrencyService(ICurrencyRepository currencyRepository, ILog
             return Result<CurrencyDto>.Failure(CurrencyErrors.NotFound(currencyId));
         }
 
-        var codeExists = await currencyRepository.CurrencyCodeExistsAsync(updateCurrencyDto.Code, currencyId, cancellationToken);
+        var currencyCodeExists = await currencyRepository.CurrencyCodeExistsAsync(updateCurrencyDto.Code, currencyId, cancellationToken);
 
-        if (codeExists)
+        if (currencyCodeExists)
         {
             return Result<CurrencyDto>.Failure(CurrencyErrors.DuplicateCode);
         }

@@ -9,9 +9,10 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// Controller for managing fee configurations in the admin context.
 /// </summary>
 /// <param name="feeConfigService">The service used to manage fee configurations.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/admin/fees")]
-public sealed class FeesController(IFeeConfigService feeConfigService) : ControllerBase
+public sealed class FeesController(IFeeConfigService feeConfigService, ILogger<FeesController> logger) : ControllerBase
 {
     private const string GetFeeConfigByIdRouteName = "GetFeeConfigById";
 
@@ -44,7 +45,7 @@ public sealed class FeesController(IFeeConfigService feeConfigService) : Control
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -65,7 +66,7 @@ public sealed class FeesController(IFeeConfigService feeConfigService) : Control
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return CreatedAtRoute(GetFeeConfigByIdRouteName, new { feeConfigId = result.Value!.FeeConfigId }, result.Value);
@@ -88,7 +89,7 @@ public sealed class FeesController(IFeeConfigService feeConfigService) : Control
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);

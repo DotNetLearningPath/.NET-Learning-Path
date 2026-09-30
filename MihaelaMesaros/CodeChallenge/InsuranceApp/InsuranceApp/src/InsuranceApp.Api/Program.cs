@@ -24,6 +24,8 @@ var logPathError = Path.Combine(AppContext.BaseDirectory, logFolder, logFileName
 
 builder.Host.UseSerilog((context, configuration) =>
 {
+    const string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message:lj}{NewLine}{Exception}";
+
     configuration
         .ReadFrom.Configuration(context.Configuration)
         .WriteTo.Logger(lc => lc
@@ -31,14 +33,19 @@ builder.Host.UseSerilog((context, configuration) =>
             .WriteTo.File(
                 logPathInfo,
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 30)
+                retainedFileCountLimit: 30,
+                outputTemplate: outputTemplate
+            )
         )
         .WriteTo.Logger(lc => lc
             .Filter.ByIncludingOnly(logEvent => logEvent.Level >= LogEventLevel.Error)
             .WriteTo.File(
                 logPathError,
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 90));
+                retainedFileCountLimit: 90,
+                outputTemplate: outputTemplate
+            )
+        );
 });
 
 

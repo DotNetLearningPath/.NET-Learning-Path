@@ -1,6 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Domain.Entities;
-using InsuranceApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
@@ -23,8 +22,7 @@ internal sealed class FeeConfigRepository(InsuranceDbContext dbContext) : IFeeCo
 
     public Task<FeeConfig?> GetFeeConfigForUpdateAsync(Guid feeConfigId, CancellationToken cancellationToken)
     {
-        return dbContext.FeeConfigs
-            .FirstOrDefaultAsync(x => x.FeeConfigId == feeConfigId, cancellationToken);
+        return dbContext.FeeConfigs.FirstOrDefaultAsync(x => x.FeeConfigId == feeConfigId, cancellationToken);
     }
 
     public async Task AddFeeConfigAsync(FeeConfig feeConfig, CancellationToken cancellationToken)

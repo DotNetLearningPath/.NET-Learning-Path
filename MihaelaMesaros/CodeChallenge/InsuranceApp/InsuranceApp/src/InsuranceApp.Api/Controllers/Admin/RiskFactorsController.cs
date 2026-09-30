@@ -12,7 +12,7 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/admin/risk-factors")]
-public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService) : ControllerBase
+public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService, ILogger<RiskFactorsController> logger) : ControllerBase
 {
     private const string GetRiskFactorConfigByIdRouteName = "GetRiskFactorConfigById";
 
@@ -45,7 +45,7 @@ public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorCon
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -68,7 +68,7 @@ public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorCon
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return CreatedAtRoute(GetRiskFactorConfigByIdRouteName, new { riskFactorConfigId = result.Value!.RiskFactorConfigId }, result.Value);
@@ -92,7 +92,7 @@ public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorCon
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace InsuranceApp.Api.ExceptionHandling;
 
@@ -24,7 +27,27 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
             return false;
         }
 
-        logger.LogError(exception, "An unhandled exception occurred while processing the request {Method} {Path}.", httpContext.Request.Method, httpContext.Request.Path);
+        var stackTrace = new StackTrace(exception, true);
+
+        var frame = stackTrace.GetFrames()?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.GetFileName()));
+
+        var fileName = frame?.GetFileName() is { } filePath ? Path.GetFileName(filePath) : "Unknown";
+
+        var lineNumber = frame?.GetFileLineNumber() ?? 0;
+
+        logger.LogError(
+            "Unhandled exception - Type: {ExceptionType} - Message: {ExceptionMessage} \n"
+            + "Request: {Method} {Path} - Source: {Source} \n"
+            + "InnerException: {InnerException} - File: {File} Line: {Line} \n",
+            exception.GetType().Name,
+            exception.Message,
+            httpContext.Request.Method,
+            httpContext.Request.Path,
+            exception.Source ?? "Unknown",
+            exception.InnerException?.Message ?? "None",
+            fileName,
+            lineNumber
+        );
 
         var problemDetails = new ProblemDetails
         {

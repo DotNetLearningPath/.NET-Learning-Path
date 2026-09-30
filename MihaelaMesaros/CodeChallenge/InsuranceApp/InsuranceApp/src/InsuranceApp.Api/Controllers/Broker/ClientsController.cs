@@ -10,9 +10,10 @@ namespace InsuranceApp.Api.Controllers.Broker;
 /// Controller for managing clients in the broker context.
 /// </summary>
 /// <param name="clientService">The client service.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/brokers/clients")]
-public sealed class ClientsController(IClientService clientService) : ControllerBase
+public sealed class ClientsController(IClientService clientService, ILogger<ClientsController> logger) : ControllerBase
 {
     private const string GetClientByIdRouteName = "GetClientById";
 
@@ -31,7 +32,7 @@ public sealed class ClientsController(IClientService clientService) : Controller
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -49,7 +50,7 @@ public sealed class ClientsController(IClientService clientService) : Controller
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);
@@ -71,7 +72,7 @@ public sealed class ClientsController(IClientService clientService) : Controller
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return CreatedAtRoute(GetClientByIdRouteName, new { clientId = result.Value!.ClientId }, result.Value);
@@ -94,7 +95,7 @@ public sealed class ClientsController(IClientService clientService) : Controller
 
         if (!result.IsSuccess)
         {
-            return result.Error!.ToProblemResult();
+            return result.Error!.ToProblemResult(logger);
         }
 
         return Ok(result.Value);

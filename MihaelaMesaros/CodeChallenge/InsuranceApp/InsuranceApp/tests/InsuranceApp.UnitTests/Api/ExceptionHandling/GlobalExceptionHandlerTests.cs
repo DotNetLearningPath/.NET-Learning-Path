@@ -85,6 +85,35 @@ public sealed class GlobalExceptionHandlerTests
         Assert.Equal(StatusCodes.Status500InternalServerError, httpContext.Response.StatusCode);
     }
 
+    [Fact]
+    public async Task TryHandleAsync_UnexpectedException_LogsSummarizedError()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var exception = new InvalidOperationException("Database failed.");
+
+        // Act
+        await _handler.TryHandleAsync(
+            httpContext,
+            exception,
+            CancellationToken.None);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) =>
+                    state.ToString()!.Contains("Unhandled exception") &&
+                    state.ToString()!.Contains("InvalidOperationException") &&
+                    state.ToString()!.Contains("Database failed.") &&
+                    state.ToString()!.Contains("GET") &&
+                    state.ToString()!.Contains("/api/test")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
     private static DefaultHttpContext CreateHttpContext()
     {
         var httpContext = new DefaultHttpContext();
