@@ -1,10 +1,11 @@
 using System.Text.Json;
 using Domain.Entities;
-using Infrastructure.Persistence;
+using Infrastructure.Seed;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Seed;
+namespace Insurance.Infrastructure.Seed;
 
 public sealed class CurrencySeeder
 {

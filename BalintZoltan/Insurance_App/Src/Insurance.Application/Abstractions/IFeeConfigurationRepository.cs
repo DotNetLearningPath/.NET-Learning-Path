@@ -1,8 +1,8 @@
 using Application.DTO.Common;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IFeeConfigurationRepository
 {

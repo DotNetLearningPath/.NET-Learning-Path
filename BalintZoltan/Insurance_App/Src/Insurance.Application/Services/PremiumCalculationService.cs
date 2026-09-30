@@ -1,7 +1,8 @@
 using Application.Abstractions;
 using Domain.Enums;
+using Insurance.Application.Abstractions;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public sealed class PremiumCalculationService : IPremiumCalculationService
 {
@@ -26,13 +27,8 @@ public sealed class PremiumCalculationService : IPremiumCalculationService
             .GetActiveFeeConfigurationsAsync(effectiveAt, cancellationToken);
 
         var percentageTotal = configurations
-            .Where(configuration => configuration.Type == FeeType.Percentage)
             .Sum(configuration => configuration.Percentage);
 
-        var fixedAmountTotal = configurations
-            .Where(configuration => configuration.Type == FeeType.FixedAmount)
-            .Sum(configuration => configuration.Percentage);
-
-        return basePremium * (1 + percentageTotal / 100m) + fixedAmountTotal;
+        return basePremium * (1 + percentageTotal / 100m);
     }
 }

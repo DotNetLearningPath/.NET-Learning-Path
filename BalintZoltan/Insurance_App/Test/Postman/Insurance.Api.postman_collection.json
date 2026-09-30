@@ -33,6 +33,10 @@
     {
       "key": "identificationNumber",
       "value": ""
+    },
+    {
+      "key": "feeId",
+      "value": ""
     }
   ],
   "item": [
@@ -392,6 +396,119 @@
               }
             },
             "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fees",
+      "item": [
+        {
+          "name": "List fee configurations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains paged items', function () { pm.expect(body.items).to.be.an('array'); });",
+                  "pm.test('Page number is 1', function () { pm.expect(body.pageNumber).to.eql(1); });",
+                  "pm.test('Page size is 10', function () { pm.expect(body.pageSize).to.eql(10); });",
+                  "pm.test('Total count is numeric', function () { pm.expect(body.totalCount).to.be.a('number'); });",
+                  "pm.test('Total pages is numeric', function () { pm.expect(body.totalPages).to.be.a('number'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/fees?pageNumber=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Create fee configuration",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('feeName', 'Postman Fee ' + Date.now().toString().slice(-8));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains fee id', function () { pm.expect(body.id).to.be.a('string').and.not.empty; });",
+                  "pm.test('Fee name is correct', function () { pm.expect(body.name).to.eql(pm.collectionVariables.get('feeName')); });",
+                  "pm.collectionVariables.set('feeId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{feeName}}\",\n  \"type\": 2,\n  \"percentage\": 5.5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees"
+          }
+        },
+        {
+          "name": "Update fee configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Fee percentage was updated', function () { pm.expect(pm.response.json().percentage).to.eql(6.5); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{feeName}} Updated\",\n  \"type\": 2,\n  \"percentage\": 6.5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees/{{feeId}}"
+          }
+        },
+        {
+          "name": "Deactivate fee configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204 No Content', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/fees/{{feeId}}/deactivate"
           }
         }
       ]
@@ -780,6 +897,94 @@
               }
             },
             "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+          }
+        },
+        {
+          "name": "Create fee configuration - invalid percentage",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Fee\",\n  \"type\": 2,\n  \"percentage\": 150,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees"
+          }
+        },
+        {
+          "name": "Update fee configuration - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingFeeId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Missing Fee\",\n  \"type\": 2,\n  \"percentage\": 5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees/{{missingFeeId}}"
+          }
+        },
+        {
+          "name": "Deactivate fee configuration - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingFeeId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/fees/{{missingFeeId}}/deactivate"
           }
         }
       ]

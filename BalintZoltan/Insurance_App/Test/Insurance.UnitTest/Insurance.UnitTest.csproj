@@ -15,10 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Insurance.Api\Insurance.Api.csproj" />
-    <ProjectReference Include="..\Insurance.Application\Insurance.Application.csproj" />
-    <ProjectReference Include="..\Insurance.Domain\Insurance.Domain.csproj" />
-    <ProjectReference Include="..\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Src\Insurance.Api\Insurance.Api.csproj" />
+    <ProjectReference Include="..\..\Src\Insurance.Application\Insurance.Application.csproj" />
+    <ProjectReference Include="..\..\Src\Insurance.Domain\Insurance.Domain.csproj" />
+    <ProjectReference Include="..\..\Src\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

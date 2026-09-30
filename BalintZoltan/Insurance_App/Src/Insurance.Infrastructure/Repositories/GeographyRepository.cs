@@ -1,9 +1,9 @@
 ﻿using Application.Abstractions;
 using Domain.Entities;
-using Infrastructure.Persistence;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
+namespace Insurance.Infrastructure.Repositories;
 
 public sealed class GeographyRepository : IGeographyRepository
 {

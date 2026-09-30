@@ -1,8 +1,8 @@
-using Domain.Entities;
+using Insurance.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configurations;
+namespace Insurance.Infrastructure.Persistence.Configurations;
 
 public sealed class FeeConfigurationConfiguration : IEntityTypeConfiguration<FeeConfiguration>
 {

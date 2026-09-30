@@ -1,8 +1,10 @@
 using Application.Abstractions;
 using Application.Services;
-using Infrastructure;
-using Infrastructure.Persistence;
-using Infrastructure.Seed;
+using Insurance.Application.Abstractions;
+using Insurance.Application.Services;
+using Insurance.Infrastructure;
+using Insurance.Infrastructure.Persistence;
+using Insurance.Infrastructure.Seed;
 using InsuranceApp.Api.Logging;
 using InsuranceApp.Api.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,7 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IGeographyService, GeographyService>();
 builder.Services.AddScoped<IPremiumCalculationService, PremiumCalculationService>();
+builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 
 var app = builder.Build();
 
