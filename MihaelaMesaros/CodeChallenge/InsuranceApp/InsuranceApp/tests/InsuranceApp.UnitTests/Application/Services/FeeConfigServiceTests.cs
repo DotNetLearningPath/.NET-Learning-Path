@@ -13,16 +13,54 @@ namespace InsuranceApp.UnitTests.Application.Services;
 public sealed class FeeConfigServiceTests
 {
     private readonly Mock<IFeeConfigRepository> _repositoryMock;
+    private readonly Mock<ILogger<FeeConfigService>> _loggerMock;
     private readonly FeeConfigService _service;
+
+    private readonly Guid _feeConfigId;
+    private readonly CreateFeeConfigDto _validCreateDto;
+    private readonly UpdateFeeConfigDto _validUpdateDto;
+    private readonly FeeConfig _existingFeeConfig;
 
     public FeeConfigServiceTests()
     {
         _repositoryMock = new Mock<IFeeConfigRepository>();
-        var loggerMock = new Mock<ILogger<FeeConfigService>>();
+        _loggerMock = new Mock<ILogger<FeeConfigService>>();
 
         _service = new FeeConfigService(
             _repositoryMock.Object,
-            loggerMock.Object);
+            _loggerMock.Object);
+
+        _feeConfigId = Guid.NewGuid();
+
+        _validCreateDto = new CreateFeeConfigDto(
+            "Standard broker fee",
+            FeeType.BrokerCommission,
+            2.50m,
+            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            true);
+
+        _validUpdateDto = new UpdateFeeConfigDto(
+            "Standard broker fee",
+            FeeType.BrokerCommission,
+            2.50m,
+            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            true);
+
+        _existingFeeConfig = new FeeConfig
+        {
+            FeeConfigId = _feeConfigId,
+            Name = "Standard broker fee",
+            FeeType = FeeType.BrokerCommission,
+            Percentage = 2.50m,
+            EffectiveFrom = new DateTime(
+                2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveTo = new DateTime(
+                2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     #region Read Fee Config Tests
@@ -31,15 +69,24 @@ public sealed class FeeConfigServiceTests
     public async Task GetFeeConfigsAsync_ReturnsFeeConfigs()
     {
         // Arrange
+        var adminFee = new FeeConfig
+        {
+            FeeConfigId = Guid.NewGuid(),
+            Name = "Admin fee",
+            FeeType = FeeType.AdminFee,
+            Percentage = 1.50m,
+            EffectiveFrom = new DateTime(
+                2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveTo = new DateTime(
+                2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
         var fees = new List<FeeConfig>
         {
-            CreateFeeConfigEntity(
-                name: "Broker fee",
-                feeType: FeeType.BrokerCommission),
-
-            CreateFeeConfigEntity(
-                name: "Admin fee",
-                feeType: FeeType.AdminFee)
+            _existingFeeConfig,
+            adminFee
         };
 
         _repositoryMock
@@ -55,7 +102,7 @@ public sealed class FeeConfigServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
         Assert.Equal(2, result.Value.Count);
-        Assert.Equal("Broker fee", result.Value[0].Name);
+        Assert.Equal("Standard broker fee", result.Value[0].Name);
         Assert.Equal("Admin fee", result.Value[1].Name);
     }
 
@@ -63,26 +110,20 @@ public sealed class FeeConfigServiceTests
     public async Task GetFeeConfigByIdAsync_ExistingFeeConfig_ReturnsSuccess()
     {
         // Arrange
-        var fee = CreateFeeConfigEntity();
-
-        _repositoryMock
-            .Setup(x => x.GetFeeConfigByIdAsync(
-                fee.FeeConfigId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(fee);
+        SetupExistingFeeConfigById();
 
         // Act
         var result = await _service.GetFeeConfigByIdAsync(
-            fee.FeeConfigId,
+            _feeConfigId,
             CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-        Assert.Equal(fee.FeeConfigId, result.Value.FeeConfigId);
-        Assert.Equal(fee.Name, result.Value.Name);
-        Assert.Equal(fee.FeeType, result.Value.FeeType);
-        Assert.Equal(fee.Percentage, result.Value.Percentage);
+        Assert.Equal(_feeConfigId, result.Value.FeeConfigId);
+        Assert.Equal(_existingFeeConfig.Name, result.Value.Name);
+        Assert.Equal(_existingFeeConfig.FeeType, result.Value.FeeType);
+        Assert.Equal(_existingFeeConfig.Percentage, result.Value.Percentage);
     }
 
     [Fact]
@@ -141,30 +182,27 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_ValidFeeConfig_ReturnsSuccess()
     {
-        // Arrange
-        var dto = CreateValidFeeConfigDto();
-
         // Act
         var result = await _service.CreateFeeConfigAsync(
-            dto,
+            _validCreateDto,
             CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-        Assert.Equal(dto.Name, result.Value.Name);
-        Assert.Equal(dto.FeeType, result.Value.FeeType);
-        Assert.Equal(dto.Percentage, result.Value.Percentage);
-        Assert.Equal(dto.EffectiveFrom, result.Value.EffectiveFrom);
-        Assert.Equal(dto.EffectiveTo, result.Value.EffectiveTo);
-        Assert.Equal(dto.IsActive, result.Value.IsActive);
+        Assert.Equal(_validCreateDto.Name, result.Value.Name);
+        Assert.Equal(_validCreateDto.FeeType, result.Value.FeeType);
+        Assert.Equal(_validCreateDto.Percentage, result.Value.Percentage);
+        Assert.Equal(_validCreateDto.EffectiveFrom, result.Value.EffectiveFrom);
+        Assert.Equal(_validCreateDto.EffectiveTo, result.Value.EffectiveTo);
+        Assert.Equal(_validCreateDto.IsActive, result.Value.IsActive);
 
         _repositoryMock.Verify(
             x => x.AddFeeConfigAsync(
                 It.Is<FeeConfig>(fee =>
-                    fee.Name == dto.Name &&
-                    fee.FeeType == dto.FeeType &&
-                    fee.Percentage == dto.Percentage),
+                    fee.Name == _validCreateDto.Name &&
+                    fee.FeeType == _validCreateDto.FeeType &&
+                    fee.Percentage == _validCreateDto.Percentage),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -173,7 +211,7 @@ public sealed class FeeConfigServiceTests
     public async Task CreateFeeConfigAsync_ValidFeeConfig_TrimsName()
     {
         // Arrange
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             Name = "  Standard broker fee  "
         };
@@ -200,7 +238,7 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_MissingName_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             Name = ""
         };
@@ -213,7 +251,7 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_NameTooShort_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             Name = "AB"
         };
@@ -226,7 +264,7 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_NameTooLong_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             Name = new string('A', 201)
         };
@@ -239,8 +277,7 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_InvalidFeeType_ReturnsValidationError()
     {
-        // FeeType remains an enum, so an invalid int value is used.
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             FeeType = (FeeType)999
         };
@@ -253,7 +290,7 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_InvalidPercentage_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
             Percentage = 101m
         };
@@ -266,9 +303,9 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_PercentageWithTooManyDecimals_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
-            Percentage = 2.12345m
+            Percentage = 2.123m
         };
 
         await AssertInvalidCreateAsync(
@@ -279,10 +316,13 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task CreateFeeConfigAsync_InvalidEffectivePeriod_ReturnsValidationError()
     {
-        var dto = CreateValidFeeConfigDto() with
+        var dto = _validCreateDto with
         {
-            EffectiveFrom = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-            EffectiveTo = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
+            EffectiveFrom = new DateTime(
+                2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
+
+            EffectiveTo = new DateTime(
+                2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
         };
 
         await AssertInvalidCreateAsync(
@@ -298,25 +338,18 @@ public sealed class FeeConfigServiceTests
     public async Task UpdateFeeConfigAsync_ValidFeeConfig_ReturnsUpdatedFeeConfig()
     {
         // Arrange
-        var fee = CreateFeeConfigEntity();
+        var dto = _validUpdateDto with
+        {
+            Name = "Updated broker fee",
+            Percentage = 5.50m,
+            IsActive = false
+        };
 
-        var dto = new UpdateFeeConfigDto(
-            "Updated broker fee",
-            FeeType.BrokerCommission,
-            5.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            false);
-
-        _repositoryMock
-            .Setup(x => x.GetFeeConfigForUpdateAsync(
-                fee.FeeConfigId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(fee);
+        SetupExistingFeeConfigForUpdate();
 
         // Act
         var result = await _service.UpdateFeeConfigAsync(
-            fee.FeeConfigId,
+            _feeConfigId,
             dto,
             CancellationToken.None);
 
@@ -327,7 +360,7 @@ public sealed class FeeConfigServiceTests
         Assert.Equal(dto.FeeType, result.Value.FeeType);
         Assert.Equal(dto.Percentage, result.Value.Percentage);
         Assert.False(result.Value.IsActive);
-        Assert.NotNull(fee.ModifiedAt);
+        Assert.NotNull(_existingFeeConfig.ModifiedAt);
 
         _repositoryMock.Verify(
             x => x.SaveFeeConfigChangesAsync(
@@ -338,13 +371,10 @@ public sealed class FeeConfigServiceTests
     [Fact]
     public async Task UpdateFeeConfigAsync_EmptyId_ReturnsValidationError()
     {
-        // Arrange
-        var dto = CreateValidUpdateFeeConfigDto();
-
         // Act
         var result = await _service.UpdateFeeConfigAsync(
             Guid.Empty,
-            dto,
+            _validUpdateDto,
             CancellationToken.None);
 
         // Assert
@@ -367,7 +397,6 @@ public sealed class FeeConfigServiceTests
     {
         // Arrange
         var feeConfigId = TestConstants.NonExistingId;
-        var dto = CreateValidUpdateFeeConfigDto();
 
         _repositoryMock
             .Setup(x => x.GetFeeConfigForUpdateAsync(
@@ -378,7 +407,7 @@ public sealed class FeeConfigServiceTests
         // Act
         var result = await _service.UpdateFeeConfigAsync(
             feeConfigId,
-            dto,
+            _validUpdateDto,
             CancellationToken.None);
 
         // Assert
@@ -399,15 +428,18 @@ public sealed class FeeConfigServiceTests
     public async Task UpdateFeeConfigAsync_InvalidEffectivePeriod_ReturnsValidationError()
     {
         // Arrange
-        var dto = CreateValidUpdateFeeConfigDto() with
+        var dto = _validUpdateDto with
         {
-            EffectiveFrom = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-            EffectiveTo = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
+            EffectiveFrom = new DateTime(
+                2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
+
+            EffectiveTo = new DateTime(
+                2026, 5, 31, 0, 0, 0, DateTimeKind.Utc)
         };
 
         // Act
         var result = await _service.UpdateFeeConfigAsync(
-            Guid.NewGuid(),
+            _feeConfigId,
             dto,
             CancellationToken.None);
 
@@ -430,6 +462,24 @@ public sealed class FeeConfigServiceTests
 
     #region Helpers
 
+    private void SetupExistingFeeConfigById()
+    {
+        _repositoryMock
+            .Setup(x => x.GetFeeConfigByIdAsync(
+                _feeConfigId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_existingFeeConfig);
+    }
+
+    private void SetupExistingFeeConfigForUpdate()
+    {
+        _repositoryMock
+            .Setup(x => x.GetFeeConfigForUpdateAsync(
+                _feeConfigId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_existingFeeConfig);
+    }
+
     private async Task AssertInvalidCreateAsync(
         CreateFeeConfigDto dto,
         Error expectedError)
@@ -447,46 +497,6 @@ public sealed class FeeConfigServiceTests
                 It.IsAny<FeeConfig>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
-    }
-
-    private static CreateFeeConfigDto CreateValidFeeConfigDto()
-    {
-        return new CreateFeeConfigDto(
-            "Standard broker fee",
-            FeeType.BrokerCommission,
-            2.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            true);
-    }
-
-    private static UpdateFeeConfigDto CreateValidUpdateFeeConfigDto()
-    {
-        return new UpdateFeeConfigDto(
-            "Standard broker fee",
-            FeeType.BrokerCommission,
-            2.5000m,
-            new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            true);
-    }
-
-    private static FeeConfig CreateFeeConfigEntity(
-        Guid? feeConfigId = null,
-        string name = "Standard broker fee",
-        FeeType feeType = FeeType.BrokerCommission)
-    {
-        return new FeeConfig
-        {
-            FeeConfigId = feeConfigId ?? Guid.NewGuid(),
-            Name = name,
-            FeeType = feeType,
-            Percentage = 2.5000m,
-            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            EffectiveTo = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
     }
 
     #endregion
