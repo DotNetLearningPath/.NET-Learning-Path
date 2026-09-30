@@ -16,8 +16,6 @@ public sealed class BrokerService : IBrokerService
     public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request);
-        await EnsureCodeIsUniqueAsync(request.BrokerCode, null, cancellationToken);
-
         var broker = new Broker(
             request.BrokerCode.Trim(),
             request.Name.Trim(),
@@ -50,8 +48,6 @@ public sealed class BrokerService : IBrokerService
     {
         ValidateRequest(request);
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
-        await EnsureCodeIsUniqueAsync(request.BrokerCode, id, cancellationToken);
-
         broker.Update(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
         return MapToBrokerDto(broker);
@@ -85,14 +81,6 @@ public sealed class BrokerService : IBrokerService
     private async Task<Broker> GetRequiredBrokerAsync(Guid id, CancellationToken cancellationToken) =>
         await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken)
         ?? throw new NotFoundException("Broker was not found.");
-
-    private async Task EnsureCodeIsUniqueAsync(string code, Guid? excludedId, CancellationToken cancellationToken)
-    {
-        if (await _brokerRepository.ExistsBrokerByCodeAsync(code.Trim(), cancellationToken, excludedId))
-        {
-            throw new InvalidOperationException("A broker with this code already exists.");
-        }
-    }
 
     private static void ValidateRequest(IBrokerRequest request)
     {

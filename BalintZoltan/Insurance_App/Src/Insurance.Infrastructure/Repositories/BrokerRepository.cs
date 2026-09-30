@@ -4,6 +4,7 @@ using Insurance.Domain.Entities;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
 namespace Insurance.Infrastructure.Repositories;
 
@@ -21,17 +22,8 @@ public sealed class BrokerRepository : IBrokerRepository
         CancellationToken cancellationToken)
     {
         await _dbContext.Brokers.AddAsync(broker, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await SaveChangesAsync(cancellationToken);
     }
-
-    public Task<bool> ExistsBrokerByCodeAsync(
-        string brokerCode,
-        CancellationToken cancellationToken,
-        Guid? excludedBrokerId = null) =>
-        _dbContext.Brokers.AnyAsync(broker =>
-            broker.BrokerCode == brokerCode
-            && (!excludedBrokerId.HasValue || broker.Id != excludedBrokerId.Value),
-            cancellationToken);
 
     public Task<Broker?> GetBrokerByIdAsync(
         Guid id,
@@ -65,6 +57,33 @@ public sealed class BrokerRepository : IBrokerRepository
         CancellationToken cancellationToken)
     {
         _dbContext.Brokers.Update(broker);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsBrokerCodeUniqueViolation(exception))
+        {
+            throw new InvalidOperationException(
+                "A broker with this code already exists.",
+                exception);
+        }
+    }
+
+    private static bool IsBrokerCodeUniqueViolation(DbUpdateException exception)
+    {
+        if (exception.InnerException is not SqliteException sqliteException)
+        {
+            return false;
+        }
+
+        return sqliteException.SqliteErrorCode == 19
+            && sqliteException.Message.Contains(
+                "BrokerCode",
+                StringComparison.OrdinalIgnoreCase);
     }
 }
