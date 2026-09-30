@@ -14,11 +14,11 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Insurance.Api\Insurance.Api.csproj" />
-    <ProjectReference Include="..\Insurance.Application\Insurance.Application.csproj" />
-    <ProjectReference Include="..\Insurance.Domain\Insurance.Domain.csproj" />
-    <ProjectReference Include="..\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />
+  <ItemGroup>    
+    <ProjectReference Include="..\..\src\Insurance.Api\Insurance.Api.csproj" />    
+    <ProjectReference Include="..\..\src\Insurance.Application\Insurance.Application.csproj" />    
+    <ProjectReference Include="..\..\src\Insurance.Domain\Insurance.Domain.csproj" />    
+    <ProjectReference Include="..\..\src\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />    
   </ItemGroup>
 
   <ItemGroup>

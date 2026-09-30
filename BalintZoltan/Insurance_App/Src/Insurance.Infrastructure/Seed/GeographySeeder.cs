@@ -1,10 +1,11 @@
-using Domain.Entities;
-using Infrastructure.Persistence;
+using Insurance.Domain.Entities;
+using Infrastructure.Seed;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace Infrastructure.Seed;
+namespace Insurance.Infrastructure.Seed;
 
 public sealed class GeographySeeder
 {
@@ -18,7 +19,7 @@ public sealed class GeographySeeder
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var filePath = SeedFilePath.Get(
             contentRootPath, _options.BasePath, _options.GeographyFile);

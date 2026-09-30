@@ -1,11 +1,12 @@
 using System.Text.Json;
-using Domain.Entities;
-using Domain.Enums;
-using Infrastructure.Persistence;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Infrastructure.Seed;
+using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Seed;
+namespace Insurance.Infrastructure.Seed;
 
 public sealed class BuildingSeeder
 {
@@ -23,7 +24,7 @@ public sealed class BuildingSeeder
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var buildings = await LoadBuildingsAsync(
             contentRootPath,

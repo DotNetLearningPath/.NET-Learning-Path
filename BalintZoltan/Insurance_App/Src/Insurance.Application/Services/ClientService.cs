@@ -1,13 +1,13 @@
-﻿using Application.Abstractions;
-using Application.DTO.Clients;
-using Application.DTO.Common;
-using Application.Exceptions;
-using Domain.Entities;
-using Domain.Enums;
+﻿using Insurance.Application.Exceptions;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Clients;
+using Insurance.Application.DTO.Common;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public class ClientService : IClientService
 {
@@ -27,7 +27,7 @@ public class ClientService : IClientService
                 "A client with this identification number already exists.");
         }
     }
-    public async Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken = default)
+    public async Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
         ValidateIdentificationNumber(request.ClientType, request.IdentificationNumber);
         ValidateEmail(request.Email);
@@ -54,7 +54,7 @@ public class ClientService : IClientService
             Address = client.Address
         };
     }
-    public async Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
 
@@ -69,7 +69,7 @@ public class ClientService : IClientService
         string? name,
         string? identifier,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var result = await _clientRepository.SearchClientAsync(
             name,
@@ -92,7 +92,7 @@ public class ClientService : IClientService
     public async Task<ClientDto> UpdateClientAsync(
            Guid id,
            UpdateClientRequest request,
-           CancellationToken cancellationToken = default)
+           CancellationToken cancellationToken)
     {
         var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
 

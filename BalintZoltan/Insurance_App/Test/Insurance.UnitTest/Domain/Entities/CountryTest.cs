@@ -1,6 +1,6 @@
-using Domain.Entities;
+using Insurance.Domain.Entities;
 
-namespace Domain.UnitTests.Entities
+namespace Insurance.Domain.UnitTests.Entities
 {
     public class CountryTest
     {

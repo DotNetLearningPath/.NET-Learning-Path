@@ -1,4 +1,4 @@
-namespace InsuranceApp.Api.Middleware;
+namespace Insurance.Api.Middleware;
 
 public sealed class RequestLoggingMiddleware
 {
