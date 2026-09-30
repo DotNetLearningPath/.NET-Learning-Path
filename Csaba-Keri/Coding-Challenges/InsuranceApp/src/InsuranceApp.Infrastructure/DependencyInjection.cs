@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Application.Buildings;
+﻿using InsuranceApp.Application.Brokers;
+using InsuranceApp.Application.Buildings;
 using InsuranceApp.Application.Clients;
 using InsuranceApp.Application.Geography;
 using InsuranceApp.Infrastructure.Persistence;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IBuildingRepository, BuildingRepository>();
         services.AddScoped<IGeographyRepository, GeographyRepository>();
+        services.AddScoped<IBrokerRepository, BrokerRepository>();
 
         return services;
     }

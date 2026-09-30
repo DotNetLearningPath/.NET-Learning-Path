@@ -87,6 +87,18 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
+    protected async Task<JsonObject> CreateBrokerAsync(JsonObject? request = null)
+    {
+        using var response = await HttpClient.PostAsJsonAsync(
+            requestUri: "/api/admin/brokers",
+            value: request ?? TestData.Broker()
+        );
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        return await ReadJsonAsync(response);
+    }
+
     protected static async Task<JsonObject> ReadJsonAsync(HttpResponseMessage response)
     {
         var body = await response.Content.ReadFromJsonAsync<JsonObject>();

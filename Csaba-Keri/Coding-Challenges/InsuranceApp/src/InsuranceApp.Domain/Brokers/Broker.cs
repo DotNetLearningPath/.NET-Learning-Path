@@ -1,88 +1,72 @@
 ﻿using static InsuranceApp.Domain.Common.Validation.DomainValueNormalizer;
 
-namespace InsuranceApp.Domain.Clients;
+namespace InsuranceApp.Domain.Brokers;
 
-public class Client
+public class Broker
 {
+    public const int MaxCodeLength = 50;
     public const int MaxNameLength = 200;
-    public const int MaxIdentificationNumberLength = 50;
     public const int MaxEmailLength = 256;
     public const int MaxPhoneLength = 30;
-    public const int MaxPrimaryAddressLength = 500;
 
     public Guid Id { get; }
-    public ClientType Type { get; }
-    public string IdentificationNumber { get; }
+    public string Code { get; }
 
     public string Name { get; private set; }
     public string Email { get; private set; }
     public string Phone { get; private set; }
-    public string? PrimaryAddress { get; private set; }
+    public BrokerStatus Status { get; private set; }
 
-    public Client(
+    public Broker(
         Guid id,
-        ClientType type,
-        string identificationNumber,
+        string code,
         string name,
         string email,
         string phone,
-        string? primaryAddress = null
+        BrokerStatus status
     )
     {
         if (id == Guid.Empty)
         {
             throw new ArgumentException(
-                "Client identifier must not be empty.",
+                "Broker identifier must not be empty.",
                 nameof(id)
             );
         }
 
-        if (!Enum.IsDefined(type))
+        if (!Enum.IsDefined(status))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(type),
-                type,
-                "Client type is invalid."
+                nameof(status),
+                status,
+                "Broker status is invalid."
             );
         }
 
         Id = id;
-        Type = type;
-
-        IdentificationNumber = NormalizeRequired(
-            identificationNumber,
-            MaxIdentificationNumberLength,
-            nameof(identificationNumber)
-        );
-
+        Code = NormalizeRequired(code, MaxCodeLength, nameof(code)).ToUpperInvariant();
         Name = NormalizeRequired(name, MaxNameLength, nameof(name));
         Email = NormalizeEmail(email, MaxEmailLength, nameof(email));
         Phone = NormalizeRequired(phone, MaxPhoneLength, nameof(phone));
-        PrimaryAddress = NormalizePrimaryAddress(primaryAddress);
+        Status = status;
     }
 
     public void UpdateDetails(
         string name,
         string email,
-        string phone,
-        string? primaryAddress
+        string phone
     )
     {
         var normalizedName = NormalizeRequired(name, MaxNameLength, nameof(name));
         var normalizedEmail = NormalizeEmail(email, MaxEmailLength, nameof(email));
         var normalizedPhone = NormalizeRequired(phone, MaxPhoneLength, nameof(phone));
-        var normalizedAddress = NormalizePrimaryAddress(primaryAddress);
 
         Name = normalizedName;
         Email = normalizedEmail;
         Phone = normalizedPhone;
-        PrimaryAddress = normalizedAddress;
     }
 
-    private static string? NormalizePrimaryAddress(string? primaryAddress)
-    {
-        return string.IsNullOrWhiteSpace(primaryAddress)
-            ? null
-            : NormalizeRequired(primaryAddress, MaxPrimaryAddressLength, nameof(primaryAddress));
-    }
+    public void Activate() => Status = BrokerStatus.Active;
+
+    public void Deactivate() => Status = BrokerStatus.Inactive;
 }
