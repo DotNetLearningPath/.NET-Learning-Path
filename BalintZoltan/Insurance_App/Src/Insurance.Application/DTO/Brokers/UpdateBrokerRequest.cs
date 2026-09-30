@@ -1,6 +1,8 @@
+using Insurance.Application.Abstractions;
+
 namespace Insurance.Application.DTO.Brokers;
 
-public sealed class UpdateBrokerRequest
+public sealed class UpdateBrokerRequest : IBrokerRequest
 {
     public string BrokerCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

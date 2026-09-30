@@ -15,7 +15,7 @@ public sealed class BrokerService : IBrokerService
 
     public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
-        ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
+        ValidateRequest(request);
         await EnsureCodeIsUniqueAsync(request.BrokerCode, null, cancellationToken);
 
         var broker = new Broker(
@@ -48,7 +48,7 @@ public sealed class BrokerService : IBrokerService
 
     public async Task<BrokerDto> UpdateBrokerAsync(Guid id, UpdateBrokerRequest request, CancellationToken cancellationToken)
     {
-        ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
+        ValidateRequest(request);
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
         await EnsureCodeIsUniqueAsync(request.BrokerCode, id, cancellationToken);
 
@@ -94,39 +94,43 @@ public sealed class BrokerService : IBrokerService
         }
     }
 
-    private static void ValidateRequest(string code, string name, string email, string phone, decimal? commissionPercentage)
+    private static void ValidateRequest(IBrokerRequest request)
     {
-        if (string.IsNullOrWhiteSpace(code))
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (string.IsNullOrWhiteSpace(request.BrokerCode))
         {
             throw new ArgumentException("Broker code is required.");
         }
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(request.Name))
         {
             throw new ArgumentException("Broker name is required.");
         }
-        if (string.IsNullOrWhiteSpace(phone))
+        if (string.IsNullOrWhiteSpace(request.Phone))
         {
             throw new ArgumentException("Broker phone is required.");
         }
-        if (code.Trim().Length > 50)
+        if (request.BrokerCode.Trim().Length > 50)
         {
             throw new ArgumentException("Broker code cannot be longer than 50 characters.");
         }
-        if (name.Trim().Length > 200)
+        if (request.Name.Trim().Length > 200)
         {
             throw new ArgumentException("Broker name cannot be longer than 200 characters.");
         }
-        if (phone.Trim().Length > 50)
+        if (request.Phone.Trim().Length > 50)
         {
             throw new ArgumentException("Broker phone cannot be longer than 50 characters.");
         }
-        if (commissionPercentage is < 0 or > 100)
+        if (request.CommissionPercentage is < 0 or > 100)
         {
-            throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
+            throw new ArgumentOutOfRangeException(nameof(request));
         }
-        if (string.IsNullOrWhiteSpace(email) || email.Trim().Length > 254 || !new EmailAddressAttribute().IsValid(email.Trim()))
+        if (string.IsNullOrWhiteSpace(request.Email)
+            || request.Email.Trim().Length > 254
+            || !new EmailAddressAttribute().IsValid(request.Email.Trim()))
         {
-            throw new ArgumentException("Invalid email address format.", nameof(email));
+            throw new ArgumentException("Invalid email address format.", nameof(request));
         }
     }
 
