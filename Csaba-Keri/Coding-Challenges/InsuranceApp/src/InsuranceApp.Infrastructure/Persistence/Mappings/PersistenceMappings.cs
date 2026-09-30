@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Domain.Buildings;
+﻿using InsuranceApp.Domain.Brokers;
+using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Geography;
 using InsuranceApp.Infrastructure.Persistence.Entities;
@@ -64,6 +65,18 @@ internal static class PersistenceMappings
         );
     }
 
+    public static Broker ToDomain(this BrokerEntity entity)
+    {
+        return new(
+            id: entity.Id,
+            code: entity.Code,
+            name: entity.Name,
+            email: entity.Email,
+            phone: entity.Phone,
+            status: entity.Status
+        );
+    }
+
     public static ClientEntity ToEntity(this Client client)
     {
         return new(
@@ -90,6 +103,18 @@ internal static class PersistenceMappings
             numberOfFloors: building.NumberOfFloors,
             surfaceArea: building.SurfaceArea,
             insuredValue: building.InsuredValue
+        );
+    }
+
+    public static BrokerEntity ToEntity(this Broker broker)
+    {
+        return new(
+            id: broker.Id,
+            code: broker.Code,
+            name: broker.Name,
+            email: broker.Email,
+            phone: broker.Phone,
+            status: broker.Status
         );
     }
 }

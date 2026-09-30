@@ -4,7 +4,11 @@ using Application.DTO.Brokers;
 using Application.DTO.Common;
 using Application.Exceptions;
 using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
+using Insurance.Application.Exceptions;
 
 namespace Insurance.Application.Services;
 
@@ -14,7 +18,7 @@ public sealed class BrokerService : IBrokerService
 
     public BrokerService(IBrokerRepository brokerRepository) => _brokerRepository = brokerRepository;
 
-    public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken = default)
+    public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         await EnsureCodeIsUniqueAsync(request.BrokerCode, null, cancellationToken);
@@ -29,13 +33,13 @@ public sealed class BrokerService : IBrokerService
         return MapToBrokerDto(broker);
     }
 
-    public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var broker = await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken);
         return broker is null ? null : MapToBrokerDto(broker);
     }
 
-    public async Task<PagedResult<BrokerDto>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<BrokerDto>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken)
     {
         var result = await _brokerRepository.ListBrokersAsync(pagination, cancellationToken);
         return new PagedResult<BrokerDto>
@@ -47,7 +51,7 @@ public sealed class BrokerService : IBrokerService
         };
     }
 
-    public async Task<BrokerDto> UpdateBrokerAsync(Guid id, UpdateBrokerRequest request, CancellationToken cancellationToken = default)
+    public async Task<BrokerDto> UpdateBrokerAsync(Guid id, UpdateBrokerRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
@@ -60,12 +64,12 @@ public sealed class BrokerService : IBrokerService
 
     public Task<BrokerDto> ActivateBrokerAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         SetStatusAsync(id, true, cancellationToken);
 
     public Task<BrokerDto> DeactivateBrokerAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         SetStatusAsync(id, false, cancellationToken);
 
     private async Task<BrokerDto> SetStatusAsync(Guid id, bool active, CancellationToken cancellationToken)
@@ -89,7 +93,7 @@ public sealed class BrokerService : IBrokerService
 
     private async Task EnsureCodeIsUniqueAsync(string code, Guid? excludedId, CancellationToken cancellationToken)
     {
-        if (await _brokerRepository.ExistsBrokerByCodeAsync(code.Trim(), excludedId, cancellationToken))
+        if (await _brokerRepository.ExistsBrokerByCodeAsync(code.Trim(), cancellationToken, excludedId))
         {
             throw new InvalidOperationException("A broker with this code already exists.");
         }
@@ -133,8 +137,12 @@ public sealed class BrokerService : IBrokerService
 
     private static BrokerDto MapToBrokerDto(Broker broker) => new()
     {
-        Id = broker.Id, BrokerCode = broker.BrokerCode, Name = broker.Name,
-        Email = broker.Email, Phone = broker.Phone, Status = broker.Status,
+        Id = broker.Id,
+        BrokerCode = broker.BrokerCode,
+        Name = broker.Name,
+        Email = broker.Email,
+        Phone = broker.Phone,
+        Status = broker.Status,
         CommissionPercentage = broker.CommissionPercentage
     };
 }

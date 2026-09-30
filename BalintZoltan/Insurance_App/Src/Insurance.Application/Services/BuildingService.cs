@@ -1,10 +1,10 @@
-using Application.Abstractions;
-using Application.DTO.Buildings;
-using Application.DTO.Common;
-using Application.Exceptions;
-using Domain.Entities;
+using Insurance.Application.Exceptions;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Buildings;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public class BuildingService : IBuildingService
 {
@@ -42,7 +42,7 @@ public class BuildingService : IBuildingService
         }
     }
 
-    public async Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken = default)
+    public async Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken)
     {
         await CheckClientExistAsync(request.ClientId, cancellationToken);
         await CheckCityExistAsync(request.CityId, cancellationToken);
@@ -65,7 +65,7 @@ public class BuildingService : IBuildingService
         return MapToBuildingDto(building);
     }
 
-    public async Task<BuildingDto?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<BuildingDto?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var building = await _buildingRepository.GetBuildingByIdAsync(id, cancellationToken);
 
@@ -75,7 +75,7 @@ public class BuildingService : IBuildingService
     public async Task<PagedResult<BuildingDto>> GetBuildingByClientIdAsync(
         Guid clientId,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await CheckClientExistAsync(clientId, cancellationToken);
 
@@ -96,7 +96,7 @@ public class BuildingService : IBuildingService
     public async Task<BuildingDto> UpdateBuildingAsync(
         Guid id,
         UpdateBuildingRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var building = await _buildingRepository.GetBuildingByIdAsync(id, cancellationToken);
 

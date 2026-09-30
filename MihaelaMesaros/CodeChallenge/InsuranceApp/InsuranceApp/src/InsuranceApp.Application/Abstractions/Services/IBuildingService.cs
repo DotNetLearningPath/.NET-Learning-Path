@@ -5,10 +5,10 @@ namespace InsuranceApp.Application.Abstractions.Services;
 
 public interface IBuildingService
 {
-    Task<Result<BuildingDto>> GetBuildingByIdAsync(int buildingId, CancellationToken cancellationToken);
-    Task<Result<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(int clientId, CancellationToken cancellationToken);
+    Task<Result<BuildingDto>> GetBuildingByIdAsync(Guid buildingId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(Guid clientId, CancellationToken cancellationToken);
 
-    Task<Result<BuildingDto>> CreateBuildingForClientAsync(int clientId, CreateBuildingDto createBuildingDto, CancellationToken cancellationToken);
+    Task<Result<BuildingDto>> CreateBuildingForClientAsync(Guid clientId, CreateBuildingDto createBuildingDto, CancellationToken cancellationToken);
 
-    Task<Result<BuildingDto>> UpdateBuildingAsync(int buildingId, UpdateBuildingDto updateBuildingDto, CancellationToken cancellationToken);
+    Task<Result<BuildingDto>> UpdateBuildingAsync(Guid buildingId, UpdateBuildingDto updateBuildingDto, CancellationToken cancellationToken);
 }

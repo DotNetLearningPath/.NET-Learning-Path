@@ -1,7 +1,7 @@
-using Application.DTO.Common;
-using Infrastructure.Extensions;
 using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
+using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +18,7 @@ public sealed class BrokerRepository : IBrokerRepository
 
     public async Task AddBrokerAsync(
         Broker broker,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _dbContext.Brokers.AddAsync(broker, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,8 @@ public sealed class BrokerRepository : IBrokerRepository
 
     public Task<bool> ExistsBrokerByCodeAsync(
         string brokerCode,
-        Guid? excludedBrokerId = null,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken,
+        Guid? excludedBrokerId = null) =>
         _dbContext.Brokers.AnyAsync(broker =>
             broker.BrokerCode == brokerCode
             && (!excludedBrokerId.HasValue || broker.Id != excludedBrokerId.Value),
@@ -35,14 +35,14 @@ public sealed class BrokerRepository : IBrokerRepository
 
     public Task<Broker?> GetBrokerByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Brokers
             .AsNoTracking()
             .FirstOrDefaultAsync(broker => broker.Id == id, cancellationToken);
 
     public Task<Broker?> GetBrokerByCodeAsync(
         string brokerCode,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.Brokers
             .AsNoTracking()
             .FirstOrDefaultAsync(
@@ -51,7 +51,7 @@ public sealed class BrokerRepository : IBrokerRepository
 
     public async Task<PagedResult<Broker>> ListBrokersAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Brokers.AsNoTracking();
         return await query
@@ -62,7 +62,7 @@ public sealed class BrokerRepository : IBrokerRepository
 
     public async Task UpdateBrokerAsync(
         Broker broker,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         _dbContext.Brokers.Update(broker);
         await _dbContext.SaveChangesAsync(cancellationToken);

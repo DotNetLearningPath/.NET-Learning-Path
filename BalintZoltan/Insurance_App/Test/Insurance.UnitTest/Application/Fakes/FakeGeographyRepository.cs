@@ -1,7 +1,7 @@
-using Application.Abstractions;
-using Domain.Entities;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
 
-namespace Application.Fakes;
+namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeGeographyRepository : IGeographyRepository
 {
@@ -24,27 +24,27 @@ public sealed class FakeGeographyRepository : IGeographyRepository
 
     public Task<bool> CountryExistsAsync(
         Guid countryId,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         Task.FromResult(_countries.Any(country => country.Id == countryId));
 
     public Task<bool> CountyExistsAsync(
         Guid countyId,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         Task.FromResult(_counties.Any(county => county.Id == countyId));
 
-    public Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken) =>
         Task.FromResult((IReadOnlyCollection<Country>)_countries.ToList());
 
-    public Task<IReadOnlyCollection<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyCollection<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken) =>
         Task.FromResult((IReadOnlyCollection<County>)_counties
             .Where(county => county.CountryId == countryId)
             .ToList());
 
-    public Task<IReadOnlyCollection<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyCollection<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken) =>
         Task.FromResult((IReadOnlyCollection<City>)_cities
             .Where(city => city.CountyId == countyId)
             .ToList());
 
-    public Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken = default) =>
+    public Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken) =>
         Task.FromResult(_existingCityIds.Contains(cityId));
 }

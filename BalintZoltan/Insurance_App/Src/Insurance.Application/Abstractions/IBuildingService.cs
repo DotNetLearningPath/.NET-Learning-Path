@@ -1,17 +1,17 @@
-using Application.DTO.Buildings;
-using Application.DTO.Common;
+using Insurance.Application.DTO.Buildings;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IBuildingService
 {
-    Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken = default);
-    Task<BuildingDto?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken);
+    Task<BuildingDto?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<PagedResult<BuildingDto>> GetBuildingByClientIdAsync(
         Guid clientId,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
-    Task<BuildingDto> UpdateBuildingAsync(Guid id, UpdateBuildingRequest request, CancellationToken cancellationToken = default);
+    Task<BuildingDto> UpdateBuildingAsync(Guid id, UpdateBuildingRequest request, CancellationToken cancellationToken);
 }

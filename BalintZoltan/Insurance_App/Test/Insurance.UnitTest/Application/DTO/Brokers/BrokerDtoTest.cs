@@ -1,5 +1,5 @@
-using Application.DTO.Brokers;
-using Domain.Enums;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Domain.Enums;
 
 namespace Insurance.UnitTest.Application.DTO.Brokers;
 
@@ -11,8 +11,13 @@ public sealed class BrokerDtoTest
         var id = Guid.NewGuid();
         var dto = new BrokerDto
         {
-            Id = id, BrokerCode = "BR-001", Name = "Broker", Email = "broker@example.com",
-            Phone = "123", Status = BrokerStatus.Active, CommissionPercentage = 15.5m
+            Id = id,
+            BrokerCode = "BR-001",
+            Name = "Broker",
+            Email = "broker@example.com",
+            Phone = "123",
+            Status = BrokerStatus.Active,
+            CommissionPercentage = 15.5m
         };
 
         Assert.Equal(id, dto.Id);
@@ -41,8 +46,11 @@ public sealed class BrokerDtoTest
     {
         var request = new UpdateBrokerRequest
         {
-            BrokerCode = "BR-002", Name = "Updated", Email = "updated@example.com",
-            Phone = "456", CommissionPercentage = 10m
+            BrokerCode = "BR-002",
+            Name = "Updated",
+            Email = "updated@example.com",
+            Phone = "456",
+            CommissionPercentage = 10m
         };
 
         Assert.Equal("BR-002", request.BrokerCode);

@@ -1,9 +1,9 @@
-using Application.Abstractions;
-using Application.DTO.Brokers;
-using Application.DTO.Common;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Application.DTO.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InsuranceApp.Api.Controllers;
+namespace Insurance.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/brokers")]

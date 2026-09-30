@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using InsuranceApp.Application.Brokers.Exceptions;
 using InsuranceApp.Application.Clients.Exceptions;
 using InsuranceApp.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
@@ -55,6 +56,9 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             DuplicateClientIdentificationException =>
                 (StatusCodes.Status409Conflict, "Client already exists."),
+
+            DuplicateBrokerCodeException =>
+                (StatusCodes.Status409Conflict, "Broker already exists."),
 
             _ =>
                 (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")

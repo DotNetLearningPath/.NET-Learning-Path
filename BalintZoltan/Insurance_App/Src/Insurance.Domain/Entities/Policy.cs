@@ -1,6 +1,6 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
-namespace Domain.Entities;
+namespace Insurance.Domain.Entities;
 
 public class Policy
 {

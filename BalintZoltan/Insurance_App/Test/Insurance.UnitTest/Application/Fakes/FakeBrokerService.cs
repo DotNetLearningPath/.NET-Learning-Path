@@ -1,6 +1,6 @@
-using Application.Abstractions;
-using Application.DTO.Brokers;
-using Application.DTO.Common;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Application.DTO.Common;
 
 namespace Insurance.UnitTest.Application.Fakes;
 
@@ -12,7 +12,7 @@ public sealed class FakeBrokerService : IBrokerService
 
     public Task<BrokerDto> CreateBrokerAsync(
         CreateBrokerRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         BrokerDto result;
 
@@ -31,14 +31,14 @@ public sealed class FakeBrokerService : IBrokerService
 
     public Task<BrokerDto?> GetBrokerByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return Task.FromResult(BrokerToReturn);
     }
 
     public Task<PagedResult<BrokerDto>> ListBrokersAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return Task.FromResult(BrokersToReturn);
     }
@@ -46,21 +46,21 @@ public sealed class FakeBrokerService : IBrokerService
     public Task<BrokerDto> UpdateBrokerAsync(
         Guid id,
         UpdateBrokerRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return CreateResultTask();
     }
 
     public Task<BrokerDto> ActivateBrokerAsync(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return CreateResultTask();
     }
 
     public Task<BrokerDto> DeactivateBrokerAsync(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return CreateResultTask();
     }

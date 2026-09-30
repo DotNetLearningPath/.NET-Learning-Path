@@ -1,11 +1,16 @@
-using Application.DTO.Common;
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 
 namespace Insurance.Application.Abstractions;
 
 public interface IBrokerRepository
 {
-    Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken = default);
+    Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken);
+
+    Task<bool> ExistsBrokerByCodeAsync(
+        string brokerCode,
+        CancellationToken cancellationToken,
+        Guid? excludedBrokerId = null);
 
     Task<bool> ExistsBrokerByCodeAsync(
         string brokerCode,
@@ -14,15 +19,15 @@ public interface IBrokerRepository
 
     Task<Broker?> GetBrokerByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<Broker?> GetBrokerByCodeAsync(
         string brokerCode,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<PagedResult<Broker>> ListBrokersAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
-    Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken = default);
+    Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken);
 }

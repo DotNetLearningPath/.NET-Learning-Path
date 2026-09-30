@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Insurance.Domain.Entities;
+﻿using Insurance.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Persistence;

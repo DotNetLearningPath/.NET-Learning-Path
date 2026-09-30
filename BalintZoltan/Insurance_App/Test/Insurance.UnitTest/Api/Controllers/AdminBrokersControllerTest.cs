@@ -1,6 +1,7 @@
-using Application.DTO.Brokers;
-using Application.DTO.Common;
-using Domain.Enums;
+using Insurance.Domain.Enums;
+using Insurance.Api.Controllers;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Application.DTO.Common;
 using Insurance.UnitTest.Application.Fakes;
 using InsuranceApp.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;

@@ -13,15 +13,16 @@ namespace InsuranceApp.Api.Controllers.Broker;
 [Route("api/brokers")]
 public sealed class BuildingsController(IBuildingService buildingService) : ControllerBase
 {
+    private const string GetBuildingByIdRouteName = "GetBuildingById";
 
     /// <summary>
     /// Gets a building by identifier.
     /// </summary>
-    [HttpGet("buildings/{buildingId:int}")]
+    [HttpGet("buildings/{buildingId:guid}", Name = GetBuildingByIdRouteName)]
     [ProducesResponseType(typeof(BuildingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BuildingDto>> GetBuildingByIdAsync(int buildingId, CancellationToken cancellationToken)
+    public async Task<ActionResult<BuildingDto>> GetBuildingByIdAsync(Guid buildingId, CancellationToken cancellationToken)
     {
         var result = await buildingService.GetBuildingByIdAsync(buildingId, cancellationToken);
 
@@ -39,11 +40,11 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
     /// <param name="clientId">The ID of the client.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A list of buildings for the specified client.</returns>
-    [HttpGet("clients/{clientId:int}/buildings")]
+    [HttpGet("clients/{clientId:guid}/buildings")]
     [ProducesResponseType(typeof(IReadOnlyList<BuildingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(int clientId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(Guid clientId, CancellationToken cancellationToken)
     {
         var result = await buildingService.GetBuildingsByClientAsync(clientId, cancellationToken);
 
@@ -62,11 +63,11 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
     /// <param name="request">The building creation request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created building.</returns>
-    [HttpPost("clients/{clientId:int}/buildings")]
+    [HttpPost("clients/{clientId:guid}/buildings")]
     [ProducesResponseType(typeof(BuildingDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BuildingDto>> CreateBuildingForClientAsync(int clientId, CreateBuildingDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<BuildingDto>> CreateBuildingForClientAsync(Guid clientId, CreateBuildingDto request, CancellationToken cancellationToken)
     {
         var result = await buildingService.CreateBuildingForClientAsync(clientId, request, cancellationToken);
 
@@ -75,7 +76,7 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
             return result.Error!.ToProblemResult();
         }
 
-        return StatusCode(StatusCodes.Status201Created, result.Value);
+        return CreatedAtRoute(GetBuildingByIdRouteName, new { buildingId = result.Value!.BuildingId }, result.Value);
     }
 
     /// <summary>
@@ -85,11 +86,11 @@ public sealed class BuildingsController(IBuildingService buildingService) : Cont
     /// <param name="request">The building update request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated building.</returns>
-    [HttpPut("buildings/{buildingId:int}")]
+    [HttpPut("buildings/{buildingId:guid}")]
     [ProducesResponseType(typeof(BuildingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BuildingDto>> UpdateBuildingAsync(int buildingId, UpdateBuildingDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<BuildingDto>> UpdateBuildingAsync(Guid buildingId, UpdateBuildingDto request, CancellationToken cancellationToken)
     {
         var result = await buildingService.UpdateBuildingAsync(buildingId, request, cancellationToken);
 

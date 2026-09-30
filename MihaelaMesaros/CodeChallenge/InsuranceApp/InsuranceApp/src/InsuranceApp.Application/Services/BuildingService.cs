@@ -15,9 +15,9 @@ public sealed class BuildingService(
     ILogger<BuildingService> logger
 ) : IBuildingService
 {
-    public async Task<Result<BuildingDto>> GetBuildingByIdAsync(int buildingId, CancellationToken cancellationToken)
+    public async Task<Result<BuildingDto>> GetBuildingByIdAsync(Guid buildingId, CancellationToken cancellationToken)
     {
-        if (buildingId <= 0)
+        if (buildingId == Guid.Empty)
         {
             return Result<BuildingDto>.Failure(BuildingErrors.InvalidBuildingId);
         }
@@ -32,9 +32,9 @@ public sealed class BuildingService(
         return Result<BuildingDto>.Success(MapBuildingToDto(building));
     }
 
-    public async Task<Result<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(int clientId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<BuildingDto>>> GetBuildingsByClientAsync(Guid clientId, CancellationToken cancellationToken)
     {
-        if (clientId <= 0)
+        if (clientId == Guid.Empty)
         {
             return Result<IReadOnlyList<BuildingDto>>.Failure(BuildingErrors.InvalidClientId);
         }
@@ -53,9 +53,9 @@ public sealed class BuildingService(
         return Result<IReadOnlyList<BuildingDto>>.Success(buildingDtos);
     }
 
-    public async Task<Result<BuildingDto>> CreateBuildingForClientAsync(int clientId, CreateBuildingDto createBuildingDto, CancellationToken cancellationToken)
+    public async Task<Result<BuildingDto>> CreateBuildingForClientAsync(Guid clientId, CreateBuildingDto createBuildingDto, CancellationToken cancellationToken)
     {
-        if (clientId <= 0)
+        if (clientId == Guid.Empty)
         {
             return Result<BuildingDto>.Failure(BuildingErrors.InvalidClientId);
         }
@@ -88,14 +88,22 @@ public sealed class BuildingService(
             return Result<BuildingDto>.Failure(validationBuildingCity);
         }
 
+        var validationBuildingType = await ValidateBuildingTypeAsync(createBuildingDto.BuildingTypeId, cancellationToken);
+
+        if (validationBuildingType is not null)
+        {
+            return Result<BuildingDto>.Failure(validationBuildingType);
+        }
+
+
         var building = new Building
         {
             ClientId = clientId,
             CityId = createBuildingDto.CityId,
+            BuildingTypeId = createBuildingDto.BuildingTypeId,
             AddressStreet = createBuildingDto.AddressStreet,
             AddressStreetNumber = createBuildingDto.AddressStreetNumber,
             ConstructionYear = createBuildingDto.ConstructionYear,
-            BuildingType = createBuildingDto.BuildingType,
             NumberOfFloors = createBuildingDto.NumberOfFloors,
             SurfaceArea = createBuildingDto.SurfaceArea,
             InsuredValue = createBuildingDto.InsuredValue,
@@ -113,9 +121,9 @@ public sealed class BuildingService(
         return Result<BuildingDto>.Success(MapBuildingToDto(building));
     }
 
-    public async Task<Result<BuildingDto>> UpdateBuildingAsync(int buildingId, UpdateBuildingDto updateBuildingDto, CancellationToken cancellationToken)
+    public async Task<Result<BuildingDto>> UpdateBuildingAsync(Guid buildingId, UpdateBuildingDto updateBuildingDto, CancellationToken cancellationToken)
     {
-        if (buildingId <= 0)
+        if (buildingId == Guid.Empty)
         {
             return Result<BuildingDto>.Failure(BuildingErrors.InvalidBuildingId);
         }
@@ -141,6 +149,13 @@ public sealed class BuildingService(
             return Result<BuildingDto>.Failure(validationBuildingCity);
         }
 
+        var validationBuildingType = await ValidateBuildingTypeAsync(updateBuildingDto.BuildingTypeId, cancellationToken);
+
+        if (validationBuildingType is not null)
+        {
+            return Result<BuildingDto>.Failure(validationBuildingType);
+        }
+
 
         var building = await buildingRepository.GetBuildingForUpdateAsync(buildingId, cancellationToken);
 
@@ -150,10 +165,10 @@ public sealed class BuildingService(
         }
 
         building.CityId = updateBuildingDto.CityId;
+        building.BuildingTypeId = updateBuildingDto.BuildingTypeId;
         building.AddressStreet = updateBuildingDto.AddressStreet;
         building.AddressStreetNumber = updateBuildingDto.AddressStreetNumber;
         building.ConstructionYear = updateBuildingDto.ConstructionYear;
-        building.BuildingType = updateBuildingDto.BuildingType;
         building.NumberOfFloors = updateBuildingDto.NumberOfFloors;
         building.SurfaceArea = updateBuildingDto.SurfaceArea;
         building.InsuredValue = updateBuildingDto.InsuredValue;
@@ -179,16 +194,16 @@ public sealed class BuildingService(
             building.AddressStreetNumber,
             building.CityId,
             building.ConstructionYear,
-            building.BuildingType,
+            building.BuildingTypeId,
             building.NumberOfFloors,
             building.SurfaceArea,
             building.InsuredValue,
             building.RiskIndicators);
     }
 
-    private async Task<Error?> ValidateCityAsync(int cityId, CancellationToken cancellationToken)
+    private async Task<Error?> ValidateCityAsync(Guid cityId, CancellationToken cancellationToken)
     {
-        if (cityId <= 0)
+        if (cityId == Guid.Empty)
         {
             return BuildingErrors.InvalidCityId;
         }
@@ -196,6 +211,18 @@ public sealed class BuildingService(
         var cityExists = await geographyRepository.CityExistsAsync(cityId, cancellationToken);
 
         return cityExists ? null : BuildingErrors.CityNotFound(cityId);
+    }
+
+    private async Task<Error?> ValidateBuildingTypeAsync(Guid buildingTypeId, CancellationToken cancellationToken)
+    {
+        if (buildingTypeId == Guid.Empty)
+        {
+            return BuildingErrors.InvalidBuildingType;
+        }
+
+        var buildingTypeExists = await buildingRepository.BuildingTypeExistsAsync(buildingTypeId, cancellationToken);
+
+        return buildingTypeExists ? null : BuildingErrors.BuildingTypeNotFound(buildingTypeId);
     }
 
     private static Error? ValidateBuildingDetails(IBuildingDetailsDto building)
@@ -224,11 +251,6 @@ public sealed class BuildingService(
             || building.ConstructionYear > DateTime.UtcNow.Year)
         {
             return BuildingErrors.InvalidConstructionYear;
-        }
-
-        if (!Enum.IsDefined(building.BuildingType))
-        {
-            return BuildingErrors.InvalidBuildingType;
         }
 
         if (building.NumberOfFloors < BuildingConstraints.MinNumberOfFloors 

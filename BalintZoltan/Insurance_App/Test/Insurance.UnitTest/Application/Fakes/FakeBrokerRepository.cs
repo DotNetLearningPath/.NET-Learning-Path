@@ -1,5 +1,5 @@
-using Application.DTO.Common;
 using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 
 namespace Insurance.UnitTest.Application.Fakes;
@@ -8,25 +8,25 @@ public sealed class FakeBrokerRepository : IBrokerRepository
 {
     public Dictionary<Guid, Broker> Storage { get; } = new();
 
-    public Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken = default)
+    public Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
         Storage[broker.Id] = broker;
         return Task.CompletedTask;
     }
 
-    public Task<bool> ExistsBrokerByCodeAsync(string brokerCode, Guid? excludedBrokerId = null, CancellationToken cancellationToken = default) =>
+    public Task<bool> ExistsBrokerByCodeAsync(string brokerCode, CancellationToken cancellationToken, Guid? excludedBrokerId = null) =>
         Task.FromResult(Storage.Values.Any(broker => broker.BrokerCode == brokerCode && broker.Id != excludedBrokerId));
 
-    public Task<Broker?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<Broker?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         Storage.TryGetValue(id, out var broker);
         return Task.FromResult(broker);
     }
 
-    public Task<Broker?> GetBrokerByCodeAsync(string brokerCode, CancellationToken cancellationToken = default) =>
+    public Task<Broker?> GetBrokerByCodeAsync(string brokerCode, CancellationToken cancellationToken) =>
         Task.FromResult(Storage.Values.FirstOrDefault(broker => broker.BrokerCode == brokerCode));
 
-    public Task<PagedResult<Broker>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken = default)
+    public Task<PagedResult<Broker>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken)
     {
         var pageNumber = Math.Max(pagination.PageNumber, 1);
         var pageSize = Math.Min(Math.Max(pagination.PageSize, 1), 100);
@@ -41,7 +41,7 @@ public sealed class FakeBrokerRepository : IBrokerRepository
         });
     }
 
-    public Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken = default)
+    public Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
         Storage[broker.Id] = broker;
         return Task.CompletedTask;

@@ -1,4 +1,7 @@
 ﻿using FluentValidation;
+using InsuranceApp.Application.Brokers;
+using InsuranceApp.Application.Brokers.Commands;
+using InsuranceApp.Application.Brokers.Validation;
 using InsuranceApp.Application.Buildings;
 using InsuranceApp.Application.Buildings.Commands;
 using InsuranceApp.Application.Buildings.Validation;
@@ -23,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IGeographyService, GeographyService>();
         services.AddScoped<IBuildingService, BuildingService>();
+        services.AddScoped<IBrokerService, BrokerService>();
 
         services.AddScoped<IValidator<CreateClientCommand>, CreateClientCommandValidator>();
         services.AddScoped<IValidator<UpdateClientCommand>, UpdateClientCommandValidator>();
@@ -31,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<BuildingAddressCommand>, BuildingAddressCommandValidator>();
         services.AddScoped<IValidator<CreateBuildingCommand>, CreateBuildingCommandValidator>();
         services.AddScoped<IValidator<UpdateBuildingCommand>, UpdateBuildingCommandValidator>();
+        services.AddScoped<IValidator<CreateBrokerCommand>, CreateBrokerCommandValidator>();
+        services.AddScoped<IValidator<UpdateBrokerCommand>, UpdateBrokerCommandValidator>();
 
         return services;
     }

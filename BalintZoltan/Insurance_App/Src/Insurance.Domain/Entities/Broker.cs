@@ -1,4 +1,4 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
 namespace Insurance.Domain.Entities;
 

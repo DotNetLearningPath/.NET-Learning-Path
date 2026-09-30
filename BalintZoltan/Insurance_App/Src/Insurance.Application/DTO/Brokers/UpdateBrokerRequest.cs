@@ -1,4 +1,4 @@
-namespace Application.DTO.Brokers;
+namespace Insurance.Application.DTO.Brokers;
 
 public sealed class UpdateBrokerRequest
 {

@@ -1,6 +1,6 @@
-using Application.DTO.Brokers;
-using Application.Exceptions;
-using Domain.Enums;
+using Insurance.Application.DTO.Brokers;
+using Insurance.Domain.Enums;
+using Insurance.Application.Exceptions;
 using Insurance.Application.Services;
 using Insurance.Domain.Entities;
 using Insurance.UnitTest.Application.Fakes;
@@ -21,7 +21,7 @@ public sealed class BrokerServiceTest
     [Fact]
     public async Task CreateBrokerAsync_Should_Create_Active_Broker()
     {
-        var result = await _service.CreateBrokerAsync(CreateRequest());
+        var result = await _service.CreateBrokerAsync(CreateRequest(), CancellationToken.None);
 
         Assert.Equal("BR-001", result.BrokerCode);
         Assert.Equal(BrokerStatus.Active, result.Status);
@@ -33,7 +33,7 @@ public sealed class BrokerServiceTest
     {
         var result = await _service.CreateBrokerAsync(CreateRequest(
             brokerCode: " BR-001 ", name: " Broker One ",
-            email: " broker@example.com ", phone: " 123456 "));
+            email: " broker@example.com ", phone: " 123456 "), CancellationToken.None);
 
         Assert.Equal("BR-001", result.BrokerCode);
         Assert.Equal("Broker One", result.Name);
@@ -48,7 +48,7 @@ public sealed class BrokerServiceTest
     public async Task CreateBrokerAsync_Should_Reject_Invalid_Email(string email)
     {
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _service.CreateBrokerAsync(CreateRequest(email: email)));
+            _service.CreateBrokerAsync(CreateRequest(email: email), CancellationToken.None));
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public sealed class BrokerServiceTest
         string expectedMessage, string brokerCode, string name, string email, string phone)
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
-            _service.CreateBrokerAsync(CreateRequest(brokerCode, name, email, phone)));
+            _service.CreateBrokerAsync(CreateRequest(brokerCode, name, email, phone), CancellationToken.None));
 
         Assert.Equal(expectedMessage, exception.Message);
     }
@@ -67,10 +67,10 @@ public sealed class BrokerServiceTest
     [Fact]
     public async Task CreateBrokerAsync_Should_Reject_Duplicate_Code()
     {
-        await _repository.AddBrokerAsync(CreateBroker("BR-001", "Existing"));
+        await _repository.AddBrokerAsync(CreateBroker("BR-001", "Existing"), CancellationToken.None);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _service.CreateBrokerAsync(CreateRequest()));
+            _service.CreateBrokerAsync(CreateRequest(), CancellationToken.None));
 
         Assert.Equal("A broker with this code already exists.", exception.Message);
     }
@@ -87,7 +87,7 @@ public sealed class BrokerServiceTest
             Email = "new@example.com",
             Phone = "456",
             CommissionPercentage = 20
-        });
+        }, CancellationToken.None);
 
         Assert.Equal("BR-002", result.BrokerCode);
         Assert.Equal("Updated Broker", result.Name);
@@ -108,7 +108,7 @@ public sealed class BrokerServiceTest
                 Name = "Second",
                 Email = "second@example.com",
                 Phone = "456"
-            }));
+            }, CancellationToken.None));
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public sealed class BrokerServiceTest
                 Name = "Broker",
                 Email = "broker@example.com",
                 Phone = "123"
-            }));
+            }, CancellationToken.None));
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class BrokerServiceTest
     {
         var broker = await AddBrokerAsync();
 
-        var result = await _service.GetBrokerByIdAsync(broker.Id);
+        var result = await _service.GetBrokerByIdAsync(broker.Id, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(broker.Id, result.Id);
@@ -138,7 +138,7 @@ public sealed class BrokerServiceTest
     [Fact]
     public async Task GetBrokerByIdAsync_Should_Return_Null_When_Not_Found()
     {
-        Assert.Null(await _service.GetBrokerByIdAsync(Guid.NewGuid()));
+        Assert.Null(await _service.GetBrokerByIdAsync(Guid.NewGuid(), CancellationToken.None));
     }
 
     [Theory]
@@ -146,7 +146,7 @@ public sealed class BrokerServiceTest
     [InlineData(100)]
     public async Task CreateBrokerAsync_Should_Accept_Commission_Boundaries(decimal commission)
     {
-        var result = await _service.CreateBrokerAsync(CreateRequest(commissionPercentage: commission));
+        var result = await _service.CreateBrokerAsync(CreateRequest(commissionPercentage: commission), CancellationToken.None);
 
         Assert.Equal(commission, result.CommissionPercentage);
     }
@@ -157,7 +157,7 @@ public sealed class BrokerServiceTest
     public async Task CreateBrokerAsync_Should_Reject_Out_Of_Range_Commission(decimal commission)
     {
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            _service.CreateBrokerAsync(CreateRequest(commissionPercentage: commission)));
+            _service.CreateBrokerAsync(CreateRequest(commissionPercentage: commission), CancellationToken.None));
     }
 
     [Theory]
@@ -169,8 +169,8 @@ public sealed class BrokerServiceTest
         var broker = await AddBrokerAsync(status: activate ? BrokerStatus.Inactive : BrokerStatus.Active);
 
         var result = activate
-            ? await _service.ActivateBrokerAsync(broker.Id)
-            : await _service.DeactivateBrokerAsync(broker.Id);
+            ? await _service.ActivateBrokerAsync(broker.Id, CancellationToken.None)
+            : await _service.DeactivateBrokerAsync(broker.Id, CancellationToken.None);
 
         Assert.Equal(expectedStatus, result.Status);
         Assert.Equal(expectedNumericValue, (int)result.Status);
@@ -182,8 +182,8 @@ public sealed class BrokerServiceTest
     public async Task Status_Commands_Should_Throw_When_Broker_Does_Not_Exist(bool activate)
     {
         var action = activate
-            ? _service.ActivateBrokerAsync(Guid.NewGuid())
-            : _service.DeactivateBrokerAsync(Guid.NewGuid());
+            ? _service.ActivateBrokerAsync(Guid.NewGuid(), CancellationToken.None)
+            : _service.DeactivateBrokerAsync(Guid.NewGuid(), CancellationToken.None);
 
         await Assert.ThrowsAsync<NotFoundException>(() => action);
     }
@@ -194,7 +194,7 @@ public sealed class BrokerServiceTest
         await AddBrokerAsync("BR-001", "Alpha");
         await AddBrokerAsync("BR-002", "Beta");
 
-        var result = await _service.ListBrokersAsync(new() { PageSize = 1 });
+        var result = await _service.ListBrokersAsync(new() { PageSize = 1 }, CancellationToken.None);
 
         Assert.Equal(2, result.TotalCount);
         Assert.Equal("Alpha", Assert.Single(result.Items).Name);
@@ -204,7 +204,7 @@ public sealed class BrokerServiceTest
         string brokerCode = "BR-001", string name = "Broker One", BrokerStatus status = BrokerStatus.Active)
     {
         var broker = CreateBroker(brokerCode, name, status);
-        await _repository.AddBrokerAsync(broker);
+        await _repository.AddBrokerAsync(broker, CancellationToken.None);
         return broker;
     }
 

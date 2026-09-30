@@ -1,16 +1,16 @@
-﻿using Application.DTO.Geography;
+﻿using Insurance.Application.DTO.Geography;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IGeographyService
 {
-    Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<CountyDto>> GetCountiesByCountryIdAsync(
         Guid countryId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<CityDto>> GetCitiesByCountyIdAsync(
         Guid countyId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 }
