@@ -1,4 +1,4 @@
-﻿namespace Application.DTO.Geography;
+﻿namespace Insurance.Application.DTO.Geography;
 
 public class CityDto
 {

@@ -1,4 +1,4 @@
-﻿namespace Application.DTO.Common;
+﻿namespace Insurance.Application.DTO.Common;
 
 public sealed class PaginationRequest
 {

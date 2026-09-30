@@ -12,7 +12,7 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/admin/risk-factors")]
-public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService, ILogger<RiskFactorsController> logger) : ControllerBase
+public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService) : ControllerBase
 {
     private const string GetRiskFactorConfigByIdRouteName = "GetRiskFactorConfigById";
 

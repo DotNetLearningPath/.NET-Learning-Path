@@ -1,16 +1,23 @@
 ﻿using FluentValidation;
+using InsuranceApp.Application.Brokers.Commands;
+using InsuranceApp.Application.Brokers.Results;
 using InsuranceApp.Application.Buildings.Commands;
 using InsuranceApp.Application.Buildings.Results;
 using InsuranceApp.Application.Clients.Commands;
 using InsuranceApp.Application.Clients.Queries;
 using InsuranceApp.Application.Clients.Results;
 using InsuranceApp.Application.Common.Pagination;
+using InsuranceApp.Application.Currencies.Commands;
+using InsuranceApp.Application.Currencies.Results;
 using InsuranceApp.Application.Geography.Results;
+using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
+using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
 using InsuranceApp.WebApi.Models.Common;
+using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Geography;
 
 namespace InsuranceApp.WebApi.Mappings;
@@ -40,6 +47,17 @@ internal static class ApiMappings
         };
     }
 
+    public static BrokerStatus ToDomain(this BrokerStatusDto status)
+    {
+        return status switch
+        {
+            BrokerStatusDto.Active => BrokerStatus.Active,
+            BrokerStatusDto.Inactive => BrokerStatus.Inactive,
+
+            _ => throw new ValidationException("Broker status is invalid.")
+        };
+    }
+
     public static ClientTypeDto ToDto(this ClientType type)
     {
         return type switch
@@ -60,6 +78,17 @@ internal static class ApiMappings
             BuildingType.Industrial => BuildingTypeDto.Industrial,
 
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    public static BrokerStatusDto ToDto(this BrokerStatus status)
+    {
+        return status switch
+        {
+            BrokerStatus.Active => BrokerStatusDto.Active,
+            BrokerStatus.Inactive => BrokerStatusDto.Inactive,
+
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
     }
 
@@ -118,6 +147,47 @@ internal static class ApiMappings
             CityId: request.CityId!.Value,
             Street: request.Street,
             Number: request.Number
+        );
+    }
+
+    public static CreateBrokerCommand ToCommand(this CreateBrokerRequest request)
+    {
+        return new(
+            Code: request.Code,
+            Name: request.Name,
+            Email: request.Email,
+            Phone: request.Phone,
+            Status: request.Status!.Value.ToDomain()
+        );
+    }
+
+    public static UpdateBrokerCommand ToCommand(this UpdateBrokerRequest request, Guid brokerId)
+    {
+        return new(
+            BrokerId: brokerId,
+            Name: request.Name,
+            Email: request.Email,
+            Phone: request.Phone
+        );
+    }
+
+    public static CreateCurrencyCommand ToCommand(this CreateCurrencyRequest request)
+    {
+        return new(
+            Code: request.Code,
+            Name: request.Name,
+            ExchangeRateToBase: request.ExchangeRateToBase!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateCurrencyCommand ToCommand(this UpdateCurrencyRequest request, Guid currencyId)
+    {
+        return new(
+            CurrencyId: currencyId,
+            Name: request.Name,
+            ExchangeRateToBase: request.ExchangeRateToBase!.Value,
+            IsActive: request.IsActive!.Value
         );
     }
 
@@ -220,6 +290,29 @@ internal static class ApiMappings
             Id: result.Id,
             Name: result.Name,
             CountyId: result.CountyId
+        );
+    }
+
+    public static BrokerResponse ToResponse(this BrokerResult result)
+    {
+        return new(
+            Id: result.Id,
+            Code: result.Code,
+            Name: result.Name,
+            Email: result.Email,
+            Phone: result.Phone,
+            Status: result.Status.ToDto()
+        );
+    }
+
+    public static CurrencyResponse ToResponse(this CurrencyResult result)
+    {
+        return new(
+            Id: result.Id,
+            Code: result.Code,
+            Name: result.Name,
+            ExchangeRateToBase: result.ExchangeRateToBase,
+            IsActive: result.IsActive
         );
     }
 
