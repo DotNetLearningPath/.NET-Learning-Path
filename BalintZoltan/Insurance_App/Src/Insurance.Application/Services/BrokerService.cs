@@ -26,13 +26,13 @@ public sealed class BrokerService : IBrokerService
             request.Phone.Trim(),
             commissionPercentage: request.CommissionPercentage);
         await _brokerRepository.AddBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var broker = await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken);
-        return broker is null ? null : Map(broker);
+        return broker is null ? null : MapToBrokerDto(broker);
     }
 
     public async Task<PagedResult<BrokerDto>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken = default)
@@ -40,7 +40,7 @@ public sealed class BrokerService : IBrokerService
         var result = await _brokerRepository.ListBrokersAsync(pagination, cancellationToken);
         return new PagedResult<BrokerDto>
         {
-            Items = result.Items.Select(Map).ToList(),
+            Items = result.Items.Select(MapToBrokerDto).ToList(),
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
             TotalCount = result.TotalCount
@@ -55,7 +55,7 @@ public sealed class BrokerService : IBrokerService
 
         broker.Update(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     public Task<BrokerDto> ActivateBrokerAsync(
@@ -80,7 +80,7 @@ public sealed class BrokerService : IBrokerService
             broker.Deactivate();
         }
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     private async Task<Broker> GetRequiredBrokerAsync(Guid id, CancellationToken cancellationToken) =>
@@ -131,7 +131,7 @@ public sealed class BrokerService : IBrokerService
         }
     }
 
-    private static BrokerDto Map(Broker broker) => new()
+    private static BrokerDto MapToBrokerDto(Broker broker) => new()
     {
         Id = broker.Id, BrokerCode = broker.BrokerCode, Name = broker.Name,
         Email = broker.Email, Phone = broker.Phone, Status = broker.Status,
