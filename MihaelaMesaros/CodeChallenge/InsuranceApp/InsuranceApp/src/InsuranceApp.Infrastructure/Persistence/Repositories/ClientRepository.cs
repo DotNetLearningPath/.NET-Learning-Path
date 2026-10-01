@@ -10,7 +10,7 @@ internal sealed class ClientRepository(InsuranceDbContext dbContext) : IClientRe
 {
     public async Task<(IReadOnlyList<Client> Items, int TotalCount)> SearchClientAsync(string? name, string? identificationNumber, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var query = dbContext.Clients.AsNoTracking().AsQueryable();
+        var query = dbContext.Clients.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(name))
         {
@@ -34,7 +34,7 @@ internal sealed class ClientRepository(InsuranceDbContext dbContext) : IClientRe
         return (clients, totalCount);
     }
 
-    public Task<Client?> GetClientByIdAsync(int clientId, CancellationToken cancellationToken)
+    public Task<Client?> GetClientByIdAsync(Guid clientId, CancellationToken cancellationToken)
     {
         return dbContext.Clients.AsNoTracking().FirstOrDefaultAsync(x => x.ClientId == clientId, cancellationToken);
     }
@@ -51,7 +51,6 @@ internal sealed class ClientRepository(InsuranceDbContext dbContext) : IClientRe
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);
-            
         }
         catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
         {
@@ -64,7 +63,7 @@ internal sealed class ClientRepository(InsuranceDbContext dbContext) : IClientRe
         return dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<Client?> GetClientForUpdateAsync(int clientId, CancellationToken cancellationToken)
+    public Task<Client?> GetClientForUpdateAsync(Guid clientId, CancellationToken cancellationToken)
     {
         return dbContext.Clients.FirstOrDefaultAsync(x => x.ClientId == clientId, cancellationToken);
     }

@@ -1,11 +1,12 @@
-using Application.DTO.Clients;
-using Application.DTO.Common;
-using Application.Exceptions;
-using Application.Helper;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Application.DTO.Clients;
+using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.Exceptions;
+using Insurance.Application.Services;
+using Insurance.UnitTest.Application.Helper;
 
-namespace Application.Services
+namespace Insurance.UnitTest.Application.Services
 {
     public class ClientServiceTest
     {
@@ -18,6 +19,7 @@ namespace Application.Services
         [Fact]
         public async Task CreateClientAsync_Should_Create_Individual_With_Valid_CNP()
         {
+            // Arrange
             var service = new ClientService(_fakeRepositories.Client);
 
             var request = new CreateClientRequest
@@ -29,8 +31,10 @@ namespace Application.Services
                 Phone = "123"
             };
 
-            var dto = await service.CreateClientAsync(request);
+            // Act
+            var dto = await service.CreateClientAsync(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(dto);
             Assert.Equal(request.Name, dto.Name);
             Assert.Equal(request.IdentificationNumber, dto.IdentificationNumber);
@@ -40,6 +44,7 @@ namespace Application.Services
         [Fact]
         public async Task CreateClientAsync_Should_Create_Company_With_RO_Prefix()
         {
+            // Arrange
             var service = new ClientService(_fakeRepositories.Client);
 
             var request = new CreateClientRequest
@@ -50,8 +55,10 @@ namespace Application.Services
                 Email = "info@acme.com"
             };
 
-            var dto = await service.CreateClientAsync(request);
+            // Act
+            var dto = await service.CreateClientAsync(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(dto);
             Assert.Equal(request.Name, dto.Name);
             Assert.Equal(request.IdentificationNumber, dto.IdentificationNumber);
@@ -60,6 +67,7 @@ namespace Application.Services
         [Fact]
         public async Task CreateClientAsync_Should_Throw_When_Identification_Invalid_For_Individual()
         {
+            // Arrange
             var service = new ClientService(_fakeRepositories.Client);
 
             var request = new CreateClientRequest
@@ -69,14 +77,16 @@ namespace Application.Services
                 IdentificationNumber = "ABC"
             };
 
-            await Assert.ThrowsAsync<ArgumentException>(() => service.CreateClientAsync(request));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => service.CreateClientAsync(request, CancellationToken.None));
         }
 
         [Fact]
         public async Task CreateAsync_Should_Throw_When_Duplicate_Identification()
         {
+            // Arrange
             var existing = new Client(ClientType.Individual, "Existing", "1234567890123");
-            await _fakeRepositories.Client.AddClientAsync(existing);
+            await _fakeRepositories.Client.AddClientAsync(existing, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
@@ -87,20 +97,26 @@ namespace Application.Services
                 IdentificationNumber = "1234567890123"
             };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateClientAsync(request));
+            // Act
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateClientAsync(request, CancellationToken.None));
+
+            // Assert
             Assert.Equal("A client with this identification number already exists.", ex.Message);
         }
 
         [Fact]
         public async Task GetClientByIdAsync_Should_Return_Dto_When_Found()
         {
+            // Arrange
             var client = new Client(ClientType.Individual, "John", "1234567890123");
-            await _fakeRepositories.Client.AddClientAsync(client);
+            await _fakeRepositories.Client.AddClientAsync(client, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
-            var dto = await service.GetClientByIdAsync(client.Id);
+            // Act
+            var dto = await service.GetClientByIdAsync(client.Id, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(dto);
             Assert.Equal(client.Id, dto!.Id);
             Assert.Equal(client.Name, dto.Name);
@@ -109,24 +125,31 @@ namespace Application.Services
         [Fact]
         public async Task GetClientByIdAsync_Should_Return_Null_When_Not_Found()
         {
+            // Arrange
             var service = new ClientService(_fakeRepositories.Client);
 
-            var dto = await service.GetClientByIdAsync(Guid.NewGuid());
+            // Act
+            var dto = await service.GetClientByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
+            // Assert
             Assert.Null(dto);
         }
 
         [Fact]
         public async Task SearchClientAsync_Should_Return_All_Clients_When_No_Filters_Are_Provided()
         {
+            // Arrange
             var c1 = new Client(ClientType.Individual, "Alice", "1111111111111");
             var c2 = new Client(ClientType.Company, "Acme", "RO22222");
-            await _fakeRepositories.Client.AddClientAsync(c1);
-            await _fakeRepositories.Client.AddClientAsync(c2);
+            await _fakeRepositories.Client.AddClientAsync(c1, CancellationToken.None);
+            await _fakeRepositories.Client.AddClientAsync(c2, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
-            var all = await service.SearchClientAsync(null, null, new PaginationRequest { PageSize = 10 });
+            // Act
+            var all = await service.SearchClientAsync(null, null, new PaginationRequest { PageSize = 10 }, CancellationToken.None);
+
+            // Assert
             Assert.Equal(2, all.TotalCount);
             Assert.Equal(2, all.Items.Count);
         }
@@ -134,14 +157,18 @@ namespace Application.Services
         [Fact]
         public async Task SearchClientAsync_Should_Return_Matching_Clients_By_Name()
         {
+            // Arrange
             var c1 = new Client(ClientType.Individual, "Alice", "1111111111111");
             var c2 = new Client(ClientType.Company, "Acme", "RO22222");
-            await _fakeRepositories.Client.AddClientAsync(c1);
-            await _fakeRepositories.Client.AddClientAsync(c2);
+            await _fakeRepositories.Client.AddClientAsync(c1, CancellationToken.None);
+            await _fakeRepositories.Client.AddClientAsync(c2, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
-            var filtered = await service.SearchClientAsync("Acme", null, new PaginationRequest());
+            // Act
+            var filtered = await service.SearchClientAsync("Acme", null, new PaginationRequest(), CancellationToken.None);
+
+            // Assert
             Assert.Equal(1, filtered.TotalCount);
             var result = Assert.Single(filtered.Items);
             Assert.Equal(c2.Id, result.Id);
@@ -150,8 +177,9 @@ namespace Application.Services
         [Fact]
         public async Task UpdateClientAsync_Should_Update_When_Valid()
         {
+            // Arrange
             var client = new Client(ClientType.Individual, "John", "1234567890123");
-            await _fakeRepositories.Client.AddClientAsync(client);
+            await _fakeRepositories.Client.AddClientAsync(client, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
@@ -165,8 +193,10 @@ namespace Application.Services
                 Address = "Addr"
             };
 
-            var dto = await service.UpdateClientAsync(client.Id, update);
+            // Act
+            var dto = await service.UpdateClientAsync(client.Id, update, CancellationToken.None);
 
+            // Assert
             Assert.Equal(client.Id, dto.Id);
             Assert.Equal(update.Name, dto.Name);
             Assert.Equal(update.Email, dto.Email);
@@ -176,6 +206,7 @@ namespace Application.Services
         [Fact]
         public async Task UpdateClientAsync_Should_Throw_When_Client_Not_Found()
         {
+            // Arrange
             var service = new ClientService(_fakeRepositories.Client);
 
             var update = new UpdateClientRequest
@@ -185,15 +216,19 @@ namespace Application.Services
                 IdentificationNumber = "1234567890123"
             };
 
-            var ex = await Assert.ThrowsAsync<NotFoundException>(() => service.UpdateClientAsync(Guid.NewGuid(), update));
+            // Act
+            var ex = await Assert.ThrowsAsync<NotFoundException>(() => service.UpdateClientAsync(Guid.NewGuid(), update, CancellationToken.None));
+
+            // Assert
             Assert.Equal("Client was not found.", ex.Message);
         }
 
         [Fact]
         public async Task UpdateClientAsync_Should_Throw_When_Identification_Changed()
         {
+            // Arrange
             var client = new Client(ClientType.Individual, "John", "1234567890123");
-            await _fakeRepositories.Client.AddClientAsync(client);
+            await _fakeRepositories.Client.AddClientAsync(client, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
@@ -204,17 +239,21 @@ namespace Application.Services
                 IdentificationNumber = "9999999999999"
             };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateClientAsync(client.Id, update));
+            // Act
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateClientAsync(client.Id, update, CancellationToken.None));
+
+            // Assert
             Assert.Equal("The client identification number cannot be changed.", ex.Message);
         }
 
         [Fact]
         public async Task UpdateClientAsync_Should_Throw_When_Identification_Exists_For_Other()
         {
+            // Arrange
             var client1 = new Client(ClientType.Individual, "A", "1234567890123");
             var client2 = new Client(ClientType.Individual, "B", "9999999999999");
-            await _fakeRepositories.Client.AddClientAsync(client1);
-            await _fakeRepositories.Client.AddClientAsync(client2);
+            await _fakeRepositories.Client.AddClientAsync(client1, CancellationToken.None);
+            await _fakeRepositories.Client.AddClientAsync(client2, CancellationToken.None);
 
             var service = new ClientService(_fakeRepositories.Client);
 
@@ -225,7 +264,10 @@ namespace Application.Services
                 IdentificationNumber = client2.IdentificationNumber // attempt to set to other client's id
             };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateClientAsync(client1.Id, update));
+            // Act
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateClientAsync(client1.Id, update, CancellationToken.None));
+
+            // Assert
             Assert.Equal("The client identification number cannot be changed.", ex.Message);
         }
     }

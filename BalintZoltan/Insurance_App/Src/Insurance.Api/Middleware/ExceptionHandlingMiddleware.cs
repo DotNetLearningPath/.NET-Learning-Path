@@ -1,9 +1,9 @@
-using Application.Exceptions;
+using Insurance.Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 
-namespace InsuranceApp.Api.Middleware;
+namespace Insurance.Api.Middleware;
 
 public sealed class ExceptionHandlingMiddleware
 {

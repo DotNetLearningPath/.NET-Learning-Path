@@ -1,28 +1,28 @@
-using Application.DTO.Common;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IPolicyRepository
 {
-    Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken = default);
+    Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken);
 
     Task<Policy?> GetPolicyByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<Policy?> GetPolicyByNumberAsync(
         string policyNumber,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<PagedResult<Policy>> SearchPoliciesAsync(
         string? policyNumber,
         PolicyStatus? status,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task UpdatePolicyAsync(
         Policy policy,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 }

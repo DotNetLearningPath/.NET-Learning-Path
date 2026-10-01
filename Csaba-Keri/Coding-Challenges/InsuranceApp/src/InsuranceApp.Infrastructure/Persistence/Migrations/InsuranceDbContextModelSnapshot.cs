@@ -22,6 +22,57 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.BrokerEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code")
+                        .UseCollation("C");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ux_brokers_code");
+
+                    b.HasIndex("Name", "Id");
+
+                    b.ToTable("brokers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_brokers_status", "status IN ('Active', 'Inactive')");
+                        });
+                });
+
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.BuildingEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -265,6 +316,46 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                             Id = new Guid("22222222-2222-4222-8222-222222222223"),
                             CountryId = new Guid("11111111-1111-4111-8111-111111111112"),
                             Name = "Hajdú-Bihar"
+                        });
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.CurrencyEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("code")
+                        .UseCollation("C");
+
+                    b.Property<decimal>("ExchangeRateToBase")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)")
+                        .HasColumnName("exchange_rate_to_base");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ux_currencies_code");
+
+                    b.ToTable("currencies", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_currencies_exchange_rate_to_base", "exchange_rate_to_base > 0");
                         });
                 });
 

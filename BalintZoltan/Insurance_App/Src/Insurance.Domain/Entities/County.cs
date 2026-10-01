@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities;
+﻿namespace Insurance.Domain.Entities;
 
 public class County
 {
@@ -13,10 +13,14 @@ public class County
     public County(Guid countryId, string name)
     {
         if (countryId == Guid.Empty)
+        {
             throw new ArgumentException("Country ID cannot be empty.", nameof(countryId));
+        }
 
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentException("County name cannot be empty.", nameof(name));
+        }
 
         Id = Guid.NewGuid();
         CountryId = countryId;

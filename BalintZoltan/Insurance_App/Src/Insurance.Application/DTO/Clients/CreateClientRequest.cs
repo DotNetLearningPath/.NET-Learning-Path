@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
+﻿using Insurance.Domain.Enums;
 
-namespace Application.DTO.Clients;
+namespace Insurance.Application.DTO.Clients;
 
 public class CreateClientRequest
 {

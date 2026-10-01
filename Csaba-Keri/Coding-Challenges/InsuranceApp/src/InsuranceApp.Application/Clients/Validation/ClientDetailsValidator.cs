@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using InsuranceApp.Application.Clients.Commands;
 using InsuranceApp.Domain.Clients;
+using InsuranceApp.Domain.Common.Validation;
 
 namespace InsuranceApp.Application.Clients.Validation;
 

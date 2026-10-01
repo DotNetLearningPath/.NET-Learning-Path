@@ -1,6 +1,346 @@
-@InsuranceApp_HostAddress = http://localhost:5089
+@InsuranceApp_HostAddress = https://localhost:7083
 
-GET {{InsuranceApp_HostAddress}}/weatherforecast/
+# ============================================================
+# IDs
+# Replace these values with IDs returned by your API / database
+# ============================================================
+
+@countryId = E3DD7DAD-60B7-F111-BC3C-BCF1054861B1
+@countyId = E9DD7DAD-60B7-F111-BC3C-BCF1054861B1
+@cityId = f1dd7dad-60b7-f111-bc3c-bcf1054861b1
+
+@clientId = 00000000-0000-0000-0000-000000000000
+@buildingId = 00000000-0000-0000-0000-000000000000
+@buildingTypeId = 574239F9-60B7-F111-BC3C-BCF1054861B1
+
+@currencyId = 13DCB6BD-61B7-F111-BC3C-BCF1054861B1
+@feeConfigId = 9EA036E6-61B7-F111-BC3C-BCF1054861B1
+
+
+
+### Get countries
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/countries
 Accept: application/json
+
+###
+
+### Get counties by country
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/countries/{{countryId}}/counties
+Accept: application/json
+
+###
+
+### Get cities by county
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/counties/{{countyId}}/cities
+Accept: application/json
+
+###
+
+### Search clients
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients?pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search clients by name
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients?name=John&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search clients by identification number
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients?identifier=1980101223344&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Get client by ID
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}
+Accept: application/json
+
+###
+
+### Create individual client
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/clients
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientType": 1,
+  "name": "John Doe",
+  "identificationNumber": "1980101223344",
+  "email": "john@test.com",
+  "phone": "0712345678",
+  "address": "Cluj-Napoca"
+}
+
+###
+
+### Create company client
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/clients
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientType": 2,
+  "name": "Demo Company SRL",
+  "identificationNumber": "RO12345678",
+  "email": "office@demo.test",
+  "phone": "0722000000",
+  "address": "Bucharest"
+}
+
+###
+
+### Update client
+
+PUT {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "John Updated",
+  "email": "john.updated@test.com",
+  "phone": "0700123456",
+  "address": "Bucharest"
+}
+
+###
+
+### Get building by ID
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/buildings/{{buildingId}}
+Accept: application/json
+
+###
+
+### Get buildings by client
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
+Accept: application/json
+
+###
+
+### Create building for client
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
+Content-Type: application/json
+Accept: application/json
+
+{
+  "buildingTypeId": "{{buildingTypeId}}",
+  "addressStreet": "Memorandumului",
+  "addressStreetNumber": "25A",
+  "cityId": "{{cityId}}",
+  "constructionYear": 2015,
+  "numberOfFloors": 4,
+  "surfaceArea": 185.50,
+  "insuredValue": 750000.00,
+  "riskIndicators": "Flood zone"
+}
+
+###
+
+### Update building
+
+PUT {{InsuranceApp_HostAddress}}/api/brokers/buildings/{{buildingId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "buildingTypeId": "{{buildingTypeId}}",
+  "addressStreet": "Republicii",
+  "addressStreetNumber": "10B",
+  "cityId": "{{cityId}}",
+  "constructionYear": 2020,
+  "numberOfFloors": 6,
+  "surfaceArea": 350.50,
+  "insuredValue": 1250000.00,
+  "riskIndicators": "Earthquake risk zone"
+}
+
+###
+
+### Get currencies
+
+GET {{InsuranceApp_HostAddress}}/api/admin/currencies
+Accept: application/json
+
+###
+
+### Get currency by ID
+
+GET {{InsuranceApp_HostAddress}}/api/admin/currencies/{{currencyId}}
+Accept: application/json
+
+###
+
+### Create currency
+
+POST {{InsuranceApp_HostAddress}}/api/admin/currencies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "code": "CHF",
+  "name": "Swiss Franc",
+  "exchangeRateToBase": 5.60,
+  "isActive": true
+}
+
+###
+
+### Update currency
+
+PUT {{InsuranceApp_HostAddress}}/api/admin/currencies/{{currencyId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "code": "CHF",
+  "name": "Swiss Franc Updated",
+  "exchangeRateToBase": 5.65,
+  "isActive": true
+}
+
+###
+
+### Get fee configurations
+
+GET {{InsuranceApp_HostAddress}}/api/admin/fees
+Accept: application/json
+
+###
+
+### Get fee configuration by ID
+
+GET {{InsuranceApp_HostAddress}}/api/admin/fees/{{feeConfigId}}
+Accept: application/json
+
+###
+
+### Create broker commission fee
+
+POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Demo broker commission",
+  "feeType": 1,
+  "percentage": 5.0000,
+  "effectiveFrom": "2026-09-24T00:00:00Z",
+  "effectiveTo": null,
+  "isActive": true
+}
+
+###
+
+### Create risk adjustment fee
+
+POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Demo risk adjustment",
+  "feeType": 2,
+  "percentage": 2.0000,
+  "effectiveFrom": "2026-09-24T00:00:00Z",
+  "effectiveTo": null,
+  "isActive": true
+}
+
+###
+
+### Create administration fee
+
+POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Demo administration fee",
+  "feeType": 3,
+  "percentage": 1.5000,
+  "effectiveFrom": "2026-09-24T00:00:00Z",
+  "effectiveTo": null,
+  "isActive": true
+}
+
+###
+
+### Update fee configuration
+
+PUT {{InsuranceApp_HostAddress}}/api/admin/fees/{{feeConfigId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Updated broker commission",
+  "feeType": 1,
+  "percentage": 5.5000,
+  "effectiveFrom": "2026-09-24T00:00:00Z",
+  "effectiveTo": null,
+  "isActive": true
+}
+
+###
+
+### Client - non-existing ID -> 404
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients/ffffffff-ffff-ffff-ffff-ffffffffffff
+Accept: application/json
+
+###
+
+### Client - empty GUID -> 400
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/clients/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+###
+
+### Currency - invalid exchange rate -> 400
+
+POST {{InsuranceApp_HostAddress}}/api/admin/currencies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "code": "CAD",
+  "name": "Canadian Dollar",
+  "exchangeRateToBase": 0,
+  "isActive": true
+}
+
+###
+
+### Building - invalid surface area -> 400
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
+Content-Type: application/json
+Accept: application/json
+
+{
+  "buildingTypeId": "{{buildingTypeId}}",
+  "addressStreet": "Memorandumului",
+  "addressStreetNumber": "25A",
+  "cityId": "{{cityId}}",
+  "constructionYear": 2015,
+  "numberOfFloors": 4,
+  "surfaceArea": 0,
+  "insuredValue": 750000.00,
+  "riskIndicators": "Flood zone"
+}
 
 ###

@@ -1,6 +1,6 @@
 ﻿using System.Net.Mail;
 
-namespace InsuranceApp.Domain.Clients;
+namespace InsuranceApp.Domain.Common.Validation;
 
 public static class EmailAddressRules
 {

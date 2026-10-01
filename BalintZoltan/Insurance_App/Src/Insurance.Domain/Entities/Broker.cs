@@ -1,6 +1,6 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
-namespace Domain.Entities;
+namespace Insurance.Domain.Entities;
 
 public class Broker
 {
@@ -55,5 +55,54 @@ public class Broker
         Phone = phone;
         Status = status;
         CommissionPercentage = commissionPercentage;
+    }
+
+    public void Update(
+        string brokerCode,
+        string name,
+        string email,
+        string phone,
+        decimal? commissionPercentage)
+    {
+        ValidateRequiredValues(brokerCode, name, email, phone, commissionPercentage);
+
+        BrokerCode = brokerCode.Trim();
+        Name = name.Trim();
+        Email = email.Trim();
+        Phone = phone.Trim();
+        CommissionPercentage = commissionPercentage;
+    }
+
+    public void Activate() => Status = BrokerStatus.Active;
+
+    public void Deactivate() => Status = BrokerStatus.Inactive;
+
+    private static void ValidateRequiredValues(
+        string brokerCode,
+        string name,
+        string email,
+        string phone,
+        decimal? commissionPercentage)
+    {
+        if (string.IsNullOrWhiteSpace(brokerCode))
+        {
+            throw new ArgumentException("Broker code is required.", nameof(brokerCode));
+        }
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Broker name is required.", nameof(name));
+        }
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new ArgumentException("Broker email is required.", nameof(email));
+        }
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            throw new ArgumentException("Broker phone is required.", nameof(phone));
+        }
+        if (commissionPercentage is < 0 or > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
+        }
     }
 }

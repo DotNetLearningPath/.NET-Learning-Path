@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
+﻿using Insurance.Domain.Enums;
 
-namespace Application.DTO.Buildings;
+namespace Insurance.Application.DTO.Buildings;
 
 public class BuildingDto
 {

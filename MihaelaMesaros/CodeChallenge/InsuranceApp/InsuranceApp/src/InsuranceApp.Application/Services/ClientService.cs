@@ -40,9 +40,9 @@ public sealed class ClientService(IClientRepository clientRepository, ILogger<Cl
         return Result<PagedResult<ClientDto>>.Success(pagedResult);
     }
 
-    public async Task<Result<ClientDto>> GetClientByIdAsync(int clientId, CancellationToken cancellationToken)
+    public async Task<Result<ClientDto>> GetClientByIdAsync(Guid clientId, CancellationToken cancellationToken)
     {
-        if (clientId <= 0)
+        if (clientId == Guid.Empty)
         {
             return Result<ClientDto>.Failure(ClientErrors.InvalidClientId);
         }
@@ -132,9 +132,9 @@ public sealed class ClientService(IClientRepository clientRepository, ILogger<Cl
         return Result<ClientDto>.Success(MapClientToDto(client));
     }
 
-    public async Task<Result<ClientDto>> UpdateClientAsync(int clientId, UpdateClientDto updateClientDto, CancellationToken cancellationToken)
+    public async Task<Result<ClientDto>> UpdateClientAsync(Guid clientId, UpdateClientDto updateClientDto, CancellationToken cancellationToken)
     {
-        if (clientId <= 0)
+        if (clientId == Guid.Empty)
         {
             return Result<ClientDto>.Failure(ClientErrors.InvalidClientId);
         }

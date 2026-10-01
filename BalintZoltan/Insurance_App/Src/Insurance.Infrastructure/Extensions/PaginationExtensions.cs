@@ -1,7 +1,7 @@
-using Application.DTO.Common;
+using Insurance.Application.DTO.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Extensions;
+namespace Insurance.Infrastructure.Extensions;
 
 public static class PaginationExtensions
 {
@@ -10,7 +10,7 @@ public static class PaginationExtensions
     public static async Task<PagedResult<T>> ToPagedResultAsync<T>(
         this IQueryable<T> query,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var pageNumber = Math.Max(pagination.PageNumber, 1);
         var pageSize = Math.Min(Math.Max(pagination.PageSize, 1), DefaultMaxPageSize);

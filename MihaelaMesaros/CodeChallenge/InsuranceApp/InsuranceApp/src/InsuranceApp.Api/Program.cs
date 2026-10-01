@@ -14,16 +14,18 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 
 // Configure log file paths
-string logFolder = builder.Configuration["LoggingSettings:LogFolder"] ?? throw new InvalidOperationException("LoggingSettings > LogFolder is not configured.");
-string logFileNameInfo = builder.Configuration["LoggingSettings:LogFileNameInfo"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameInfo is not configured.");
-string logFileNameError = builder.Configuration["LoggingSettings:LogFileNameError"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameError is not configured.");
+var logFolder = builder.Configuration["LoggingSettings:LogFolder"] ?? throw new InvalidOperationException("LoggingSettings > LogFolder is not configured.");
+var logFileNameInfo = builder.Configuration["LoggingSettings:LogFileNameInfo"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameInfo is not configured.");
+var logFileNameError = builder.Configuration["LoggingSettings:LogFileNameError"] ?? throw new InvalidOperationException("LoggingSettings > LogFileNameError is not configured.");
 
-string logPathInfo = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameInfo);
-string logPathError = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameError);
+var logPathInfo = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameInfo);
+var logPathError = Path.Combine(AppContext.BaseDirectory, logFolder, logFileNameError);
 
 
 builder.Host.UseSerilog((context, configuration) =>
 {
+    const string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message:lj}{NewLine}{Exception}";
+
     configuration
         .ReadFrom.Configuration(context.Configuration)
         .WriteTo.Logger(lc => lc
@@ -31,14 +33,19 @@ builder.Host.UseSerilog((context, configuration) =>
             .WriteTo.File(
                 logPathInfo,
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 30)
+                retainedFileCountLimit: 30,
+                outputTemplate: outputTemplate
+            )
         )
         .WriteTo.Logger(lc => lc
             .Filter.ByIncludingOnly(logEvent => logEvent.Level >= LogEventLevel.Error)
             .WriteTo.File(
                 logPathError,
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 90));
+                retainedFileCountLimit: 90,
+                outputTemplate: outputTemplate
+            )
+        );
 });
 
 
@@ -62,7 +69,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
 {
     var httpsUrl = app.Urls.FirstOrDefault(url => url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 
-    Console.WriteLine($"Base URL: {httpsUrl}");
+    Console.WriteLine($"Application started: {httpsUrl}");
 });
 
 app.UseExceptionHandler();

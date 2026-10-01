@@ -1,4 +1,4 @@
-namespace Domain.Enums;
+namespace Insurance.Domain.Enums;
 
 public enum PolicyStatus
 {

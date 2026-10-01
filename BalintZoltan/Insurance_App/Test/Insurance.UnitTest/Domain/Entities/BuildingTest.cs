@@ -1,16 +1,18 @@
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 
-namespace Domain.UnitTests.Entities
+namespace Insurance.Domain.UnitTests.Entities
 {
     public class BuildingTest
     {
         [Fact]
         public void Create_With_Valid_Data_Should_Succeed()
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
 
+            // Act
             var building = new Building(
                 clientId,
                 cityId,
@@ -24,6 +26,7 @@ namespace Domain.UnitTests.Entities
                 isFloodRiskZone: true,
                 isEarthquakeRiskZone: false);
 
+            // Assert
             Assert.NotEqual(Guid.Empty, building.Id);
             Assert.Equal(clientId, building.ClientId);
             Assert.Equal(cityId, building.CityId);
@@ -45,6 +48,7 @@ namespace Domain.UnitTests.Entities
         [InlineData("SurfaceArea")]
         public void Constructor_Should_Throw_When_Required_Data_Is_Invalid(string invalidField)
         {
+            // Act & Assert
             Assert.Throws<ArgumentException>(() =>
                 invalidField switch
                 {
@@ -59,11 +63,15 @@ namespace Domain.UnitTests.Entities
         [Fact]
         public void UpdateAddress_Should_Succeed()
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
             var building = new Building(clientId, cityId, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m);
 
+            // Act
             building.UpdateAddress(cityId, "New St", "2");
+
+            // Assert
             Assert.Equal(cityId, building.CityId);
             Assert.Equal("New St", building.Street);
             Assert.Equal("2", building.Number);
@@ -75,10 +83,12 @@ namespace Domain.UnitTests.Entities
         [InlineData("Number")]
         public void UpdateAddress_Should_Throw_When_Data_Is_Invalid(string invalidField)
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
             var building = new Building(clientId, cityId, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m);
 
+            // Act & Assert
             Assert.Throws<ArgumentException>(() =>
             {
                 switch (invalidField)
@@ -101,12 +111,15 @@ namespace Domain.UnitTests.Entities
         [Fact]
         public void UpdateDetails_Should_Succeed()
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
             var building = new Building(clientId, cityId, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m);
 
+            // Act
             building.UpdateDetails(2000, BuildingType.Residential, 3, 120.5m, 250000m);
 
+            // Assert
             Assert.Equal(2000, building.ConstructionYear);
             Assert.Equal(BuildingType.Residential, building.Type);
             Assert.Equal(3, building.NumberOfFloors);
@@ -120,10 +133,12 @@ namespace Domain.UnitTests.Entities
         [InlineData("NumberOfFloors")]
         public void UpdateDetails_Should_Throw_When_Value_Is_NonPositive(string invalidField)
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
             var building = new Building(clientId, cityId, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m);
 
+            // Act & Assert
             Assert.Throws<ArgumentException>(() =>
             {
                 switch (invalidField)
@@ -152,6 +167,7 @@ namespace Domain.UnitTests.Entities
             bool isFloodRiskZone,
             bool isEarthquakeRiskZone)
         {
+            // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
             var building = new Building(
@@ -171,8 +187,10 @@ namespace Domain.UnitTests.Entities
             var beforeSurface = building.SurfaceArea;
             var beforeInsured = building.InsuredValue;
 
+            // Act
             building.UpdateRiskIndicators(isFloodRiskZone, isEarthquakeRiskZone);
 
+            // Assert
             Assert.Equal(isFloodRiskZone, building.IsFloodRiskZone);
             Assert.Equal(isEarthquakeRiskZone, building.IsEarthquakeRiskZone);
             Assert.Equal(beforeFloors, building.NumberOfFloors);

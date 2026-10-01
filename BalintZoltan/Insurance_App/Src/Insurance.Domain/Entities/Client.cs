@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
+﻿using Insurance.Domain.Enums;
 
-namespace Domain.Entities
+namespace Insurance.Domain.Entities
 {
     public class Client
     {
@@ -24,15 +24,19 @@ namespace Domain.Entities
         private static void CheckClientName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
+            {
                 throw new ArgumentException("Client name is required.");
+            }
         }
 
         private static void CheckClientId(string identificationNumber)
         {
 
             if (string.IsNullOrWhiteSpace(identificationNumber))
+            {
                 throw new ArgumentException(
                     "Identification number is required.");
+            }
         }
 
         public Client(

@@ -1,6 +1,6 @@
-﻿using Application.Fakes;
+﻿using Insurance.UnitTest.Application.Fakes;
 
-namespace Application.Helper;
+namespace Insurance.UnitTest.Application.Helper;
 
 public sealed class FakeRepositories
 {

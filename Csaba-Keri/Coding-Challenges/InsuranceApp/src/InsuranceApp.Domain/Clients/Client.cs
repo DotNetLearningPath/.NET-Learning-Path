@@ -1,4 +1,6 @@
-﻿namespace InsuranceApp.Domain.Clients;
+﻿using static InsuranceApp.Domain.Common.Validation.DomainValueNormalizer;
+
+namespace InsuranceApp.Domain.Clients;
 
 public class Client
 {
@@ -54,7 +56,7 @@ public class Client
         );
 
         Name = NormalizeRequired(name, MaxNameLength, nameof(name));
-        Email = NormalizeEmail(email);
+        Email = NormalizeEmail(email, MaxEmailLength, nameof(email));
         Phone = NormalizeRequired(phone, MaxPhoneLength, nameof(phone));
         PrimaryAddress = NormalizePrimaryAddress(primaryAddress);
     }
@@ -67,7 +69,7 @@ public class Client
     )
     {
         var normalizedName = NormalizeRequired(name, MaxNameLength, nameof(name));
-        var normalizedEmail = NormalizeEmail(email);
+        var normalizedEmail = NormalizeEmail(email, MaxEmailLength, nameof(email));
         var normalizedPhone = NormalizeRequired(phone, MaxPhoneLength, nameof(phone));
         var normalizedAddress = NormalizePrimaryAddress(primaryAddress);
 
@@ -75,44 +77,6 @@ public class Client
         Email = normalizedEmail;
         Phone = normalizedPhone;
         PrimaryAddress = normalizedAddress;
-    }
-
-    private static string NormalizeRequired(string value, int maxLength, string parameterName)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new ArgumentException(
-                "Value cannot be null or whitespace.",
-                parameterName
-            );
-        }
-
-        var normalizedValue = value.Trim();
-
-        if (normalizedValue.Length > maxLength)
-        {
-            throw new ArgumentException(
-                $"Value must not exceed {maxLength} characters.",
-                parameterName
-            );
-        }
-
-        return normalizedValue;
-    }
-
-    private static string NormalizeEmail(string email)
-    {
-        var normalizedEmail = NormalizeRequired(email, MaxEmailLength, nameof(email));
-
-        if (!EmailAddressRules.IsSingleAddress(normalizedEmail))
-        {
-            throw new ArgumentException(
-                "A single email address without a display name is required.",
-                nameof(email)
-            );
-        }
-
-        return normalizedEmail;
     }
 
     private static string? NormalizePrimaryAddress(string? primaryAddress)

@@ -1,8 +1,8 @@
-﻿using Application.Abstractions;
-using Application.DTO.Geography;
+﻿using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Geography;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InsuranceApp.Api.Controllers;
+namespace Insurance.Api.Controllers;
 
 [ApiController]
 [Route("api/brokers")]

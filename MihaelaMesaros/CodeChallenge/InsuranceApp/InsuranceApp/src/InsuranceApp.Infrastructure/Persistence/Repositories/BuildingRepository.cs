@@ -6,12 +6,12 @@ namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
 internal sealed class BuildingRepository(InsuranceDbContext dbContext) : IBuildingRepository
 {
-    public Task<Building?> GetBuildingByIdAsync(int buildingId, CancellationToken cancellationToken)
+    public Task<Building?> GetBuildingByIdAsync(Guid buildingId, CancellationToken cancellationToken)
     {
         return dbContext.Buildings.AsNoTracking().FirstOrDefaultAsync(x => x.BuildingId == buildingId, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Building>> GetBuildingsByClientAsync(int clientId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Building>> GetBuildingsByClientAsync(Guid clientId, CancellationToken cancellationToken)
     {
         return await dbContext.Buildings
             .AsNoTracking()
@@ -32,8 +32,13 @@ internal sealed class BuildingRepository(InsuranceDbContext dbContext) : IBuildi
         return dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<Building?> GetBuildingForUpdateAsync(int buildingId, CancellationToken cancellationToken)
+    public Task<Building?> GetBuildingForUpdateAsync(Guid buildingId, CancellationToken cancellationToken)
     {
         return dbContext.Buildings.FirstOrDefaultAsync(x => x.BuildingId == buildingId, cancellationToken);
+    }
+
+    public Task<bool> BuildingTypeExistsAsync(Guid buildingTypeId, CancellationToken cancellationToken)
+    {
+        return dbContext.BuildingTypes.AnyAsync(x => x.BuildingTypeId == buildingTypeId, cancellationToken);
     }
 }

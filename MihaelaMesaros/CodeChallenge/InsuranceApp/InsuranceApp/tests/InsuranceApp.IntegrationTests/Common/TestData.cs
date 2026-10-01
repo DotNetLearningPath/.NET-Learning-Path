@@ -1,0 +1,331 @@
+﻿using InsuranceApp.Application.DTOs.Building;
+using InsuranceApp.Application.DTOs.Client;
+using InsuranceApp.Application.DTOs.FeeConfig;
+using InsuranceApp.Application.DTOs.RiskFactorConfig;
+using InsuranceApp.Domain.Entities;
+using InsuranceApp.Domain.Enums;
+
+namespace InsuranceApp.IntegrationTests.Common;
+
+internal static class TestData
+{
+    public static readonly Guid NonExistingId = new("99999999-9999-9999-9999-999999999999");
+
+    #region Geography
+    private static readonly Guid RomaniaId = Guid.NewGuid();
+    private static readonly Guid HungaryId = Guid.NewGuid();
+
+    private static readonly Guid ClujCountyId = Guid.NewGuid();
+    private static readonly Guid BrasovCountyId = Guid.NewGuid();
+
+    public static readonly List<Country> Countries =
+    [
+        new()
+        {
+            CountryId = RomaniaId,
+            Name = "Romania"
+        },
+        new()
+        {
+            CountryId = HungaryId,
+            Name = "Hungary"
+        }
+    ];
+
+    public static readonly List<County> Counties =
+    [
+        new()
+        {
+            CountyId = ClujCountyId,
+            CountryId = RomaniaId,
+            Name = "Cluj"
+        },
+        new()
+        {
+            CountyId = BrasovCountyId,
+            CountryId = RomaniaId,
+            Name = "Brasov"
+        }
+    ];
+
+    public static readonly List<City> Cities =
+    [
+        new()
+        {
+            CityId = Guid.NewGuid(),
+            CountyId = ClujCountyId,
+            Name = "Cluj-Napoca"
+        },
+        new()
+        {
+            CityId = Guid.NewGuid(),
+            CountyId = ClujCountyId,
+            Name = "Turda"
+        }
+    ];
+    #endregion
+
+
+    #region Clients
+    public static readonly CreateClientDto ClientDtoForCreate = new(
+        ClientType.Individual,
+        "John Doe",
+        "1980101223344",
+        "john@test.com",
+        "0712345678",
+        "Cluj-Napoca");
+
+    public static readonly UpdateClientDto ClientDtoForUpdate = new(
+        "John Updated",
+        "john.updated@test.com",
+        "0700123456",
+        "Bucharest");
+
+    public static readonly Client ClientForRead = new()
+    {
+        ClientId = Guid.NewGuid(),
+        ClientType = ClientType.Individual,
+        Name = "John Doe",
+        IdentificationNumber = "1980101223344",
+        Email = "john@test.com",
+        Phone = "0712345678",
+        Address = "Cluj-Napoca",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    public static readonly List<Client> ClientsForSearch =
+    [
+        new()
+        {
+            ClientId = Guid.NewGuid(),
+            ClientType = ClientType.Individual,
+            Name = "John Doe",
+            IdentificationNumber = "1980101223344",
+            Email = "john@test.com",
+            CreatedAt = DateTime.UtcNow
+        },
+        new()
+        {
+            ClientId = Guid.NewGuid(),
+            ClientType = ClientType.Individual,
+            Name = "John Smith",
+            IdentificationNumber = "1990202334455",
+            Email = "john.smith@test.com",
+            CreatedAt = DateTime.UtcNow
+        },
+        new()
+        {
+            ClientId = Guid.NewGuid(),
+            ClientType = ClientType.Company,
+            Name = "Demo Company",
+            IdentificationNumber = "RO12345678",
+            Email = "office@demo.test",
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+    #endregion
+
+
+    #region Building Types
+    public static readonly List<BuildingType> BuildingTypes =
+    [
+        new()
+        {
+            BuildingTypeId = Guid.NewGuid(),
+            Name = "Residential"
+        },
+        new()
+        {
+            BuildingTypeId = Guid.NewGuid(),
+            Name = "Office"
+        },
+        new()
+        {
+            BuildingTypeId = Guid.NewGuid(),
+            Name = "Industrial"
+        }
+    ];
+    #endregion
+
+
+    #region Buildings
+    public static readonly Client BuildingClient = new()
+    {
+        ClientId = Guid.NewGuid(),
+        ClientType = ClientType.Individual,
+        Name = "Building Test Client",
+        IdentificationNumber = $"TEST-{Guid.NewGuid():N}",
+        Email = "building.test@test.com",
+        Phone = "0712345678",
+        Address = "Cluj-Napoca",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    public static readonly Building BuildingForRead = new()
+    {
+        BuildingId = Guid.NewGuid(),
+        ClientId = BuildingClient.ClientId,
+        CityId = Cities[0].CityId,
+        BuildingTypeId = BuildingTypes[0].BuildingTypeId,
+        AddressStreet = "Memorandumului",
+        AddressStreetNumber = "25A",
+        ConstructionYear = 2015,
+        NumberOfFloors = 4,
+        SurfaceArea = 185.50m,
+        InsuredValue = 750_000.00m,
+        RiskIndicators = "Flood zone",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    public static readonly CreateBuildingDto BuildingDtoForCreate = new(
+        BuildingTypes[0].BuildingTypeId,
+        "Memorandumului",
+        "25A",
+        Cities[0].CityId,
+        2015,
+        4,
+        185.50m,
+        750_000.00m,
+        "Flood zone");
+
+    public static readonly UpdateBuildingDto BuildingDtoForUpdate = new(
+        BuildingTypes[1].BuildingTypeId,
+        "Republicii",
+        "10B",
+        Cities[0].CityId,
+        2020,
+        6,
+        350.50m,
+        1_250_000.00m,
+        "Earthquake risk zone");
+    #endregion
+
+
+    #region Currency
+    public static readonly Currency CurrencyForCreate = new()
+    {
+        CurrencyId = Guid.NewGuid(),
+        Code = "EUR",
+        Name = "Euro",
+        ExchangeRateToBase = 5.11m,
+        IsActive = true
+    };
+
+    public static readonly Currency CurrencyForUpdate = new()
+    {
+        CurrencyId = Guid.NewGuid(),
+        Code = "EUR",
+        Name = "Euro",
+        ExchangeRateToBase = 5.22m,
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow,
+        ModifiedAt = DateTime.UtcNow
+    };
+
+    public static readonly List<Currency> CurrenciesList =
+    [
+        new Currency
+        {
+            CurrencyId = Guid.NewGuid(),
+            Code = "RON",
+            Name = "Romanian Leu",
+            ExchangeRateToBase = 1.00m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        },
+        new Currency
+        {
+            CurrencyId = Guid.NewGuid(),
+            Code = "EUR",
+            Name = "Euro",
+            ExchangeRateToBase = 5.22m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+    #endregion
+
+
+    #region FeeConfig
+    public static readonly CreateFeeConfigDto FeeConfigDtoForCreate = new(
+        "Standard broker fee",
+        FeeType.BrokerCommission,
+        2.5000m,
+        new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+        new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+        true
+    );
+
+    public static readonly UpdateFeeConfigDto FeeConfigDtoForUpdate = new(
+        "Standard broker fee",
+        FeeType.BrokerCommission,
+        2.5000m,
+        new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+        new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+        true
+    );
+
+    public static readonly List<FeeConfig> FeeConfigsList =
+    [
+        new FeeConfig
+        {
+            FeeConfigId = Guid.NewGuid(),
+            Name = "Standard broker fee",
+            FeeType = FeeType.BrokerCommission,
+            Percentage = 2.5000m,
+            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveTo = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        },
+        new FeeConfig
+        {
+            FeeConfigId = Guid.NewGuid(),
+            Name = "Admin fee",
+            FeeType = FeeType.AdminFee,
+            Percentage = 1.0000m,
+            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveTo = null,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+    #endregion
+
+
+    #region RiskFactorConfig
+    public static readonly CreateRiskFactorConfigDto RiskFactorConfigDtoForCreate = new(
+        RiskFactorLevel.Country,
+        Countries[0].CountryId,
+        5.25m,
+        true);
+
+    public static readonly UpdateRiskFactorConfigDto RiskFactorConfigDtoForUpdate = new(
+            RiskFactorLevel.Country,
+            Countries[1].CountryId,
+            -3.50m,
+            false);
+
+    public static readonly List<RiskFactorConfig> RiskFactorConfigsList =
+    [
+        new()
+        {
+            RiskFactorConfigId = Guid.NewGuid(),
+            Level = RiskFactorLevel.Country,
+            ReferenceId = Countries[0].CountryId,
+            AdjustmentPercentage = 5.25m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        },
+        new()
+        {
+            RiskFactorConfigId = Guid.NewGuid(),
+            Level = RiskFactorLevel.Country,
+            ReferenceId = Countries[1].CountryId,
+            AdjustmentPercentage = -2.50m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+    #endregion
+}

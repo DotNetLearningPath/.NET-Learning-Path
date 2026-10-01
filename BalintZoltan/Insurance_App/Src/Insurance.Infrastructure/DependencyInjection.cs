@@ -1,12 +1,13 @@
-﻿using Application.Abstractions;
-using Infrastructure.Persistence;
-using Infrastructure.Repositories;
-using Infrastructure.Seed;
+﻿using Infrastructure.Seed;
+using Insurance.Application.Abstractions;
+using Insurance.Infrastructure.Persistence;
+using Insurance.Infrastructure.Repositories;
+using Insurance.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure;
+namespace Insurance.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -35,7 +36,9 @@ public static class DependencyInjection
                 options.CurrencyFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.CurrencyFile));
                 options.BrokerFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.BrokerFile));
                 options.FeeConfigurationFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.FeeConfigurationFile));
-                options.RiskFactorConfigurationFile = GetRequiredSeedSetting(seedDataSection, nameof(SeedDataOptions.RiskFactorConfigurationFile));
+                options.RiskFactorConfigurationFile = GetRequiredSeedSetting(
+                    seedDataSection,
+                    nameof(SeedDataOptions.RiskFactorConfigurationFile));
             });
 
         services.AddScoped<GeographySeeder>();

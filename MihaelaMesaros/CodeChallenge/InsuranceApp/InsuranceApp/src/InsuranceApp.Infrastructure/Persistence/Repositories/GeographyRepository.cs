@@ -14,7 +14,7 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<County>> GetCountiesByCountryAsync(int countryId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<County>> GetCountiesByCountryAsync(Guid countryId, CancellationToken cancellationToken)
     {
         return await dbContext.Counties
             .AsNoTracking()
@@ -25,7 +25,7 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<City>> GetCitiesByCountyAsync(int countyId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<City>> GetCitiesByCountyAsync(Guid countyId, CancellationToken cancellationToken)
     {
         return await dbContext.Cities
             .AsNoTracking()
@@ -36,17 +36,17 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
             .ToListAsync(cancellationToken);
     }
 
-    public Task<bool> CountryExistsAsync(int countryId, CancellationToken cancellationToken)
+    public Task<bool> CountryExistsAsync(Guid countryId, CancellationToken cancellationToken)
     {
         return dbContext.Countries.AnyAsync(x => x.CountryId == countryId, cancellationToken);
     }
 
-    public Task<bool> CountyExistsAsync(int countyId, CancellationToken cancellationToken)
+    public Task<bool> CountyExistsAsync(Guid countyId, CancellationToken cancellationToken)
     {
         return dbContext.Counties.AnyAsync(x => x.CountyId == countyId, cancellationToken);
     }
 
-    public Task<bool> CityExistsAsync(int cityId, CancellationToken cancellationToken)
+    public Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken)
     {
         return dbContext.Cities.AnyAsync(x => x.CityId == cityId, cancellationToken);
     }

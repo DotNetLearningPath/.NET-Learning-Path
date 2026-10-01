@@ -1,10 +1,10 @@
-using Application.Abstractions;
-using Application.Services;
-using Infrastructure;
-using Infrastructure.Persistence;
-using Infrastructure.Seed;
-using InsuranceApp.Api.Logging;
-using InsuranceApp.Api.Middleware;
+using Insurance.Api.Middleware;
+using Insurance.Application.Abstractions;
+using Insurance.Application.Services;
+using Insurance.Infrastructure;
+using Insurance.Infrastructure.Persistence;
+using Insurance.Infrastructure.Seed;
+using Insurance.Api.Logging;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +23,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IGeographyService, GeographyService>();
+builder.Services.AddScoped<IPremiumCalculationService, PremiumCalculationService>();
+builder.Services.AddScoped<IBrokerService, BrokerService>();
 
 var app = builder.Build();
 

@@ -1,8 +1,8 @@
-using Application.Abstractions;
-using Application.DTO.Common;
-using Domain.Entities;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Fakes;
+namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeClientRepository : IClientRepository
 {
@@ -10,7 +10,7 @@ public sealed class FakeClientRepository : IClientRepository
 
     public void Seed(Client client) => Storage[client.Id] = client;
 
-    public Task AddClientAsync(Client client, CancellationToken cancellationToken = default)
+    public Task AddClientAsync(Client client, CancellationToken cancellationToken)
     {
         Storage[client.Id] = client;
         return Task.CompletedTask;
@@ -18,8 +18,8 @@ public sealed class FakeClientRepository : IClientRepository
 
     public Task<bool> ExistsClientByIdentificationNumberAsync(
         string identificationNumber,
-        Guid? excludedClientId = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken,
+        Guid? excludedClientId = null)
     {
         var exists = Storage.Values.Any(client =>
             client.IdentificationNumber == identificationNumber
@@ -28,7 +28,7 @@ public sealed class FakeClientRepository : IClientRepository
         return Task.FromResult(exists);
     }
 
-    public Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         Storage.TryGetValue(id, out var client);
         return Task.FromResult(client);
@@ -38,7 +38,7 @@ public sealed class FakeClientRepository : IClientRepository
         string? name,
         string? identifier,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = Storage.Values.AsEnumerable();
 
@@ -71,7 +71,7 @@ public sealed class FakeClientRepository : IClientRepository
         });
     }
 
-    public Task UpdateClientAsync(Client client, CancellationToken cancellationToken = default)
+    public Task UpdateClientAsync(Client client, CancellationToken cancellationToken)
     {
         Storage[client.Id] = client;
         return Task.CompletedTask;

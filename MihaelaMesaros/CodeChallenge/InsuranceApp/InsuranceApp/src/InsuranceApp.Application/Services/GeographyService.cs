@@ -14,9 +14,9 @@ public sealed class GeographyService(IGeographyRepository geographyRepository) :
         return countries.Select(x => new CountryDto(x.CountryId, x.Name)).ToList();
     }
 
-    public async Task<Result<IReadOnlyList<CountyDto>>> GetCountiesByCountryAsync(int countryId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<CountyDto>>> GetCountiesByCountryAsync(Guid countryId, CancellationToken cancellationToken)
     {
-        if (countryId <= 0)
+        if (countryId == Guid.Empty)
         {
             return Result<IReadOnlyList<CountyDto>>.Failure(GeographyErrors.InvalidCountryId);
         }
@@ -35,9 +35,9 @@ public sealed class GeographyService(IGeographyRepository geographyRepository) :
         return Result<IReadOnlyList<CountyDto>>.Success(countyDtos);
     }
 
-    public async Task<Result<IReadOnlyList<CityDto>>> GetCitiesByCountyAsync(int countyId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<CityDto>>> GetCitiesByCountyAsync(Guid countyId, CancellationToken cancellationToken)
     {
-        if (countyId <= 0)
+        if (countyId == Guid.Empty)
         {
             return Result<IReadOnlyList<CityDto>>.Failure(GeographyErrors.InvalidCountyId);
         }

@@ -1,19 +1,19 @@
-﻿using Application.DTO.Clients;
-using Application.DTO.Common;
+﻿using Insurance.Application.DTO.Clients;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IClientService
 {
-    Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken = default);
+    Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken);
 
-    Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<PagedResult<ClientDto>> SearchClientAsync(
         string? name,
         string? identifier,
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
-    Task<ClientDto> UpdateClientAsync(Guid id, UpdateClientRequest request, CancellationToken cancellationToken = default);
+    Task<ClientDto> UpdateClientAsync(Guid id, UpdateClientRequest request, CancellationToken cancellationToken);
 }

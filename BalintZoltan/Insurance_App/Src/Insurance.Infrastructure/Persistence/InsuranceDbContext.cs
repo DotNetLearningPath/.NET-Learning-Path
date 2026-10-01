@@ -1,7 +1,7 @@
-﻿using Domain.Entities;
+﻿using Insurance.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence;
+namespace Insurance.Infrastructure.Persistence;
 
 public sealed class InsuranceDbContext : DbContext
 {
