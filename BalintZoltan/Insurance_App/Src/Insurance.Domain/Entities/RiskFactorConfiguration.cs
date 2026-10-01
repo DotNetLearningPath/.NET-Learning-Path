@@ -1,6 +1,6 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
-namespace Domain.Entities;
+namespace Insurance.Domain.Entities;
 
 public class RiskFactorConfiguration
 {
@@ -21,9 +21,14 @@ public class RiskFactorConfiguration
         decimal adjustmentPercentage,
         bool isActive = true)
     {
-        if (!Enum.IsDefined(level)) throw new ArgumentException("Risk factor level is not valid.", nameof(level));
+        if (!Enum.IsDefined(level))
+        {
+            throw new ArgumentException("Risk factor level is not valid.", nameof(level));
+        }
         if (string.IsNullOrWhiteSpace(reference))
+        {
             throw new ArgumentException("Reference is required.", nameof(reference));
+        }
 
         Id = Guid.NewGuid();
         Level = level;

@@ -20,8 +20,14 @@ public class FeeConfiguration
     public FeeConfiguration(string name, FeeType type, decimal percentage,
         DateTime effectiveFrom, DateTime? effectiveTo = null, bool isActive = true)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Fee name is required.", nameof(name));
-        if (!Enum.IsDefined(type)) throw new ArgumentException("Fee type is not valid.", nameof(type));
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Fee name is required.", nameof(name));
+        }
+        if (!Enum.IsDefined(type))
+        {
+            throw new ArgumentException("Fee type is not valid.", nameof(type));
+        }
         ValidatePercentage(percentage);
         if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
         {
@@ -57,9 +63,16 @@ public class FeeConfiguration
     private static void Validate(string name, FeeType type, decimal percentage,
         DateTime effectiveFrom, DateTime? effectiveTo)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Fee name is required.", nameof(name));
-        if (!Enum.IsDefined(type)) throw new ArgumentException("Fee type is not valid.", nameof(type));
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Fee name is required.", nameof(name));
+        }
+        if (!Enum.IsDefined(type))
+        {
+            throw new ArgumentException("Fee type is not valid.", nameof(type));
+        }
         ValidatePercentage(percentage);
+        }
         if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
         {
             throw new ArgumentException("Effective end cannot precede effective start.", nameof(effectiveTo));

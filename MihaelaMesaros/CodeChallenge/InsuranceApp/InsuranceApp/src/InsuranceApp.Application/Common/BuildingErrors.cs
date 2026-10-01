@@ -6,17 +6,17 @@ public static class BuildingErrors
 {
     public static readonly Error InvalidBuildingId = new(
         "Building.InvalidBuildingId",
-        "Building ID must be greater than zero.",
+        "Building ID must not be empty.",
         ErrorType.Validation);
 
     public static readonly Error InvalidClientId = new(
         "Building.InvalidClientId",
-        "Client ID must be greater than zero.",
+        "Client ID must not be empty.",
         ErrorType.Validation);
 
     public static readonly Error InvalidCityId = new(
         "Building.InvalidCityId",
-        "City ID must be greater than zero.",
+        "City ID must not be empty.",
         ErrorType.Validation);
 
     public static readonly Error AddressStreetRequired = new(
@@ -77,13 +77,19 @@ public static class BuildingErrors
         $"Risk indicators must not exceed {BuildingConstraints.RiskIndicatorsMaxLength} characters.",
         ErrorType.Validation);
 
-    public static Error NotFound(int buildingId) => new(
+    public static Error NotFound(Guid buildingId) => new(
         "Building.NotFound",
         $"Building with ID {buildingId} was not found.",
         ErrorType.NotFound);
 
-    public static Error CityNotFound(int cityId) => new(
+    public static Error CityNotFound(Guid cityId) => new(
         "Building.CityNotFound",
         $"City with ID {cityId} was not found.",
         ErrorType.NotFound);
+
+    public static Error BuildingTypeNotFound(Guid buildingTypeId) => new(
+        "Building.BuildingTypeNotFound",
+        $"Building type with ID {buildingTypeId} was not found.",
+        ErrorType.NotFound);
+
 }

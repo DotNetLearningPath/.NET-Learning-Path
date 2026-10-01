@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Domain.Entities;
+using Insurance.Domain.Entities;
 using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ public sealed class CurrencySeeder
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
             SeedFilePath.Get(contentRootPath, _options.BasePath, _options.CurrencyFile));

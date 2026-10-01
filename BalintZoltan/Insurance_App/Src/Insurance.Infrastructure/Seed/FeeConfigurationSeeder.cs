@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Infrastructure.Seed;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
+using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -20,7 +20,7 @@ public sealed class FeeConfigurationSeeder
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
             SeedFilePath.Get(contentRootPath, _options.BasePath, _options.FeeConfigurationFile));

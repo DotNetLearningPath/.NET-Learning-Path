@@ -1,8 +1,8 @@
-using Application.DTO.Common;
-using Infrastructure.Extensions;
-using Insurance.Application.Abstractions;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
+using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +19,7 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
 
     public async Task AddFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _dbContext.FeeConfigurations.AddAsync(configuration, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -28,7 +28,7 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
     public Task<FeeConfiguration?> GetActiveFeeConfigurationAsync(
         FeeType type,
         DateTime effectiveAt,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.FeeConfigurations
             .AsNoTracking()
             .Where(configuration =>
@@ -42,7 +42,7 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
 
     public async Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         await _dbContext.FeeConfigurations
             .AsNoTracking()
             .Where(configuration =>
@@ -56,13 +56,13 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
 
     public Task<FeeConfiguration?> GetFeeConfigurationByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken) =>
         _dbContext.FeeConfigurations
             .FirstOrDefaultAsync(configuration => configuration.Id == id, cancellationToken);
 
     public async Task UpdateFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         _dbContext.FeeConfigurations.Update(configuration);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -70,7 +70,7 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
 
     public async Task DeactivateFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         configuration.Deactivate();
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -78,7 +78,7 @@ public sealed class FeeConfigurationRepository : IFeeConfigurationRepository
 
     public async Task<PagedResult<FeeConfiguration>> ListFeeConfigurationsAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.FeeConfigurations.AsNoTracking();
         return await query

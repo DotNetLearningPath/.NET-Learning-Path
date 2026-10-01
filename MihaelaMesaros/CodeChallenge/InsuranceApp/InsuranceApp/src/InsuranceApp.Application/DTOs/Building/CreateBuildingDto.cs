@@ -3,10 +3,10 @@
 namespace InsuranceApp.Application.DTOs.Building;
 
 public sealed record CreateBuildingDto(
-    BuildingType BuildingType,
+    Guid BuildingTypeId,
     string AddressStreet,
     string AddressStreetNumber,
-    int CityId,
+    Guid CityId,
     int ConstructionYear,
     int NumberOfFloors,
     decimal SurfaceArea,

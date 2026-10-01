@@ -1,6 +1,6 @@
-using Domain.Enums;
+using Insurance.Domain.Enums;
 
-namespace Domain.Entities;
+namespace Insurance.Domain.Entities;
 
 public class Policy
 {
@@ -84,7 +84,9 @@ public class Policy
     public void Cancel(string reason, DateTime cancellationDate)
     {
         if (Status != PolicyStatus.Active)
+        {
             throw new InvalidOperationException("Only active policies can be cancelled.");
+        }
         if (string.IsNullOrWhiteSpace(reason))
         {
             throw new ArgumentException("Cancellation reason is required.", nameof(reason));

@@ -1,25 +1,25 @@
-using Application.DTO.Common;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.Application.DTO.Common;
 
-namespace Application.Abstractions;
+namespace Insurance.Application.Abstractions;
 
 public interface IRiskFactorRepository
 {
     Task AddRiskFactorAsync(
         RiskFactorConfiguration configuration,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<RiskFactorConfiguration?> GetByLevelAndReferenceAsync(
         RiskFactorLevel level,
         string reference,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
         BuildingType buildingType,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 
     Task<PagedResult<RiskFactorConfiguration>> ListRiskFactorsAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 }

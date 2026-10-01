@@ -7,7 +7,7 @@ public interface IGeographyService
 {
     Task<IReadOnlyList<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken);
 
-    Task<Result<IReadOnlyList<CountyDto>>> GetCountiesByCountryAsync(int countryId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<CountyDto>>> GetCountiesByCountryAsync(Guid countryId, CancellationToken cancellationToken);
 
-    Task<Result<IReadOnlyList<CityDto>>> GetCitiesByCountyAsync(int countyId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<CityDto>>> GetCitiesByCountyAsync(Guid countyId, CancellationToken cancellationToken);
 }

@@ -1,9 +1,9 @@
-﻿using Application.Abstractions;
-using Application.DTO.Geography;
-using Application.Exceptions;
-using Domain.Entities;
+﻿using Insurance.Application.Exceptions;
+using Insurance.Domain.Entities;
+using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Geography;
 
-namespace Application.Services;
+namespace Insurance.Application.Services;
 
 public class GeographyService : IGeographyService
 {
@@ -38,7 +38,7 @@ public class GeographyService : IGeographyService
         }
     }
 
-    public async Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken)
     {
         var countries = await _geographyRepository.GetCountriesAsync(cancellationToken);
 
@@ -49,7 +49,7 @@ public class GeographyService : IGeographyService
 
     public async Task<IReadOnlyCollection<CountyDto>> GetCountiesByCountryIdAsync(
         Guid countryId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await CheckCountryExistsAsync(countryId, cancellationToken);
 
@@ -63,7 +63,7 @@ public class GeographyService : IGeographyService
 
     public async Task<IReadOnlyCollection<CityDto>> GetCitiesByCountyIdAsync(
         Guid countyId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await CheckCountyExistsAsync(countyId, cancellationToken);
 

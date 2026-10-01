@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Domain.Entities;
-using Domain.Enums;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ public sealed class RiskFactorConfigurationSeeder
         _options = options.Value;
     }
 
-    public async Task SeedAsync(InsuranceDbContext dbContext, string contentRootPath, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(InsuranceDbContext dbContext, string contentRootPath, CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(SeedFilePath.Get(
             contentRootPath,
@@ -36,11 +36,15 @@ public sealed class RiskFactorConfigurationSeeder
         foreach (var configurationData in configurations)
         {
             if (!Enum.TryParse<RiskFactorLevel>(configurationData.Level, true, out var level))
+            {
                 throw new InvalidOperationException($"Unsupported risk factor level '{configurationData.Level}'.");
+            }
 
             var reference = ResolveReference(level, configurationData.Reference, references);
             if (existingConfigurations.Any(configuration => configuration.Level == level && configuration.Reference == reference))
+            {
                 continue;
+            }
 
             dbContext.RiskFactorConfigurations.Add(new RiskFactorConfiguration(
                 level, reference, configurationData.AdjustmentPercentage, configurationData.IsActive));
@@ -75,13 +79,17 @@ public sealed class RiskFactorConfigurationSeeder
         if (level == RiskFactorLevel.BuildingType)
         {
             if (!Enum.TryParse<BuildingType>(SeedText.Normalize(reference), true, out var buildingType))
+            {
                 throw new InvalidOperationException($"Unsupported building type reference '{reference}'.");
+            }
             return buildingType.ToString();
         }
 
         var normalizedReference = NormalizeGeographyReference(reference);
         if (geographyReferences.TryGetValue((level, normalizedReference), out var id))
+        {
             return id;
+        }
 
         throw new InvalidOperationException($"Geography reference '{reference}' was not found for level '{level}'.");
     }
