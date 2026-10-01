@@ -74,6 +74,7 @@ jobs:
           done <<< "${{ steps.detect.outputs.targets }}"
 
       - name: Build
+        id: build
         if: steps.detect.outputs.targets != ''
         shell: bash
         run: |
@@ -83,11 +84,10 @@ jobs:
           done <<< "${{ steps.detect.outputs.targets }}"
 
       - name: Check formatting
+        if: always() && steps.detect.outputs.targets != ''
         shell: bash
         run: |
           while IFS= read -r target; do
             echo "Checking formatting for $target"
             dotnet format "$target" --verify-no-changes --severity error
           done <<< "${{ steps.detect.outputs.targets }}"
-
-
