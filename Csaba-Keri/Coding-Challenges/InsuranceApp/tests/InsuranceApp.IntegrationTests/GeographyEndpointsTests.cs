@@ -1,7 +1,9 @@
-﻿using InsuranceApp.IntegrationTests.Infrastructure;
+﻿namespace InsuranceApp.IntegrationTests;
+
+using InsuranceApp.IntegrationTests.Infrastructure;
 using System.Net;
 
-namespace InsuranceApp.IntegrationTests;
+
 
 public sealed class GeographyEndpointsTests : IntegrationTestBase
 {
@@ -23,7 +25,7 @@ public sealed class GeographyEndpointsTests : IntegrationTestBase
                 .Select(item => item!["name"]!.GetValue<string>())
         );
     }
-
+//Example
     [Fact]
     public async Task GetCountiesByCountryId_ReturnsOnlyCountiesOfRequestedCountry()
     {
