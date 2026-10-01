@@ -19,28 +19,38 @@ namespace Insurance.Domain.Entities
         private static void CheckClientId(Guid clientId)
         {
             if (clientId == Guid.Empty)
+            {
                 throw new ArgumentException("Client is required.");
+            }
         }
         private static void CheckCityId(Guid cityId)
         {
             if (cityId == Guid.Empty)
+            {
                 throw new ArgumentException("City is required.");
+            }
         }
         private static void CheckStreet(string street)
         {
             if (string.IsNullOrWhiteSpace(street))
+            {
                 throw new ArgumentException("Street is required.");
+            }
         }
         private static void CheckStreetNr(string nr)
         {
             if (string.IsNullOrWhiteSpace(nr))
+            {
                 throw new ArgumentException("Street is required.");
+            }
         }
         private static void CheckConstructionYear(int constructionYear)
         {
             if (constructionYear < 0)
+            {
                 throw new ArgumentException(
                     "Number of construction year cannot be negative.");
+            }
 
             if (constructionYear > DateTime.UtcNow.Year)
             {
@@ -51,20 +61,26 @@ namespace Insurance.Domain.Entities
         private static void CheckNrOfFloors(int numberOfFloors)
         {
             if (numberOfFloors < 0)
+            {
                 throw new ArgumentException(
                     "Number of floors cannot be negative.");
+            }
         }
         private static void CheckSurfaceArea(decimal surfaceArea)
         {
             if (surfaceArea <= 0)
+            {
                 throw new ArgumentException(
                     "Surface area must be greater than zero.");
+            }
         }
         private static void CheckInsuredValue(decimal insuredValue)
         {
             if (insuredValue <= 0)
+            {
                 throw new ArgumentException(
                     "Insured value must be greater than zero.");
+            }
         }
 
 

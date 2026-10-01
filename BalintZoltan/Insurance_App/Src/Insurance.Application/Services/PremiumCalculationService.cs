@@ -20,7 +20,9 @@ public sealed class PremiumCalculationService : IPremiumCalculationService
         CancellationToken cancellationToken)
     {
         if (basePremium < 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(basePremium));
+        }
 
         var configurations = await _feeConfigurationRepository
             .GetActiveFeeConfigurationsAsync(effectiveAt, cancellationToken);
