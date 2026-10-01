@@ -2,20 +2,32 @@ root = true
 
 [*.cs]
 
-# Indentation
+# =========================================
+# Formatting
+# =========================================
+
 indent_style = space
 indent_size = 4
 
-# Braces
+# Require braces for if/else/for/while
 csharp_prefer_braces = true:error
 
-# var usage
-csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = false:suggestion
 
-# Private fields: _camelCase
-dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = warning
+# =========================================
+# var usage
+# =========================================
+
+# Use explicit types when type is not obvious
+csharp_style_var_for_built_in_types = false:error
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:error
+
+
+# =========================================
+# Private fields -> _camelCase
+# =========================================
+
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = error
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = private_fields
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
 
@@ -25,18 +37,76 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.underscore_camel_case.required_prefix = _
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 
-# PascalCase for public members
-dotnet_naming_rule.public_members_should_be_pascal_case.severity = warning
+
+# =========================================
+# Public members -> PascalCase
+# =========================================
+
+dotnet_naming_rule.public_members_should_be_pascal_case.severity = error
 dotnet_naming_rule.public_members_should_be_pascal_case.symbols = public_members
 dotnet_naming_rule.public_members_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_symbols.public_members.applicable_kinds = property, method, field, event
+dotnet_naming_symbols.public_members.applicable_kinds = property, method, event
 dotnet_naming_symbols.public_members.applicable_accessibilities = public
 
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
-# Analyzer categories
-dotnet_analyzer_diagnostic.category-Style.severity = warning
-dotnet_analyzer_diagnostic.category-Design.severity = warning
-dotnet_analyzer_diagnostic.category-Reliability.severity = warning
-dotnet_analyzer_diagnostic.category-Maintainability.severity = warning
+
+# =========================================
+# Parameters and local variables -> camelCase
+# =========================================
+
+dotnet_naming_rule.parameters_should_be_camel_case.severity = error
+dotnet_naming_rule.parameters_should_be_camel_case.symbols = parameters
+dotnet_naming_rule.parameters_should_be_camel_case.style = camel_case
+
+dotnet_naming_symbols.parameters.applicable_kinds = parameter
+
+dotnet_naming_rule.locals_should_be_camel_case.severity = warning
+dotnet_naming_rule.locals_should_be_camel_case.symbols = locals
+dotnet_naming_rule.locals_should_be_camel_case.style = camel_case
+
+dotnet_naming_symbols.locals.applicable_kinds = local
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+
+# =========================================
+# Keep only selected analyzer rules
+# =========================================
+
+# Add braces
+dotnet_diagnostic.IDE0011.severity = error
+
+# Remove unused assignments
+dotnet_diagnostic.IDE0059.severity = warning
+
+# Remove unused parameters
+dotnet_diagnostic.IDE0060.severity = warning
+
+
+# =========================================
+# Disable noisy rules we don't want to enforce
+# =========================================
+
+# Do not force top-level statements
+dotnet_diagnostic.IDE0210.severity = none
+
+# Do not force primary constructors
+dotnet_diagnostic.IDE0290.severity = none
+
+# Do not force block-scoped namespaces
+dotnet_diagnostic.IDE0160.severity = none
+
+# Do not force readonly structs/members
+dotnet_diagnostic.IDE0250.severity = none
+dotnet_diagnostic.IDE0251.severity = none
+
+# Do not force collection initializer simplifications
+dotnet_diagnostic.IDE0028.severity = none
+
+# Do not force name simplification
+dotnet_diagnostic.IDE0001.severity = none
+
+# Do not force if simplification
+dotnet_diagnostic.IDE0046.severity = none

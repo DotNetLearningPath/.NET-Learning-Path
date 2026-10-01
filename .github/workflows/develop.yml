@@ -79,7 +79,7 @@ jobs:
         run: |
           while IFS= read -r target; do
             echo "Checking formatting for $target"
-            dotnet format "$target" --verify-no-changes
+            dotnet format "$target" --verify-no-changes --severity error
           done <<< "${{ steps.detect.outputs.targets }}"
 
       - name: Build
