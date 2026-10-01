@@ -72,7 +72,7 @@ internal static class Program
          */
         IEnumerable<int> numbers = new List<int> { 1, 1, 2, 3, 5, 8 };
         //objects = numbers;
-
+asddsasfsafdas
         // Contravariance
         Classes.Square sqr1 = new(4);
         Classes.Square sqr2 = new(5);
