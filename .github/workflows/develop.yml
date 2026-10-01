@@ -72,6 +72,15 @@ jobs:
             echo "Restoring $target"
             dotnet restore "$target"
           done <<< "${{ steps.detect.outputs.targets }}"
+          
+      - name: Build
+        if: steps.detect.outputs.targets != ''
+        shell: bash
+        run: |
+          while IFS= read -r target; do
+            echo "Building $target"
+            dotnet build "$target" --configuration Release --no-restore /warnaserror
+          done <<< "${{ steps.detect.outputs.targets }}"
 
       - name: Check formatting
         if: steps.detect.outputs.targets != ''
@@ -82,12 +91,4 @@ jobs:
             dotnet format "$target" --verify-no-changes --severity error
           done <<< "${{ steps.detect.outputs.targets }}"
 
-      - name: Build
-        if: steps.detect.outputs.targets != ''
-        shell: bash
-        run: |
-          while IFS= read -r target; do
-            echo "Building $target"
-            dotnet build "$target" --configuration Release --no-restore /warnaserror
-          done <<< "${{ steps.detect.outputs.targets }}"
 

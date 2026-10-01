@@ -6,8 +6,13 @@ namespace Chapter6Generics;
 
 internal static class Program
 {
+    public static async void SaveUser()
+{
+    await Task.Delay(100);
+}
     private static void Main(string[] args)
     {
+        
         // GenericDemo
         var obj1 = new GenericDemo<int>(10);
         var obj2 = new GenericDemo<string>("Hello World!");
@@ -124,5 +129,7 @@ internal static class Program
         var dictionary = new RestrictedDictionary<ShapeType, Shape>();
         var ellipsis = dictionary.Make<Ellipsis>(ShapeType.Rounded);
         var rectangle = dictionary.Make<Rectangle>(ShapeType.Sharp);
+        
     }
+    
 }

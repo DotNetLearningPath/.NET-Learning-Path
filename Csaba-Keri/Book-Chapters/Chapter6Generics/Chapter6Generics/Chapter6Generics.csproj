@@ -6,5 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+<ItemGroup>
+  <ProjectReference Include="../../../../CodeGuidelines.Analyzers/CodeGuidelines.Analyzers.csproj"
+                    OutputItemType="Analyzer"
+                    ReferenceOutputAssembly="false" />
+</ItemGroup>
 
 </Project>
