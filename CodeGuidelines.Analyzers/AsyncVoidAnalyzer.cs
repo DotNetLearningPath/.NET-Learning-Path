@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,7 +10,7 @@ public sealed class AsyncVoidAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "CG001";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor _rule = new(
         id: DiagnosticId,
         title: "Avoid async void",
         messageFormat: "Method '{0}' uses async void. Return Task instead.",
@@ -18,10 +19,15 @@ public sealed class AsyncVoidAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(Rule);
+        => ImmutableArray.Create(_rule);
 
     public override void Initialize(AnalysisContext context)
     {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
         context.ConfigureGeneratedCodeAnalysis(
             GeneratedCodeAnalysisFlags.None);
 
@@ -46,14 +52,13 @@ public sealed class AsyncVoidAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        // Allow event handlers
         if (IsEventHandler(method))
         {
             return;
         }
 
         var diagnostic = Diagnostic.Create(
-            Rule,
+            _rule,
             method.Locations[0],
             method.Name);
 
@@ -71,6 +76,8 @@ public sealed class AsyncVoidAnalyzer : DiagnosticAnalyzer
         var secondParameter = method.Parameters[1].Type;
 
         return firstParameter.SpecialType == SpecialType.System_Object
-               && secondParameter.Name.EndsWith("EventArgs");
+               && secondParameter.Name.EndsWith(
+                   "EventArgs",
+                   StringComparison.Ordinal);
     }
 }
