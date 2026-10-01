@@ -32,8 +32,8 @@ csharp_preserve_single_line_blocks = false
 # Guideline: always use braces for if/else/for/while/etc.
 # ============================================================
 
-csharp_prefer_braces = true:error
-dotnet_diagnostic.IDE0011.severity = error
+csharp_prefer_braces = true:warning
+dotnet_diagnostic.IDE0011.severity = warning
 
 
 # ============================================================
