@@ -10,12 +10,9 @@ public sealed class FakeBrokerRepository : IBrokerRepository
 
     public Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
-        Storage[broker.Id] = broker;
+        Store(broker);
         return Task.CompletedTask;
     }
-
-    public Task<bool> ExistsBrokerByCodeAsync(string brokerCode, CancellationToken cancellationToken, Guid? excludedBrokerId = null) =>
-        Task.FromResult(Storage.Values.Any(broker => broker.BrokerCode == brokerCode && broker.Id != excludedBrokerId));
 
     public Task<Broker?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -43,7 +40,22 @@ public sealed class FakeBrokerRepository : IBrokerRepository
 
     public Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
-        Storage[broker.Id] = broker;
+        Store(broker);
         return Task.CompletedTask;
+    }
+
+    private void Store(Broker broker)
+    {
+        bool duplicateCodeExists = Storage.Values.Any(existingBroker =>
+            existingBroker.BrokerCode == broker.BrokerCode
+            && existingBroker.Id != broker.Id);
+
+        if (duplicateCodeExists)
+        {
+            throw new InvalidOperationException(
+                "A broker with this code already exists.");
+        }
+
+        Storage[broker.Id] = broker;
     }
 }

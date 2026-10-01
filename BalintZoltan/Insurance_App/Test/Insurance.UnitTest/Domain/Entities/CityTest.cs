@@ -7,9 +7,13 @@ namespace Insurance.Domain.UnitTests.Entities
         [Fact]
         public void Create_Should_Set_Properties()
         {
+            // Arrange
             var countyId = Guid.NewGuid();
+
+            // Act
             var city = new City(countyId, "Sample City", "12345");
 
+            // Assert
             Assert.NotEqual(Guid.Empty, city.Id);
             Assert.Equal(countyId, city.CountyId);
             Assert.Equal("Sample City", city.Name);
@@ -21,6 +25,7 @@ namespace Insurance.Domain.UnitTests.Entities
         [InlineData("PostalCode")]
         public void Create_Should_Throw_When_Required_Data_Is_Invalid(string invalidField)
         {
+            // Act & Assert
             Assert.Throws<ArgumentException>(() =>
                 invalidField switch
                 {
