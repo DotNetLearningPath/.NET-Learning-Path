@@ -78,7 +78,7 @@ public sealed class BrokerService(IBrokerRepository brokerRepository, ILogger<Br
 
         var brokerCodeExists = await brokerRepository.BrokerCodeExistsAsync(createBrokerDto.BrokerCode, null, cancellationToken);
 
-        if(brokerCodeExists)
+        if (brokerCodeExists)
         {
             return Result<BrokerDto>.Failure(BrokerErrors.DuplicateBrokerCode(createBrokerDto.BrokerCode));
         }
