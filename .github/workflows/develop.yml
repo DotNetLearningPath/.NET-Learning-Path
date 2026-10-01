@@ -72,7 +72,7 @@ jobs:
             echo "Restoring $target"
             dotnet restore "$target"
           done <<< "${{ steps.detect.outputs.targets }}"
-          
+
       - name: Build
         if: steps.detect.outputs.targets != ''
         shell: bash
@@ -83,7 +83,6 @@ jobs:
           done <<< "${{ steps.detect.outputs.targets }}"
 
       - name: Check formatting
-        if: steps.detect.outputs.targets != ''
         shell: bash
         run: |
           while IFS= read -r target; do
