@@ -7,11 +7,6 @@ public interface IBrokerRepository
 {
     Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken);
 
-    Task<bool> ExistsBrokerByCodeAsync(
-        string brokerCode,
-        CancellationToken cancellationToken,
-        Guid? excludedBrokerId = null);
-
     Task<Broker?> GetBrokerByIdAsync(
         Guid id,
         CancellationToken cancellationToken);

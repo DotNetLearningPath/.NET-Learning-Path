@@ -9,18 +9,24 @@ public class City
     private static void CheckCityName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentException("City name is required.");
+        }
     }
     private static void CheckCityPostalCode(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentException("Postal code is required.");
+        }
     }
 
     private static void CheckCityCountyId(Guid countyId)
     {
         if (countyId == Guid.Empty)
+        {
             throw new ArgumentException("County Id is required.");
+        }
     }
 
     public City(

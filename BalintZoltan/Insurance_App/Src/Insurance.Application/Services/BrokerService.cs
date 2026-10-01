@@ -1,9 +1,9 @@
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Brokers;
 using Insurance.Application.DTO.Common;
+using Insurance.Application.Exceptions;
 using Insurance.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
-using Insurance.Application.Exceptions;
 
 namespace Insurance.Application.Services;
 
@@ -15,9 +15,7 @@ public sealed class BrokerService : IBrokerService
 
     public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
-        ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
-        await EnsureCodeIsUniqueAsync(request.BrokerCode, null, cancellationToken);
-
+        ValidateRequest(request);
         var broker = new Broker(
             request.BrokerCode.Trim(),
             request.Name.Trim(),
@@ -25,13 +23,13 @@ public sealed class BrokerService : IBrokerService
             request.Phone.Trim(),
             commissionPercentage: request.CommissionPercentage);
         await _brokerRepository.AddBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var broker = await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken);
-        return broker is null ? null : Map(broker);
+        return broker is null ? null : MapToBrokerDto(broker);
     }
 
     public async Task<PagedResult<BrokerDto>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken)
@@ -39,7 +37,7 @@ public sealed class BrokerService : IBrokerService
         var result = await _brokerRepository.ListBrokersAsync(pagination, cancellationToken);
         return new PagedResult<BrokerDto>
         {
-            Items = result.Items.Select(Map).ToList(),
+            Items = result.Items.Select(MapToBrokerDto).ToList(),
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
             TotalCount = result.TotalCount
@@ -48,13 +46,11 @@ public sealed class BrokerService : IBrokerService
 
     public async Task<BrokerDto> UpdateBrokerAsync(Guid id, UpdateBrokerRequest request, CancellationToken cancellationToken)
     {
-        ValidateRequest(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
+        ValidateRequest(request);
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
-        await EnsureCodeIsUniqueAsync(request.BrokerCode, id, cancellationToken);
-
         broker.Update(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     public Task<BrokerDto> ActivateBrokerAsync(
@@ -79,58 +75,54 @@ public sealed class BrokerService : IBrokerService
             broker.Deactivate();
         }
         await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
-        return Map(broker);
+        return MapToBrokerDto(broker);
     }
 
     private async Task<Broker> GetRequiredBrokerAsync(Guid id, CancellationToken cancellationToken) =>
         await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken)
         ?? throw new NotFoundException("Broker was not found.");
 
-    private async Task EnsureCodeIsUniqueAsync(string code, Guid? excludedId, CancellationToken cancellationToken)
+    private static void ValidateRequest(IBrokerRequest request)
     {
-        if (await _brokerRepository.ExistsBrokerByCodeAsync(code.Trim(), cancellationToken, excludedId))
-        {
-            throw new InvalidOperationException("A broker with this code already exists.");
-        }
-    }
+        ArgumentNullException.ThrowIfNull(request);
 
-    private static void ValidateRequest(string code, string name, string email, string phone, decimal? commissionPercentage)
-    {
-        if (string.IsNullOrWhiteSpace(code))
+        if (string.IsNullOrWhiteSpace(request.BrokerCode))
         {
             throw new ArgumentException("Broker code is required.");
         }
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(request.Name))
         {
             throw new ArgumentException("Broker name is required.");
         }
-        if (string.IsNullOrWhiteSpace(phone))
+        if (string.IsNullOrWhiteSpace(request.Phone))
         {
             throw new ArgumentException("Broker phone is required.");
         }
-        if (code.Trim().Length > 50)
+        if (request.BrokerCode.Trim().Length > 50)
         {
             throw new ArgumentException("Broker code cannot be longer than 50 characters.");
         }
-        if (name.Trim().Length > 200)
+        if (request.Name.Trim().Length > 200)
         {
             throw new ArgumentException("Broker name cannot be longer than 200 characters.");
         }
-        if (phone.Trim().Length > 50)
+        if (request.Phone.Trim().Length > 50)
         {
             throw new ArgumentException("Broker phone cannot be longer than 50 characters.");
         }
-        if (commissionPercentage is < 0 or > 100)
+        if (request.CommissionPercentage is < 0 or > 100)
         {
-            throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
+            throw new ArgumentOutOfRangeException(nameof(request));
         }
-        if (string.IsNullOrWhiteSpace(email) || email.Trim().Length > 254 || !new EmailAddressAttribute().IsValid(email.Trim()))
+        if (string.IsNullOrWhiteSpace(request.Email)
+            || request.Email.Trim().Length > 254
+            || !new EmailAddressAttribute().IsValid(request.Email.Trim()))
         {
-            throw new ArgumentException("Invalid email address format.", nameof(email));
+            throw new ArgumentException("Invalid email address format.", nameof(request));
         }
     }
 
-    private static BrokerDto Map(Broker broker) => new()
+    private static BrokerDto MapToBrokerDto(Broker broker) => new()
     {
         Id = broker.Id,
         BrokerCode = broker.BrokerCode,
