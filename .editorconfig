@@ -110,3 +110,10 @@ dotnet_diagnostic.IDE0001.severity = none
 
 # Do not force if simplification
 dotnet_diagnostic.IDE0046.severity = none
+
+# =========================================
+# Using directives before namespace
+# =========================================
+
+csharp_using_directive_placement = outside_namespace:error
+dotnet_diagnostic.IDE0065.severity = error

@@ -1,7 +1,9 @@
-﻿using InsuranceApp.IntegrationTests.Infrastructure;
+﻿namespace InsuranceApp.IntegrationTests;
+
+using InsuranceApp.IntegrationTests.Infrastructure;
 using System.Net;
 
-namespace InsuranceApp.IntegrationTests;
+
 
 public sealed class GeographyEndpointsTests : IntegrationTestBase
 {
