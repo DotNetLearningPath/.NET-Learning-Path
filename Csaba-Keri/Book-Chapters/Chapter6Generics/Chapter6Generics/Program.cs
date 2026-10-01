@@ -14,7 +14,7 @@ internal static class Program
 
         var t1 = obj1.GetType();
         Console.WriteLine(t1.Name);
-
+        var EXAMAPLE = obj1.GetType();
         Console.WriteLine(t1
             .GetGenericArguments()
             .FirstOrDefault()

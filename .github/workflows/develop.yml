@@ -1,0 +1,93 @@
+name: Code Guidelines Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Detect changed projects
+        id: detect
+        shell: bash
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/develop...HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          TARGETS=""
+
+          for file in $CHANGED_FILES; do
+            dir=$(dirname "$file")
+
+            while [ "$dir" != "." ] && [ "$dir" != "/" ]; do
+              solution=$(find "$dir" -maxdepth 1 \( -name "*.sln" -o -name "*.slnx" \) | head -n 1)
+
+              if [ -n "$solution" ]; then
+                TARGETS="$TARGETS"$'\n'"$solution"
+                break
+              fi
+
+              project=$(find "$dir" -maxdepth 1 -name "*.csproj" | head -n 1)
+
+              if [ -n "$project" ]; then
+                TARGETS="$TARGETS"$'\n'"$project"
+                break
+              fi
+
+              dir=$(dirname "$dir")
+            done
+          done
+
+          TARGETS=$(echo "$TARGETS" | sed '/^$/d' | sort -u)
+
+          echo "Detected targets:"
+          echo "$TARGETS"
+
+          {
+            echo "targets<<EOF"
+            echo "$TARGETS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        if: steps.detect.outputs.targets != ''
+        shell: bash
+        run: |
+          while IFS= read -r target; do
+            echo "Restoring $target"
+            dotnet restore "$target"
+          done <<< "${{ steps.detect.outputs.targets }}"
+
+      - name: Check formatting
+        if: steps.detect.outputs.targets != ''
+        shell: bash
+        run: |
+          while IFS= read -r target; do
+            echo "Checking formatting for $target"
+            dotnet format "$target" --verify-no-changes
+          done <<< "${{ steps.detect.outputs.targets }}"
+
+      - name: Build
+        if: steps.detect.outputs.targets != ''
+        shell: bash
+        run: |
+          while IFS= read -r target; do
+            echo "Building $target"
+            dotnet build "$target" --configuration Release --no-restore /warnaserror
+          done <<< "${{ steps.detect.outputs.targets }}"
+
