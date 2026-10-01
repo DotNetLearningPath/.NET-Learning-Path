@@ -1,14 +1,5 @@
 USE [Insurances]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [CK_Policies_FinalPremium]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [CK_Policies_Dates]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [CK_Policies_BasePremium]
-GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FeeConfigs]') AND type in (N'U'))
 ALTER TABLE [dbo].[FeeConfigs] DROP CONSTRAINT IF EXISTS [CK_FeeConfigs_Percentage]
 GO
@@ -17,18 +8,6 @@ ALTER TABLE [dbo].[FeeConfigs] DROP CONSTRAINT IF EXISTS [CK_FeeConfigs_Effectiv
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Currencies]') AND type in (N'U'))
 ALTER TABLE [dbo].[Currencies] DROP CONSTRAINT IF EXISTS [CK_Currencies_ExchangeRate]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [FK_Policies_Currencies]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [FK_Policies_Clients]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [FK_Policies_Buildings]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [FK_Policies_Brokers]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Counties]') AND type in (N'U'))
 ALTER TABLE [dbo].[Counties] DROP CONSTRAINT IF EXISTS [FK_Counties_Countries]
@@ -53,12 +32,6 @@ ALTER TABLE [dbo].[RiskFactorConfigs] DROP CONSTRAINT IF EXISTS [DF_RiskFactorCo
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[RiskFactorConfigs]') AND type in (N'U'))
 ALTER TABLE [dbo].[RiskFactorConfigs] DROP CONSTRAINT IF EXISTS [DF_RiskFactorConfigs_RiskFactorConfigId]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [DF_Policies_CreatedAt]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [DF_Policies_PolicyId]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FeeConfigs]') AND type in (N'U'))
 ALTER TABLE [dbo].[FeeConfigs] DROP CONSTRAINT IF EXISTS [DF_FeeConfigs_CreatedAt]
@@ -111,108 +84,86 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Brokers]') AND type in (N'U'))
 ALTER TABLE [dbo].[Brokers] DROP CONSTRAINT IF EXISTS [DF_Brokers_BrokerId]
 GO
-/****** Object:  Index [UQ_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [UQ_RiskFactorConfigs_Level_ReferenceId] ON [dbo].[RiskFactorConfigs]
 GO
-/****** Object:  Index [IX_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_RiskFactorConfigs_Level_ReferenceId] ON [dbo].[RiskFactorConfigs]
 GO
-/****** Object:  Index [IX_Policies_Status]    Script Date: 09/28/2026 12:29:08 ******/
-DROP INDEX IF EXISTS [IX_Policies_Status] ON [dbo].[Policies]
-GO
-/****** Object:  Index [IX_Policies_CurrencyId]    Script Date: 09/28/2026 12:29:08 ******/
-DROP INDEX IF EXISTS [IX_Policies_CurrencyId] ON [dbo].[Policies]
-GO
-/****** Object:  Index [IX_Policies_ClientId]    Script Date: 09/28/2026 12:29:08 ******/
-DROP INDEX IF EXISTS [IX_Policies_ClientId] ON [dbo].[Policies]
-GO
-/****** Object:  Index [IX_Policies_BuildingId]    Script Date: 09/28/2026 12:29:08 ******/
-DROP INDEX IF EXISTS [IX_Policies_BuildingId] ON [dbo].[Policies]
-GO
-/****** Object:  Index [IX_Policies_BrokerId]    Script Date: 09/28/2026 12:29:08 ******/
-DROP INDEX IF EXISTS [IX_Policies_BrokerId] ON [dbo].[Policies]
-GO
-/****** Object:  Index [UQ_Policies_PolicyNumber]    Script Date: 09/28/2026 12:29:08 ******/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Policies]') AND type in (N'U'))
-ALTER TABLE [dbo].[Policies] DROP CONSTRAINT IF EXISTS [UQ_Policies_PolicyNumber]
-GO
-/****** Object:  Index [UQ_Currencies_Code]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Currencies_Code]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Currencies]') AND type in (N'U'))
 ALTER TABLE [dbo].[Currencies] DROP CONSTRAINT IF EXISTS [UQ_Currencies_Code]
 GO
-/****** Object:  Index [UQ_Countries_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Countries_Name]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Countries]') AND type in (N'U'))
 ALTER TABLE [dbo].[Countries] DROP CONSTRAINT IF EXISTS [UQ_Countries_Name]
 GO
-/****** Object:  Index [IX_Counties_CountryId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Counties_CountryId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_Counties_CountryId] ON [dbo].[Counties]
 GO
-/****** Object:  Index [UQ_Counties_CountryId_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Counties_CountryId_Name]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Counties]') AND type in (N'U'))
 ALTER TABLE [dbo].[Counties] DROP CONSTRAINT IF EXISTS [UQ_Counties_CountryId_Name]
 GO
-/****** Object:  Index [UQ_Clients_IdentificationNumber]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Clients_IdentificationNumber]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Clients]') AND type in (N'U'))
 ALTER TABLE [dbo].[Clients] DROP CONSTRAINT IF EXISTS [UQ_Clients_IdentificationNumber]
 GO
-/****** Object:  Index [IX_Cities_CountyId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Cities_CountyId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_Cities_CountyId] ON [dbo].[Cities]
 GO
-/****** Object:  Index [UQ_Cities_CountyId_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Cities_CountyId_Name]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Cities]') AND type in (N'U'))
 ALTER TABLE [dbo].[Cities] DROP CONSTRAINT IF EXISTS [UQ_Cities_CountyId_Name]
 GO
-/****** Object:  Index [UQ_BuildingTypes_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_BuildingTypes_Name]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BuildingTypes]') AND type in (N'U'))
 ALTER TABLE [dbo].[BuildingTypes] DROP CONSTRAINT IF EXISTS [UQ_BuildingTypes_Name]
 GO
-/****** Object:  Index [IX_Buildings_ClientId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_ClientId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_Buildings_ClientId] ON [dbo].[Buildings]
 GO
-/****** Object:  Index [IX_Buildings_CityId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_CityId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_Buildings_CityId] ON [dbo].[Buildings]
 GO
-/****** Object:  Index [IX_Buildings_BuildingTypeId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_BuildingTypeId]    Script Date: 09/30/2026 11:02:40 ******/
 DROP INDEX IF EXISTS [IX_Buildings_BuildingTypeId] ON [dbo].[Buildings]
 GO
-/****** Object:  Index [UQ_Brokers_BrokerCode]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Brokers_BrokerCode]    Script Date: 09/30/2026 11:02:40 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Brokers]') AND type in (N'U'))
 ALTER TABLE [dbo].[Brokers] DROP CONSTRAINT IF EXISTS [UQ_Brokers_BrokerCode]
 GO
-/****** Object:  Table [dbo].[RiskFactorConfigs]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[RiskFactorConfigs]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[RiskFactorConfigs]
 GO
-/****** Object:  Table [dbo].[Policies]    Script Date: 09/28/2026 12:29:08 ******/
-DROP TABLE IF EXISTS [dbo].[Policies]
-GO
-/****** Object:  Table [dbo].[FeeConfigs]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[FeeConfigs]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[FeeConfigs]
 GO
-/****** Object:  Table [dbo].[Currencies]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Currencies]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Currencies]
 GO
-/****** Object:  Table [dbo].[Countries]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Countries]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Countries]
 GO
-/****** Object:  Table [dbo].[Counties]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Counties]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Counties]
 GO
-/****** Object:  Table [dbo].[Clients]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Clients]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Clients]
 GO
-/****** Object:  Table [dbo].[Cities]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Cities]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Cities]
 GO
-/****** Object:  Table [dbo].[BuildingTypes]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[BuildingTypes]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[BuildingTypes]
 GO
-/****** Object:  Table [dbo].[Buildings]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Buildings]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Buildings]
 GO
-/****** Object:  Table [dbo].[Brokers]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Brokers]    Script Date: 09/30/2026 11:02:40 ******/
 DROP TABLE IF EXISTS [dbo].[Brokers]
 GO
-/****** Object:  Table [dbo].[Brokers]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Brokers]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -220,10 +171,10 @@ GO
 CREATE TABLE [dbo].[Brokers](
 	[BrokerId] [uniqueidentifier] NOT NULL,
 	[BrokerCode] [varchar](50) NOT NULL,
-	[Name] [nvarchar](200) NOT NULL,
-	[Email] [varchar](200) NULL,
-	[Phone] [varchar](50) NULL,
-	[CommissionPercentage] [decimal](9, 4) NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Email] [varchar](100) NULL,
+	[Phone] [varchar](20) NULL,
+	[CommissionPercentage] [decimal](5, 2) NULL,
 	[IsActive] [bit] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[ModifiedAt] [datetime2](7) NULL,
@@ -233,7 +184,7 @@ CREATE TABLE [dbo].[Brokers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Buildings]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Buildings]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -258,7 +209,7 @@ CREATE TABLE [dbo].[Buildings](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[BuildingTypes]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[BuildingTypes]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -272,7 +223,7 @@ CREATE TABLE [dbo].[BuildingTypes](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Cities]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Cities]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -287,7 +238,7 @@ CREATE TABLE [dbo].[Cities](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Clients]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Clients]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -308,7 +259,7 @@ CREATE TABLE [dbo].[Clients](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Counties]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Counties]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -323,7 +274,7 @@ CREATE TABLE [dbo].[Counties](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Countries]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Countries]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -337,7 +288,7 @@ CREATE TABLE [dbo].[Countries](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Currencies]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[Currencies]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -356,7 +307,7 @@ CREATE TABLE [dbo].[Currencies](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[FeeConfigs]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[FeeConfigs]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -377,35 +328,7 @@ CREATE TABLE [dbo].[FeeConfigs](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Policies]    Script Date: 09/28/2026 12:29:08 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Policies](
-	[PolicyId] [uniqueidentifier] NOT NULL,
-	[PolicyNumber] [nvarchar](50) NOT NULL,
-	[ClientId] [uniqueidentifier] NOT NULL,
-	[BuildingId] [uniqueidentifier] NOT NULL,
-	[BrokerId] [uniqueidentifier] NOT NULL,
-	[CurrencyId] [uniqueidentifier] NOT NULL,
-	[Status] [int] NOT NULL,
-	[StartDate] [date] NOT NULL,
-	[EndDate] [date] NOT NULL,
-	[BasePremium] [decimal](18, 2) NOT NULL,
-	[FinalPremium] [decimal](18, 2) NOT NULL,
-	[ActivationDate] [datetime2](7) NULL,
-	[CancellationDate] [datetime2](7) NULL,
-	[CancellationReason] [nvarchar](500) NULL,
-	[CreatedAt] [datetime2](7) NOT NULL,
-	[ModifiedAt] [datetime2](7) NULL,
- CONSTRAINT [PK_Policies] PRIMARY KEY CLUSTERED 
-(
-	[PolicyId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[RiskFactorConfigs]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Table [dbo].[RiskFactorConfigs]    Script Date: 09/30/2026 11:02:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -486,73 +409,27 @@ INSERT [dbo].[Countries] ([CountryId], [Name]) VALUES (N'e5dd7dad-60b7-f111-bc3c
 GO
 INSERT [dbo].[Countries] ([CountryId], [Name]) VALUES (N'e3dd7dad-60b7-f111-bc3c-bcf1054861b1', N'Romania')
 GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'386ff65f-6560-4e70-8bc2-08df1a17593c', N'CHF', N'Swiss Franc', CAST(5.6000 AS Decimal(18, 4)), 1, CAST(N'2026-09-24T08:39:29.3223099' AS DateTime2), NULL)
-GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'7b9c3d77-9822-42b7-0c16-08df1b1e4692', N'GBP', N'UK Pound', CAST(5.8888 AS Decimal(18, 4)), 1, CAST(N'2026-09-25T16:01:35.6553856' AS DateTime2), CAST(N'2026-09-25T16:02:52.6610401' AS DateTime2))
-GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'11dcb6bd-61b7-f111-bc3c-bcf1054861b1', N'RON', N'Romanian Leu', CAST(1.0000 AS Decimal(18, 4)), 1, CAST(N'2026-09-23T15:16:25.7784465' AS DateTime2), NULL)
-GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'12dcb6bd-61b7-f111-bc3c-bcf1054861b1', N'HUF', N'Hungarian Forint', CAST(0.0135 AS Decimal(18, 4)), 1, CAST(N'2026-09-23T15:16:25.7784465' AS DateTime2), NULL)
-GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'13dcb6bd-61b7-f111-bc3c-bcf1054861b1', N'EUR', N'Euro', CAST(5.1000 AS Decimal(18, 4)), 1, CAST(N'2026-09-23T15:16:25.7784465' AS DateTime2), NULL)
-GO
-INSERT [dbo].[Currencies] ([CurrencyId], [Code], [Name], [ExchangeRateToBase], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'14dcb6bd-61b7-f111-bc3c-bcf1054861b1', N'USD', N'US Dollar', CAST(4.6265 AS Decimal(18, 4)), 1, CAST(N'2026-09-23T15:16:25.7784465' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'a322a65b-1bf8-4663-a206-08df1a1763e3', N'Demo broker commission', 1, CAST(5.00 AS Decimal(5, 2)), CAST(N'2026-09-24' AS Date), NULL, 1, CAST(N'2026-09-24T08:39:47.2291231' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'b6353b38-c5bf-48c3-a207-08df1a1763e3', N'Demo risk adjustment', 2, CAST(2.00 AS Decimal(5, 2)), CAST(N'2026-09-24' AS Date), NULL, 1, CAST(N'2026-09-24T08:39:49.9940816' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'ff5d413c-a345-4640-a208-08df1a1763e3', N'Demo administration fee', 3, CAST(1.50 AS Decimal(5, 2)), CAST(N'2026-09-24' AS Date), NULL, 1, CAST(N'2026-09-24T08:39:53.4587321' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'f6872f4a-333b-4fd9-e9a8-08df1b1eb2f0', N'Broker commission updated', 2, CAST(7.77 AS Decimal(5, 2)), CAST(N'2026-09-25' AS Date), CAST(N'2027-09-25' AS Date), 1, CAST(N'2026-09-25T16:04:37.4983016' AS DateTime2), CAST(N'2026-09-25T16:05:57.5497744' AS DateTime2))
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'9ea036e6-61b7-f111-bc3c-bcf1054861b1', N'Updated broker commission', 1, CAST(5.50 AS Decimal(5, 2)), CAST(N'2026-09-24' AS Date), NULL, 1, CAST(N'2026-09-23T15:17:33.7246494' AS DateTime2), CAST(N'2026-09-24T08:39:56.6404961' AS DateTime2))
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'9fa036e6-61b7-f111-bc3c-bcf1054861b1', N'Standard risk adjustment', 2, CAST(2.00 AS Decimal(5, 2)), CAST(N'2026-01-01' AS Date), NULL, 1, CAST(N'2026-09-23T15:17:33.7246494' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'a0a036e6-61b7-f111-bc3c-bcf1054861b1', N'Administration fee', 3, CAST(1.50 AS Decimal(5, 2)), CAST(N'2026-01-01' AS Date), NULL, 1, CAST(N'2026-09-23T15:17:33.7246494' AS DateTime2), NULL)
-GO
-INSERT [dbo].[FeeConfigs] ([FeeConfigId], [Name], [FeeType], [Percentage], [EffectiveFrom], [EffectiveTo], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'a1a036e6-61b7-f111-bc3c-bcf1054861b1', N'Previous broker commission', 1, CAST(4.50 AS Decimal(5, 2)), CAST(N'2025-01-01' AS Date), CAST(N'2025-12-31' AS Date), 0, CAST(N'2026-09-23T15:17:33.7246494' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'bb66291c-62b7-f111-bc3c-bcf1054861b1', 1, N'e3dd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(1.00 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'bc66291c-62b7-f111-bc3c-bcf1054861b1', 2, N'e8dd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(2.00 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'bd66291c-62b7-f111-bc3c-bcf1054861b1', 2, N'e9dd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(2.50 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'be66291c-62b7-f111-bc3c-bcf1054861b1', 3, N'eddd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(3.00 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'bf66291c-62b7-f111-bc3c-bcf1054861b1', 3, N'eedd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(2.00 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'c066291c-62b7-f111-bc3c-bcf1054861b1', 4, N'574239f9-60b7-f111-bc3c-bcf1054861b1', CAST(1.00 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'c166291c-62b7-f111-bc3c-bcf1054861b1', 4, N'584239f9-60b7-f111-bc3c-bcf1054861b1', CAST(1.50 AS Decimal(5, 2)), 1, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'c266291c-62b7-f111-bc3c-bcf1054861b1', 4, N'594239f9-60b7-f111-bc3c-bcf1054861b1', CAST(3.00 AS Decimal(5, 2)), 0, CAST(N'2026-09-23T15:19:04.2349371' AS DateTime2), NULL)
-GO
-INSERT [dbo].[RiskFactorConfigs] ([RiskFactorConfigId], [Level], [ReferenceId], [AdjustmentPercentage], [IsActive], [CreatedAt], [ModifiedAt]) VALUES (N'44fac4be-80be-43c2-9c8e-f1a00a0dcaef', 2, N'e6dd7dad-60b7-f111-bc3c-bcf1054861b1', CAST(3.33 AS Decimal(5, 2)), 0, CAST(N'2026-09-25T16:09:13.3796880' AS DateTime2), CAST(N'2026-09-25T16:11:07.7345005' AS DateTime2))
-GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Brokers_BrokerCode]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Brokers_BrokerCode]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Brokers] ADD  CONSTRAINT [UQ_Brokers_BrokerCode] UNIQUE NONCLUSTERED 
 (
 	[BrokerCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Buildings_BuildingTypeId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_BuildingTypeId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_Buildings_BuildingTypeId] ON [dbo].[Buildings]
 (
 	[BuildingTypeId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Buildings_CityId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_CityId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_Buildings_CityId] ON [dbo].[Buildings]
 (
 	[CityId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Buildings_ClientId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Buildings_ClientId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_Buildings_ClientId] ON [dbo].[Buildings]
 (
 	[ClientId] ASC
@@ -560,7 +437,7 @@ CREATE NONCLUSTERED INDEX [IX_Buildings_ClientId] ON [dbo].[Buildings]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_BuildingTypes_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_BuildingTypes_Name]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[BuildingTypes] ADD  CONSTRAINT [UQ_BuildingTypes_Name] UNIQUE NONCLUSTERED 
 (
 	[Name] ASC
@@ -568,14 +445,14 @@ ALTER TABLE [dbo].[BuildingTypes] ADD  CONSTRAINT [UQ_BuildingTypes_Name] UNIQUE
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Cities_CountyId_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Cities_CountyId_Name]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Cities] ADD  CONSTRAINT [UQ_Cities_CountyId_Name] UNIQUE NONCLUSTERED 
 (
 	[CountyId] ASC,
 	[Name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Cities_CountyId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Cities_CountyId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_Cities_CountyId] ON [dbo].[Cities]
 (
 	[CountyId] ASC
@@ -583,7 +460,7 @@ CREATE NONCLUSTERED INDEX [IX_Cities_CountyId] ON [dbo].[Cities]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Clients_IdentificationNumber]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Clients_IdentificationNumber]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Clients] ADD  CONSTRAINT [UQ_Clients_IdentificationNumber] UNIQUE NONCLUSTERED 
 (
 	[IdentificationNumber] ASC
@@ -591,14 +468,14 @@ ALTER TABLE [dbo].[Clients] ADD  CONSTRAINT [UQ_Clients_IdentificationNumber] UN
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Counties_CountryId_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Counties_CountryId_Name]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Counties] ADD  CONSTRAINT [UQ_Counties_CountryId_Name] UNIQUE NONCLUSTERED 
 (
 	[CountryId] ASC,
 	[Name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Counties_CountryId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_Counties_CountryId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_Counties_CountryId] ON [dbo].[Counties]
 (
 	[CountryId] ASC
@@ -606,7 +483,7 @@ CREATE NONCLUSTERED INDEX [IX_Counties_CountryId] ON [dbo].[Counties]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Countries_Name]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Countries_Name]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Countries] ADD  CONSTRAINT [UQ_Countries_Name] UNIQUE NONCLUSTERED 
 (
 	[Name] ASC
@@ -614,58 +491,20 @@ ALTER TABLE [dbo].[Countries] ADD  CONSTRAINT [UQ_Countries_Name] UNIQUE NONCLUS
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_Currencies_Code]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_Currencies_Code]    Script Date: 09/30/2026 11:02:40 ******/
 ALTER TABLE [dbo].[Currencies] ADD  CONSTRAINT [UQ_Currencies_Code] UNIQUE NONCLUSTERED 
 (
 	[Code] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-SET ANSI_PADDING ON
-GO
-/****** Object:  Index [UQ_Policies_PolicyNumber]    Script Date: 09/28/2026 12:29:08 ******/
-ALTER TABLE [dbo].[Policies] ADD  CONSTRAINT [UQ_Policies_PolicyNumber] UNIQUE NONCLUSTERED 
-(
-	[PolicyNumber] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_Policies_BrokerId]    Script Date: 09/28/2026 12:29:08 ******/
-CREATE NONCLUSTERED INDEX [IX_Policies_BrokerId] ON [dbo].[Policies]
-(
-	[BrokerId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_Policies_BuildingId]    Script Date: 09/28/2026 12:29:08 ******/
-CREATE NONCLUSTERED INDEX [IX_Policies_BuildingId] ON [dbo].[Policies]
-(
-	[BuildingId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_Policies_ClientId]    Script Date: 09/28/2026 12:29:08 ******/
-CREATE NONCLUSTERED INDEX [IX_Policies_ClientId] ON [dbo].[Policies]
-(
-	[ClientId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_Policies_CurrencyId]    Script Date: 09/28/2026 12:29:08 ******/
-CREATE NONCLUSTERED INDEX [IX_Policies_CurrencyId] ON [dbo].[Policies]
-(
-	[CurrencyId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_Policies_Status]    Script Date: 09/28/2026 12:29:08 ******/
-CREATE NONCLUSTERED INDEX [IX_Policies_Status] ON [dbo].[Policies]
-(
-	[Status] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-/****** Object:  Index [IX_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [IX_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE NONCLUSTERED INDEX [IX_RiskFactorConfigs_Level_ReferenceId] ON [dbo].[RiskFactorConfigs]
 (
 	[Level] ASC,
 	[ReferenceId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [UQ_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/28/2026 12:29:08 ******/
+/****** Object:  Index [UQ_RiskFactorConfigs_Level_ReferenceId]    Script Date: 09/30/2026 11:02:40 ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_RiskFactorConfigs_Level_ReferenceId] ON [dbo].[RiskFactorConfigs]
 (
 	[Level] ASC,
@@ -706,10 +545,6 @@ ALTER TABLE [dbo].[FeeConfigs] ADD  CONSTRAINT [DF_FeeConfigs_IsActive]  DEFAULT
 GO
 ALTER TABLE [dbo].[FeeConfigs] ADD  CONSTRAINT [DF_FeeConfigs_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
 GO
-ALTER TABLE [dbo].[Policies] ADD  CONSTRAINT [DF_Policies_PolicyId]  DEFAULT (newsequentialid()) FOR [PolicyId]
-GO
-ALTER TABLE [dbo].[Policies] ADD  CONSTRAINT [DF_Policies_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
-GO
 ALTER TABLE [dbo].[RiskFactorConfigs] ADD  CONSTRAINT [DF_RiskFactorConfigs_RiskFactorConfigId]  DEFAULT (newsequentialid()) FOR [RiskFactorConfigId]
 GO
 ALTER TABLE [dbo].[RiskFactorConfigs] ADD  CONSTRAINT [DF_RiskFactorConfigs_IsActive]  DEFAULT ((1)) FOR [IsActive]
@@ -741,26 +576,6 @@ REFERENCES [dbo].[Countries] ([CountryId])
 GO
 ALTER TABLE [dbo].[Counties] CHECK CONSTRAINT [FK_Counties_Countries]
 GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [FK_Policies_Brokers] FOREIGN KEY([BrokerId])
-REFERENCES [dbo].[Brokers] ([BrokerId])
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [FK_Policies_Brokers]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [FK_Policies_Buildings] FOREIGN KEY([BuildingId])
-REFERENCES [dbo].[Buildings] ([BuildingId])
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [FK_Policies_Buildings]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [FK_Policies_Clients] FOREIGN KEY([ClientId])
-REFERENCES [dbo].[Clients] ([ClientId])
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [FK_Policies_Clients]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [FK_Policies_Currencies] FOREIGN KEY([CurrencyId])
-REFERENCES [dbo].[Currencies] ([CurrencyId])
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [FK_Policies_Currencies]
-GO
 ALTER TABLE [dbo].[Currencies]  WITH CHECK ADD  CONSTRAINT [CK_Currencies_ExchangeRate] CHECK  (([ExchangeRateToBase]>(0)))
 GO
 ALTER TABLE [dbo].[Currencies] CHECK CONSTRAINT [CK_Currencies_ExchangeRate]
@@ -772,16 +587,4 @@ GO
 ALTER TABLE [dbo].[FeeConfigs]  WITH CHECK ADD  CONSTRAINT [CK_FeeConfigs_Percentage] CHECK  (([Percentage]>=(0) AND [Percentage]<=(100)))
 GO
 ALTER TABLE [dbo].[FeeConfigs] CHECK CONSTRAINT [CK_FeeConfigs_Percentage]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [CK_Policies_BasePremium] CHECK  (([BasePremium]>(0)))
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [CK_Policies_BasePremium]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [CK_Policies_Dates] CHECK  (([EndDate]>=[StartDate]))
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [CK_Policies_Dates]
-GO
-ALTER TABLE [dbo].[Policies]  WITH CHECK ADD  CONSTRAINT [CK_Policies_FinalPremium] CHECK  (([FinalPremium]>=(0)))
-GO
-ALTER TABLE [dbo].[Policies] CHECK CONSTRAINT [CK_Policies_FinalPremium]
 GO

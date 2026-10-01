@@ -20,6 +20,8 @@ public static class DependencyInjection
 
         services.AddScoped<IRiskFactorConfigService, RiskFactorConfigService>();
 
+        services.AddScoped<IBrokerService, BrokerService>();
+
         return services;
     }
 }
