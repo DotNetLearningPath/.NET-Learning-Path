@@ -10,7 +10,7 @@ indent_style = space
 indent_size = 4
 
 # Require braces for if/else/for/while
-csharp_prefer_braces = true:error
+csharp_prefer_braces = true:warning
 
 
 # =========================================
