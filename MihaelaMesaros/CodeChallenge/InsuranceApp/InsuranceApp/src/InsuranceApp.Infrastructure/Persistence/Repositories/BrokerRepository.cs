@@ -16,19 +16,19 @@ internal sealed class BrokerRepository(InsuranceDbContext dbContext) : IBrokerRe
             .ToListAsync(cancellationToken);
     }
 
-    public Task<Broker?> GetBrokerByIdAsync(Guid brokerId, CancellationToken cancellationToken)
+    public async Task<Broker?> GetBrokerByIdAsync(Guid brokerId, CancellationToken cancellationToken)
     {
-        return dbContext.Brokers.AsNoTracking().FirstOrDefaultAsync(x => x.BrokerId == brokerId, cancellationToken);
+        return await dbContext.Brokers.AsNoTracking().FirstOrDefaultAsync(x => x.BrokerId == brokerId, cancellationToken);
     }
 
-    public Task<Broker?> GetBrokerForUpdateAsync(Guid brokerId, CancellationToken cancellationToken)
+    public async Task<Broker?> GetBrokerForUpdateAsync(Guid brokerId, CancellationToken cancellationToken)
     {
-        return dbContext.Brokers.FirstOrDefaultAsync(x => x.BrokerId == brokerId, cancellationToken);
+        return await dbContext.Brokers.FirstOrDefaultAsync(x => x.BrokerId == brokerId, cancellationToken);
     }
 
-    public Task<bool> BrokerCodeExistsAsync(string brokerCode, Guid? excludeBrokerId, CancellationToken cancellationToken)
+    public async Task<bool> BrokerCodeExistsAsync(string brokerCode, Guid? excludeBrokerId, CancellationToken cancellationToken)
     {
-        return dbContext.Brokers.AnyAsync(
+        return await dbContext.Brokers.AnyAsync(
             x => x.BrokerCode == brokerCode && (!excludeBrokerId.HasValue || x.BrokerId != excludeBrokerId.Value),
             cancellationToken);
     }
