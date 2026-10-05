@@ -1,6 +1,6 @@
-using Application.DTO.Common;
-using Application.Exceptions;
+using Insurance.Application.DTO.Common;
 using Insurance.Application.DTO.Fees;
+using Insurance.Application.Exceptions;
 using Insurance.Application.Services;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
@@ -48,8 +48,8 @@ public sealed class FeeConfigurationServiceTest
     {
         var firstFee = CreateFee("A fee", FeeType.AdminFee, 2m);
         var secondFee = CreateFee("B fee", FeeType.RiskAdjustment, 3m);
-        await _repository.AddFeeConfigurationAsync(firstFee);
-        await _repository.AddFeeConfigurationAsync(secondFee);
+        await _repository.AddFeeConfigurationAsync(firstFee, CancellationToken.None);
+        await _repository.AddFeeConfigurationAsync(secondFee, CancellationToken.None);
 
         var result = await _service.ListAsync(new PaginationRequest
         {
@@ -70,7 +70,7 @@ public sealed class FeeConfigurationServiceTest
     public async Task UpdateAsync_UpdatesFeeAndActiveState(bool isActive)
     {
         var fee = CreateFee("Original fee", FeeType.AdminFee, 2m);
-        await _repository.AddFeeConfigurationAsync(fee);
+        await _repository.AddFeeConfigurationAsync(fee, CancellationToken.None);
         var request = new SaveFeeConfigurationRequest
         {
             Name = "Updated fee",
@@ -108,7 +108,7 @@ public sealed class FeeConfigurationServiceTest
     public async Task UpdateAsync_DoesNotPersistWhenRequestIsInvalid()
     {
         var fee = CreateFee("Original fee", FeeType.AdminFee, 2m);
-        await _repository.AddFeeConfigurationAsync(fee);
+        await _repository.AddFeeConfigurationAsync(fee, CancellationToken.None);
         var request = new SaveFeeConfigurationRequest
         {
             Name = "Invalid fee",
@@ -130,7 +130,7 @@ public sealed class FeeConfigurationServiceTest
     public async Task DeactivateAsync_DeactivatesExistingFee()
     {
         var fee = CreateFee("Fee to deactivate", FeeType.AdminFee, 2m);
-        await _repository.AddFeeConfigurationAsync(fee);
+        await _repository.AddFeeConfigurationAsync(fee, CancellationToken.None);
 
         await _service.DeactivateAsync(fee.Id);
 

@@ -1,5 +1,5 @@
-using Insurance.Domain.Enums;
 using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 
 namespace Insurance.UnitTest.Domain.Entities;
 

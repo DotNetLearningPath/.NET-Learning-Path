@@ -1,4 +1,4 @@
-namespace Infrastructure.Seed;
+namespace Insurance.Infrastructure.Seed;
 
 public sealed class SeedDataOptions
 {

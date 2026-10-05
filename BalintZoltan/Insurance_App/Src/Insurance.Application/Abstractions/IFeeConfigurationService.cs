@@ -1,4 +1,4 @@
-using Application.DTO.Common;
+using Insurance.Application.DTO.Common;
 using Insurance.Application.DTO.Fees;
 namespace Insurance.Application.Abstractions;
 

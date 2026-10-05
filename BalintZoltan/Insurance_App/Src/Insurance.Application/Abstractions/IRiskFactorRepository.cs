@@ -1,6 +1,6 @@
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Insurance.Application.DTO.Common;
 
 namespace Insurance.Application.Abstractions;
 
@@ -17,6 +17,13 @@ public interface IRiskFactorRepository
 
     Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
         BuildingType buildingType,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
+        Guid? countryId,
+        Guid? countyId,
+        Guid? cityId,
+        BuildingType? buildingType,
         CancellationToken cancellationToken);
 
     Task<PagedResult<RiskFactorConfiguration>> ListRiskFactorsAsync(

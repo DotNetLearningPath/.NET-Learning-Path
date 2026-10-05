@@ -1,5 +1,5 @@
-using Insurance.Domain.Entities;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 
 namespace Insurance.Application.Abstractions;
 

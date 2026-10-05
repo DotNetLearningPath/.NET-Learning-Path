@@ -1,5 +1,5 @@
-﻿using Insurance.Domain.Entities;
-using Insurance.Application.DTO.Common;
+﻿using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 
 
 namespace Insurance.Application.Abstractions;
@@ -9,7 +9,7 @@ public interface IClientRepository
     Task AddClientAsync(Client client, CancellationToken cancellationToken);
     Task<bool> ExistsClientByIdentificationNumberAsync(
         string identificationNumber,
-        CancellationToken cancellationToken, 
+        CancellationToken cancellationToken,
         Guid? excludedClientId = null);
 
     Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken);
