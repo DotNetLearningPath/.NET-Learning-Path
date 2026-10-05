@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Insurance.Infrastructure.Persistence.Configurations;
 
-public sealed class FeeConfigurationConfiguration : IEntityTypeConfiguration<FeeConfiguration>
+public sealed class FeeConfigurationMapping : IEntityTypeConfiguration<FeeConfiguration>
 {
     public void Configure(EntityTypeBuilder<FeeConfiguration> builder)
     {
