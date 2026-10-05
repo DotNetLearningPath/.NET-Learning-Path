@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace CodeGuidelines.Analyzers;
+namespace Chapter6Generics;
 
 public class AnalyzerTest
 {
