@@ -1,5 +1,5 @@
-using Application.DTO.Common;
 using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
 
@@ -7,7 +7,7 @@ namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeFeeRepository : IFeeConfigurationRepository
 {
-    public readonly List<FeeConfiguration> Storage = new();
+    public readonly List<FeeConfiguration> Storage = [];
 
     public int AddCallCount { get; private set; }
     public int UpdateCallCount { get; private set; }
@@ -15,7 +15,7 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
     public Task AddFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         Storage.Add(configuration);
         AddCallCount++;
@@ -25,7 +25,7 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
     public Task<FeeConfiguration?> GetActiveFeeConfigurationAsync(
         FeeType type,
         DateTime effectiveAt,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var fee = Storage.FirstOrDefault(configuration =>
             configuration.Type == type
@@ -39,21 +39,20 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
     public Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<FeeConfiguration> activeFees = Storage
+        IReadOnlyCollection<FeeConfiguration> activeFees = [.. Storage
             .Where(configuration => configuration.IsActive
                 && configuration.EffectiveFrom <= effectiveAt
                 && (!configuration.EffectiveTo.HasValue
-                    || configuration.EffectiveTo.Value >= effectiveAt))
-            .ToList();
+                    || configuration.EffectiveTo.Value >= effectiveAt))];
 
         return Task.FromResult(activeFees);
     }
 
     public Task<FeeConfiguration?> GetFeeConfigurationByIdAsync(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var fee = Storage.FirstOrDefault(configuration => configuration.Id == id);
         return Task.FromResult(fee);
@@ -61,7 +60,7 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
     public Task UpdateFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         UpdateCallCount++;
         return Task.CompletedTask;
@@ -69,7 +68,7 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
     public Task DeactivateFeeConfigurationAsync(
         FeeConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         configuration.Deactivate();
         DeactivateCallCount++;
@@ -78,7 +77,7 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
     public Task<PagedResult<FeeConfiguration>> ListFeeConfigurationsAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var allFees = Storage
             .OrderBy(configuration => configuration.Name)
@@ -91,10 +90,9 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
 
         return Task.FromResult(new PagedResult<FeeConfiguration>
         {
-            Items = allFees
+            Items = [.. allFees
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList(),
+                .Take(pageSize)],
             PageNumber = pageNumber,
             PageSize = pageSize,
             TotalCount = allFees.Count

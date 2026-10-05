@@ -1,3 +1,5 @@
+using Insurance.Application.DTO.Premiums;
+
 namespace Insurance.Application.Abstractions;
 
 public interface IPremiumCalculationService
@@ -5,5 +7,6 @@ public interface IPremiumCalculationService
     Task<decimal> CalculateFinalPremiumAsync(
         decimal basePremium,
         DateTime effectiveAt,
-        CancellationToken cancellationToken);
+        PremiumCalculationContext context,
+        CancellationToken cancellationToken = default);
 }
