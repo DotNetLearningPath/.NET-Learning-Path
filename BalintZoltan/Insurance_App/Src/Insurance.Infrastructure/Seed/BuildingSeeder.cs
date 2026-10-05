@@ -1,26 +1,15 @@
 using System.Text.Json;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class BuildingSeeder
-{
-    private readonly SeedDataOptions _options;
-    private readonly ClientSeeder _clientSeeder;
-
-    public BuildingSeeder(
-        IOptions<SeedDataOptions> options,
+public sealed class BuildingSeeder(IOptions<SeedDataOptions> options,
         ClientSeeder clientSeeder)
-    {
-        _options = options.Value;
-        _clientSeeder = clientSeeder;
-    }
-
+{
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
@@ -29,7 +18,7 @@ public sealed class BuildingSeeder
         var buildings = await LoadBuildingsAsync(
             contentRootPath,
             cancellationToken);
-        var clients = await _clientSeeder.LoadAsync(
+        var clients = await clientSeeder.LoadAsync(
             contentRootPath,
             cancellationToken);
         var cities = await LoadCitiesAsync(
@@ -109,8 +98,8 @@ public sealed class BuildingSeeder
             {
                 ClientId = clientId,
                 CityId = cityId,
-                Street = buildingData.Street,
-                Number = buildingData.Number
+                buildingData.Street,
+                buildingData.Number
             });
         }
 
@@ -122,18 +111,20 @@ public sealed class BuildingSeeder
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.BuildingFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.BuildingFile));
 
+        JsonSerializerOptions jsonSerializerBuilding = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        JsonSerializerOptions buildings = jsonSerializerBuilding;
         return await JsonSerializer.DeserializeAsync<
             List<BuildingSeedData>>(
                 stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                },
+                buildings,
                 cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.BuildingFile} file is empty or invalid.");
+                $"The {options.Value.BuildingFile} file is empty or invalid.");
     }
 
     private async Task<Dictionary<int, Guid>> LoadCitiesAsync(
@@ -142,14 +133,14 @@ public sealed class BuildingSeeder
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.GeographyFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.GeographyFile));
 
         var geography = await JsonSerializer.DeserializeAsync<
             Dictionary<string, Dictionary<string, string>>>(
                 stream,
                 cancellationToken: cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.GeographyFile} file is empty or invalid.");
+                $"The {options.Value.GeographyFile} file is empty or invalid.");
 
         var cityEntities = await dbContext.Cities
             .Join(
@@ -170,19 +161,15 @@ public sealed class BuildingSeeder
 
         foreach (var county in geography)
         {
-            foreach (var city in county.Value)
+            foreach (var cityName in county.Value.Select(city => city.Key))
             {
                 var cityEntity = cityEntities.FirstOrDefault(entity =>
                     SeedText.Normalize(entity.CountyName)
                         == SeedText.Normalize(county.Key)
                     && SeedText.Normalize(entity.CityName)
-                        == SeedText.Normalize(city.Key));
-
-                if (cityEntity is null)
-                {
-                    throw new InvalidOperationException(
-                        $"City '{city.Key}' in county '{county.Key}' was not found.");
-                }
+                        == SeedText.Normalize(cityName))
+                    ?? throw new InvalidOperationException(
+                        $"City '{cityName}' in county '{county.Key}' was not found.");
 
                 cityIds[sourceId++] = cityEntity.Id;
             }

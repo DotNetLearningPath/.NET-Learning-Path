@@ -1,24 +1,21 @@
-﻿using Insurance.Application.Exceptions;
-using Insurance.Domain.Entities;
-using Insurance.Domain.Enums;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Clients;
 using Insurance.Application.DTO.Common;
+using Insurance.Application.Exceptions;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace Insurance.Application.Services;
 
-public class ClientService : IClientService
+public class ClientService(
+    IClientRepository clientRepository
+    ) : IClientService
 {
-    private readonly IClientRepository _clientRepository;
-    public ClientService(IClientRepository clientRepository)
-    {
-        _clientRepository = clientRepository;
-    }
     private async Task CheckClientIdentificationNumberExistAsync(string identificationNumber, CancellationToken cancellationToken)
     {
-        var exists = await _clientRepository
+        var exists = await clientRepository
             .ExistsClientByIdentificationNumberAsync(identificationNumber, cancellationToken: cancellationToken);
 
         if (exists)
@@ -41,7 +38,7 @@ public class ClientService : IClientService
             request.Phone,
             request.Address);
 
-        await _clientRepository.AddClientAsync(client, cancellationToken);
+        await clientRepository.AddClientAsync(client, cancellationToken);
 
         return new ClientDto
         {
@@ -56,7 +53,7 @@ public class ClientService : IClientService
     }
     public async Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
+        var client = await clientRepository.GetClientByIdAsync(id, cancellationToken);
 
         if (client is null)
         {
@@ -71,7 +68,7 @@ public class ClientService : IClientService
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var result = await _clientRepository.SearchClientAsync(
+        var result = await clientRepository.SearchClientAsync(
             name,
             identifier,
             pagination,
@@ -79,9 +76,7 @@ public class ClientService : IClientService
 
         return new PagedResult<ClientDto>
         {
-            Items = result.Items
-                .Select(MapToClientDto)
-                .ToList(),
+            Items = [.. result.Items.Select(MapToClientDto)],
 
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
@@ -94,13 +89,9 @@ public class ClientService : IClientService
            UpdateClientRequest request,
            CancellationToken cancellationToken)
     {
-        var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
-
-        if (client is null)
-        {
-            throw new NotFoundException("Client was not found.");
-        }
-
+        var client = await clientRepository.GetClientByIdAsync(id, cancellationToken)
+                     ??
+                     throw new NotFoundException("Client was not found.");
         if (client.IdentificationNumber != request.IdentificationNumber)
         {
             throw new InvalidOperationException(
@@ -119,7 +110,7 @@ public class ClientService : IClientService
             request.Phone,
             request.Address);
 
-        await _clientRepository.UpdateClientAsync(client, cancellationToken);
+        await clientRepository.UpdateClientAsync(client, cancellationToken);
 
         return MapToClientDto(client);
     }

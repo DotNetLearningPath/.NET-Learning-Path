@@ -1,22 +1,14 @@
 using System.Text.Json;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class ClientSeeder
+public sealed class ClientSeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public ClientSeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
@@ -51,18 +43,20 @@ public sealed class ClientSeeder
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.ClientFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.ClientFile));
 
+        JsonSerializerOptions jsonSerializerClient = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        JsonSerializerOptions client = jsonSerializerClient;
         return await JsonSerializer.DeserializeAsync<
             List<ClientSeedData>>(
                 stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                },
+                client,
                 cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.ClientFile} file is empty or invalid.");
+                $"The {options.Value.ClientFile} file is empty or invalid.");
     }
 
     private static ClientType ParseClientType(string value)

@@ -3,39 +3,33 @@ using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public sealed class BrokerRepository : IBrokerRepository
+public sealed class BrokerRepository(
+    InsuranceDbContext dbContext) : IBrokerRepository
 {
-    private readonly InsuranceDbContext _dbContext;
-
-    public BrokerRepository(InsuranceDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task AddBrokerAsync(
         Broker broker,
         CancellationToken cancellationToken)
     {
-        await _dbContext.Brokers.AddAsync(broker, cancellationToken);
+        await dbContext.Brokers.AddAsync(broker, cancellationToken);
         await SaveChangesAsync(cancellationToken);
     }
 
     public Task<Broker?> GetBrokerByIdAsync(
         Guid id,
         CancellationToken cancellationToken) =>
-        _dbContext.Brokers
+        dbContext.Brokers
             .AsNoTracking()
             .FirstOrDefaultAsync(broker => broker.Id == id, cancellationToken);
 
     public Task<Broker?> GetBrokerByCodeAsync(
         string brokerCode,
         CancellationToken cancellationToken) =>
-        _dbContext.Brokers
+        dbContext.Brokers
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 broker => broker.BrokerCode == brokerCode,
@@ -45,7 +39,7 @@ public sealed class BrokerRepository : IBrokerRepository
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Brokers.AsNoTracking();
+        var query = dbContext.Brokers.AsNoTracking();
         return await query
             .OrderBy(broker => broker.Name)
             .ThenBy(broker => broker.Id)
@@ -56,7 +50,7 @@ public sealed class BrokerRepository : IBrokerRepository
         Broker broker,
         CancellationToken cancellationToken)
     {
-        _dbContext.Brokers.Update(broker);
+        dbContext.Brokers.Update(broker);
         await SaveChangesAsync(cancellationToken);
     }
 
@@ -64,7 +58,8 @@ public sealed class BrokerRepository : IBrokerRepository
     {
         try
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException exception) when (IsBrokerCodeUniqueViolation(exception))
         {

@@ -24,10 +24,8 @@ public class Currency
         {
             throw new ArgumentException("Currency name is required.", nameof(name));
         }
-        if (exchangeRateToBase <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(exchangeRateToBase));
-        }
+
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(exchangeRateToBase);
 
         Id = Guid.NewGuid();
         Code = code;

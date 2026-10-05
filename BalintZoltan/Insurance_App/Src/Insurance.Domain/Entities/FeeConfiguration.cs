@@ -72,7 +72,6 @@ public class FeeConfiguration
             throw new ArgumentException("Fee type is not valid.", nameof(type));
         }
         ValidatePercentage(percentage);
-        }
         if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
         {
             throw new ArgumentException("Effective end cannot precede effective start.", nameof(effectiveTo));

@@ -1,4 +1,5 @@
 using Insurance.Domain.Enums;
+using System.Runtime.Intrinsics.X86;
 
 namespace Insurance.Domain.Entities;
 
@@ -53,14 +54,8 @@ public class Policy
         {
             throw new ArgumentException("Policy end date must be after start date.", nameof(endDate));
         }
-        if (basePremium < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(basePremium));
-        }
-        if (finalPremium < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(finalPremium));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(basePremium);
+        ArgumentOutOfRangeException.ThrowIfNegative(finalPremium);
         if (!Enum.IsDefined(status))
         {
             throw new ArgumentException("Policy status is not valid.", nameof(status));

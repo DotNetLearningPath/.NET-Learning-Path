@@ -1,5 +1,4 @@
 using Insurance.Domain.Entities;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -7,22 +6,15 @@ using System.Text.Json;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class GeographySeeder
+public sealed class GeographySeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public GeographySeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
         CancellationToken cancellationToken)
     {
         var filePath = SeedFilePath.Get(
-            contentRootPath, _options.BasePath, _options.GeographyFile);
+            contentRootPath, options.Value.BasePath, options.Value.GeographyFile);
 
         await using var stream = File.OpenRead(filePath);
 
@@ -31,7 +23,7 @@ public sealed class GeographySeeder
                 stream,
                 cancellationToken: cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.GeographyFile} file is empty or invalid.");
+                $"The {options.Value.GeographyFile} file is empty or invalid.");
 
         var countries = await dbContext.Countries
             .ToListAsync(cancellationToken);
