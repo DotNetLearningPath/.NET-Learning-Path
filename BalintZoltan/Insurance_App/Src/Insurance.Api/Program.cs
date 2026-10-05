@@ -21,11 +21,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IGeographyService, GeographyService>();
+builder.Services.AddScoped<IBuildingService, BuildingService>();
+builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 builder.Services.AddScoped<IPremiumCalculationService, PremiumCalculationService>();
 builder.Services.AddScoped<IBrokerService, BrokerService>();
-builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 
 var app = builder.Build();
 
