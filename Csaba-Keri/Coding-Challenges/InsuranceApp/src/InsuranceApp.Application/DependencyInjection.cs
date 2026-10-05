@@ -13,6 +13,9 @@ using InsuranceApp.Application.Common.Pagination;
 using InsuranceApp.Application.Currencies;
 using InsuranceApp.Application.Currencies.Commands;
 using InsuranceApp.Application.Currencies.Validation;
+using InsuranceApp.Application.Fees;
+using InsuranceApp.Application.Fees.Commands;
+using InsuranceApp.Application.Fees.Validation;
 using InsuranceApp.Application.Geography;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IBuildingService, BuildingService>();
         services.AddScoped<IBrokerService, BrokerService>();
         services.AddScoped<ICurrencyService, CurrencyService>();
+        services.AddScoped<IFeeService, FeeService>();
 
         services.AddScoped<IValidator<CreateClientCommand>, CreateClientCommandValidator>();
         services.AddScoped<IValidator<UpdateClientCommand>, UpdateClientCommandValidator>();
@@ -43,6 +47,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<UpdateBrokerCommand>, UpdateBrokerCommandValidator>();
         services.AddScoped<IValidator<CreateCurrencyCommand>, CreateCurrencyCommandValidator>();
         services.AddScoped<IValidator<UpdateCurrencyCommand>, UpdateCurrencyCommandValidator>();
+        services.AddScoped<IValidator<CreateFeeCommand>, CreateFeeCommandValidator>();
+        services.AddScoped<IValidator<UpdateFeeCommand>, UpdateFeeCommandValidator>();
 
         return services;
     }
