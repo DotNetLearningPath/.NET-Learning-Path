@@ -1,0 +1,35 @@
+info:
+  name: Create fee configuration - invalid percentage
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/fees"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Invalid Fee",
+        "type": 2,
+        "percentage": 150,
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "effectiveTo": null,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: test('Status is 400 Bad Request', function () { expect(res.getStatus()).to.equal(400); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

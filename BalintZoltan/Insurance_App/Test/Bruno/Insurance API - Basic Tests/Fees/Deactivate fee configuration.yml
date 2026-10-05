@@ -1,0 +1,21 @@
+info:
+  name: Deactivate fee configuration
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/fees/{{feeId}}/deactivate"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: test('Status is 204 No Content', function () { expect(res.getStatus()).to.equal(204); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

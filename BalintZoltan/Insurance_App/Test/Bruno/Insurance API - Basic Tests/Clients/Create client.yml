@@ -1,0 +1,45 @@
+info:
+  name: Create client
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/brokers/clients"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clientType": 0,
+        "name": "Postman Client",
+        "identificationNumber": "{{identificationNumber}}",
+        "email": "postman@example.com",
+        "phone": "+40712345678",
+        "address": "Postman Street 1"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('identificationNumber', String(Date.now()).slice(-13));
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains client id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        bru.setCollectionVar('clientId', body.id);\r
+
+        bru.setCollectionVar('identificationNumber', body.identificationNumber);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

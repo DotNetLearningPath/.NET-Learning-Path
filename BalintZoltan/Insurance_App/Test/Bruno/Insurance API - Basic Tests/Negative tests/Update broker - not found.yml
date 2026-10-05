@@ -1,0 +1,36 @@
+info:
+  name: Update broker - not found
+  type: http
+  seq: 17
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/brokers/{{missingBrokerId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "brokerCode": "MISSING",
+        "name": "Missing Broker",
+        "email": "missing@example.com",
+        "phone": "+40712345000",
+        "commissionPercentage": 10
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('missingBrokerId', bru.interpolate('{{$guid}}'));
+    - type: after-response
+      code: test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

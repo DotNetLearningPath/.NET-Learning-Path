@@ -1,0 +1,36 @@
+info:
+  name: Update client - not found
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/brokers/clients/{{missingId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clientType": 0,
+        "name": "Missing Client",
+        "identificationNumber": "1234567890123",
+        "email": "test@example.com",
+        "phone": "+40712345678"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('missingId', bru.interpolate('{{$guid}}'));
+    - type: after-response
+      code: test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

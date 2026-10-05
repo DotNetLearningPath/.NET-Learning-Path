@@ -1,0 +1,45 @@
+info:
+  name: Create fee configuration
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/fees"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "{{feeName}}",
+        "type": 2,
+        "percentage": 5.5,
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "effectiveTo": null,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setCollectionVar('feeName', 'Postman Fee ' + Date.now().toString().slice(-8));
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains fee id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        test('Fee name is correct', function () { expect(body.name).to.eql(bru.getCollectionVar('feeName')); });\r
+
+        bru.setCollectionVar('feeId', body.id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
