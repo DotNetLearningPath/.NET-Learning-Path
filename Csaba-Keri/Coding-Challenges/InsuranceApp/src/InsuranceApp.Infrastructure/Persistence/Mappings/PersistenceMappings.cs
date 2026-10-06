@@ -4,6 +4,8 @@ using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Currencies;
 using InsuranceApp.Domain.Fees;
 using InsuranceApp.Domain.Geography;
+using InsuranceApp.Domain.RiskFactors;
+using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.Infrastructure.Persistence.Entities;
 
 namespace InsuranceApp.Infrastructure.Persistence.Mappings;
@@ -103,6 +105,29 @@ internal static class PersistenceMappings
         );
     }
 
+    public static RiskFactorConfiguration ToDomain(this RiskFactorConfigurationEntity entity)
+    {
+        return new(
+            id: entity.Id,
+            target: entity.ToTarget(),
+            adjustmentPercentage: entity.AdjustmentPercentage,
+            isActive: entity.IsActive
+        );
+    }
+
+    public static RiskTarget ToTarget(this RiskFactorConfigurationEntity entity)
+    {
+        return (entity.Level, entity.CountryId, entity.CountyId, entity.CityId, entity.BuildingType) switch
+        {
+            (RiskFactorLevel.Country, Guid id, null, null, null) => new CountryTarget(id),
+            (RiskFactorLevel.County, null, Guid id, null, null) => new CountyTarget(id),
+            (RiskFactorLevel.City, null, null, Guid id, null) => new CityTarget(id),
+            (RiskFactorLevel.BuildingType, null, null, null, BuildingType type) => new BuildingTypeTarget(type),
+            
+            _ => throw new InvalidOperationException($"Risk factor {entity.Id} has an invalid stored target.")
+        };
+    }
+
     public static ClientEntity ToEntity(this Client client)
     {
         return new(
@@ -165,6 +190,39 @@ internal static class PersistenceMappings
             effectiveFrom: fee.EffectiveFrom,
             effectiveTo: fee.EffectiveTo,
             isActive: fee.IsActive
+        );
+    }
+
+    public static RiskFactorConfigurationEntity ToEntity(this RiskFactorConfiguration riskFactor)
+    {
+        return riskFactor.Target switch
+        {
+            CountryTarget target => CreateRiskFactorEntity(riskFactor, countryId: target.CountryId),
+            CountyTarget target => CreateRiskFactorEntity(riskFactor, countyId: target.CountyId),
+            CityTarget target => CreateRiskFactorEntity(riskFactor, cityId: target.CityId),
+            BuildingTypeTarget target => CreateRiskFactorEntity(riskFactor, buildingType: target.Type),
+
+            _ => throw new InvalidOperationException("Unsupported risk factor target.")
+        };
+    }
+
+    private static RiskFactorConfigurationEntity CreateRiskFactorEntity(
+        RiskFactorConfiguration riskFactor,
+        Guid? countryId = null,
+        Guid? countyId = null,
+        Guid? cityId = null,
+        BuildingType? buildingType = null
+    )
+    {
+        return new(
+            id: riskFactor.Id,
+            level: riskFactor.Target.Level,
+            countryId: countryId,
+            countyId: countyId,
+            cityId: cityId,
+            buildingType: buildingType,
+            adjustmentPercentage: riskFactor.AdjustmentPercentage,
+            isActive: riskFactor.IsActive
         );
     }
 }
