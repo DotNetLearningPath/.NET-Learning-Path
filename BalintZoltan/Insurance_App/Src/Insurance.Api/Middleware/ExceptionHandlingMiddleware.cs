@@ -5,24 +5,15 @@ using System.Text.Json;
 
 namespace Insurance.Api.Middleware;
 
-public sealed class ExceptionHandlingMiddleware
+public sealed class ExceptionHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(
-        RequestDelegate next,
-        ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception exception)
         {
@@ -47,7 +38,7 @@ public sealed class ExceptionHandlingMiddleware
 
         if ((int)statusCode >= 500)
         {
-            _logger.LogError(
+            logger.LogError(
                 exception,
                 "Unhandled exception while processing {Method} {Path}. CorrelationId: {CorrelationId}",
                 context.Request.Method,
@@ -56,7 +47,7 @@ public sealed class ExceptionHandlingMiddleware
         }
         else
         {
-            _logger.LogWarning(
+            logger.LogError(
                 "Request failed with status code {StatusCode} for {Method} {Path}. Error: {ErrorMessage}. CorrelationId: {CorrelationId}",
                 (int)statusCode,
                 context.Request.Method,
@@ -67,7 +58,7 @@ public sealed class ExceptionHandlingMiddleware
 
         if (context.Response.HasStarted)
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "The response had already started; the exception response could not be written. CorrelationId: {CorrelationId}",
                 context.TraceIdentifier);
             return;

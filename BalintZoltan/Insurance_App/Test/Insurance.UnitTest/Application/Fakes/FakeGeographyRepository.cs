@@ -32,14 +32,14 @@ public sealed class FakeGeographyRepository : IGeographyRepository
         CancellationToken cancellationToken) =>
         Task.FromResult(_counties.Any(county => county.Id == countyId));
 
-    public Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken) =>
-        Task.FromResult((IReadOnlyCollection<Country>)[.. _countries]);
+    public Task<List<Country>> GetCountriesAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<List<Country>>([.. _countries]);
 
-    public Task<IReadOnlyCollection<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken) =>
-        Task.FromResult((IReadOnlyCollection<County>)[.. _counties.Where(county => county.CountryId == countryId)]);
+    public Task<List<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken) =>
+        Task.FromResult<List<County>>([.. _counties.Where(county => county.CountryId == countryId)]);
 
-    public Task<IReadOnlyCollection<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken) =>
-        Task.FromResult((IReadOnlyCollection<City>)[.. _cities.Where(city => city.CountyId == countyId)]);
+    public Task<List<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken) =>
+        Task.FromResult<List<City>>([.. _cities.Where(city => city.CountyId == countyId)]);
 
     public Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken) =>
         Task.FromResult(_existingCityIds.Contains(cityId));

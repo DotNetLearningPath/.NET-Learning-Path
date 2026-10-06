@@ -11,6 +11,8 @@ namespace Insurance.Infrastructure.Repositories;
 public sealed class BrokerRepository(
     InsuranceDbContext dbContext) : IBrokerRepository
 {
+    private const int SqliteConstraintViolationErrorCode = 19;
+
     public async Task AddBrokerAsync(
         Broker broker,
         CancellationToken cancellationToken)
@@ -59,7 +61,6 @@ public sealed class BrokerRepository(
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException exception) when (IsBrokerCodeUniqueViolation(exception))
         {
@@ -76,9 +77,9 @@ public sealed class BrokerRepository(
             return false;
         }
 
-        return sqliteException.SqliteErrorCode == 19
+        return sqliteException.SqliteErrorCode == SqliteConstraintViolationErrorCode
             && sqliteException.Message.Contains(
-                "BrokerCode",
+                nameof(Broker.BrokerCode),
                 StringComparison.OrdinalIgnoreCase);
     }
 }

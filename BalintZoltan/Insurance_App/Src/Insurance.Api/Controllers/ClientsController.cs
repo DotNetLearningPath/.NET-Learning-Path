@@ -7,19 +7,12 @@ namespace Insurance.Api.Controllers;
 
 [ApiController]
 [Route("api/brokers/clients")]
-public class ClientsController : ControllerBase
+public class ClientsController(IClientService clientService) : ControllerBase
 {
-    private readonly IClientService _clientService;
-
-    public ClientsController(IClientService clientService)
-    {
-        _clientService = clientService;
-    }
-
     [HttpGet("{clientId:guid}", Name = nameof(GetClientByIdAsync))]
     public async Task<ActionResult<ClientDto>> GetClientByIdAsync(Guid clientId, CancellationToken cancellationToken)
     {
-        var client = await _clientService.GetClientByIdAsync(clientId, cancellationToken);
+        var client = await clientService.GetClientByIdAsync(clientId, cancellationToken);
 
         if (client is null)
         {
@@ -36,7 +29,7 @@ public class ClientsController : ControllerBase
     [FromQuery] PaginationRequest pagination,
     CancellationToken cancellationToken)
     {
-        var clients = await _clientService.SearchClientAsync(
+        var clients = await clientService.SearchClientAsync(
             name,
             identifier,
             pagination,
@@ -50,7 +43,7 @@ public class ClientsController : ControllerBase
         CreateClientRequest request,
         CancellationToken cancellationToken)
     {
-        var client = await _clientService.CreateClientAsync(request, cancellationToken);
+        var client = await clientService.CreateClientAsync(request, cancellationToken);
 
         return CreatedAtRoute(
             nameof(GetClientByIdAsync),
@@ -64,7 +57,7 @@ public class ClientsController : ControllerBase
         UpdateClientRequest request,
         CancellationToken cancellationToken)
     {
-        var client = await _clientService.UpdateClientAsync(clientId, request, cancellationToken);
+        var client = await clientService.UpdateClientAsync(clientId, request, cancellationToken);
 
         return Ok(client);
     }

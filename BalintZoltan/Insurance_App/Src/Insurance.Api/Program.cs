@@ -68,7 +68,6 @@ using (var scope = app.Services.CreateScope())
         app.Lifetime.ApplicationStopping);
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

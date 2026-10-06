@@ -37,11 +37,11 @@ public sealed class FakeFeeRepository : IFeeConfigurationRepository
         return Task.FromResult(fee);
     }
 
-    public Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
+    public Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
         CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<FeeConfiguration> activeFees = [.. Storage
+        List<FeeConfiguration> activeFees = [.. Storage
             .Where(configuration => configuration.IsActive
                 && configuration.EffectiveFrom <= effectiveAt
                 && (!configuration.EffectiveTo.HasValue

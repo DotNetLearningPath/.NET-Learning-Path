@@ -1,9 +1,12 @@
 using Insurance.Domain.Enums;
+using System.Xml.Linq;
 
 namespace Insurance.Domain.Entities;
 
 public class FeeConfiguration
 {
+    private const int MaxCommissionPercentage = 100;
+    private const int MinCommissionPercentage = 0;
     public Guid Id { get; private set; }
     public string Name { get; private set; }
     public FeeType Type { get; private set; }
@@ -20,21 +23,7 @@ public class FeeConfiguration
     public FeeConfiguration(string name, FeeType type, decimal percentage,
         DateTime effectiveFrom, DateTime? effectiveTo = null, bool isActive = true)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Fee name is required.", nameof(name));
-        }
-        if (!Enum.IsDefined(type))
-        {
-            throw new ArgumentException("Fee type is not valid.", nameof(type));
-        }
-        ValidatePercentage(percentage);
-        if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
-        {
-            throw new ArgumentException(
-                "Effective end cannot precede effective start.",
-                nameof(effectiveTo));
-        }
+        Validate(name, type, percentage, effectiveFrom, effectiveTo);
 
         Id = Guid.NewGuid();
         Name = name;
@@ -77,10 +66,9 @@ public class FeeConfiguration
             throw new ArgumentException("Effective end cannot precede effective start.", nameof(effectiveTo));
         }
     }
-
-    private static void ValidatePercentage(decimal percentage)
+private static void ValidatePercentage(decimal percentage)
     {
-        if (percentage < 0 || percentage > 100)
+        if (percentage < MinCommissionPercentage || percentage > MaxCommissionPercentage)
         {
             throw new ArgumentOutOfRangeException(nameof(percentage));
         }

@@ -4,6 +4,8 @@ namespace Insurance.Domain.Entities;
 
 public class Broker
 {
+    private const int MaxCommissionPercentage = 100;
+    private const int MinCommissionPercentage = 0;
     public Guid Id { get; private set; }
     public string BrokerCode { get; private set; }
     public string Name { get; private set; }
@@ -87,7 +89,7 @@ public class Broker
         {
             throw new ArgumentException("Broker phone is required.", nameof(phone));
         }
-        if (commissionPercentage is < 0 or > 100)
+        if (commissionPercentage is < MinCommissionPercentage or > MaxCommissionPercentage)
         {
             throw new ArgumentOutOfRangeException(nameof(commissionPercentage));
         }

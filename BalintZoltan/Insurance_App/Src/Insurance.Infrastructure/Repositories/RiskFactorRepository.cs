@@ -43,7 +43,7 @@ public sealed class RiskFactorRepository(
                 && configuration.IsActive,
                 cancellationToken);
 
-    public async Task<IReadOnlyCollection<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
+    public async Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
         Guid? countryId,
         Guid? countyId,
         Guid? cityId,

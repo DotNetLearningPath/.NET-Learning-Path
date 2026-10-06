@@ -38,7 +38,7 @@ public sealed class ClientSeeder(IOptions<SeedDataOptions> options)
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ClientSeedData>> LoadAsync(
+    public async Task<List<ClientSeedData>> LoadAsync(
         string contentRootPath,
         CancellationToken cancellationToken)
     {

@@ -6,39 +6,29 @@ namespace Insurance.Api.Controllers;
 
 [ApiController]
 [Route("api/brokers")]
-public class GeographyController : ControllerBase
+public class GeographyController(IGeographyService geographyService) : ControllerBase
 {
-    private readonly IGeographyService _geographyService;
-
-    public GeographyController(IGeographyService geographyService)
-    {
-        _geographyService = geographyService;
-    }
-
     [HttpGet("countries")]
-    public async Task<ActionResult<IReadOnlyCollection<CountryDto>>>
-        GetCountriesAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<CountryDto>>> GetCountriesAsync(CancellationToken cancellationToken)
     {
-        var countries = await _geographyService.GetCountriesAsync(cancellationToken);
+        var countries = await geographyService.GetCountriesAsync(cancellationToken);
 
         return Ok(countries);
     }
 
     [HttpGet("countries/{countryId:guid}/counties")]
-    public async Task<ActionResult<IReadOnlyCollection<CountyDto>>>
-        GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<CountyDto>>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken)
     {
-        var counties = await _geographyService
+        var counties = await geographyService
             .GetCountiesByCountryIdAsync(countryId, cancellationToken);
 
         return Ok(counties);
     }
 
     [HttpGet("counties/{countyId:guid}/cities")]
-    public async Task<ActionResult<IReadOnlyCollection<CityDto>>>
-        GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<CityDto>>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken)
     {
-        var cities = await _geographyService
+        var cities = await geographyService
             .GetCitiesByCountyIdAsync(countyId, cancellationToken);
 
         return Ok(cities);

@@ -8,13 +8,13 @@ public interface IGeographyRepository
     Task<bool> CountyExistsAsync(Guid countyId, CancellationToken cancellationToken);
     Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken);
+    Task<List<Country>> GetCountriesAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<County>> GetCountiesByCountryIdAsync(
+    Task<List<County>> GetCountiesByCountryIdAsync(
         Guid countryId,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<City>> GetCitiesByCountyIdAsync(
+    Task<List<City>> GetCitiesByCountyIdAsync(
         Guid countyId,
         CancellationToken cancellationToken);
 

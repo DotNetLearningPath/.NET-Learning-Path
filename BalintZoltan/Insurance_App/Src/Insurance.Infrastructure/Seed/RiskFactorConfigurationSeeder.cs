@@ -68,7 +68,7 @@ public sealed class RiskFactorConfigurationSeeder(IOptions<SeedDataOptions> opti
 
     private static string ResolveReference(
         RiskFactorLevel level, string reference,
-        IReadOnlyDictionary<(RiskFactorLevel Level, string Name), string> geographyReferences)
+        Dictionary<(RiskFactorLevel Level, string Name), string> geographyReferences)
     {
         if (level == RiskFactorLevel.BuildingType)
         {

@@ -2,14 +2,20 @@ using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Brokers;
 using Insurance.Application.DTO.Common;
 using Insurance.Application.Exceptions;
+using Insurance.Application.Validation;
 using Insurance.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
 
 namespace Insurance.Application.Services;
 
 public sealed class BrokerService(
     IBrokerRepository brokerRepository) : IBrokerService
 {
+    private const int MaxBrokerCodeLength = 50;
+    private const int MaxPhoneLength = 50;
+    private const int MaxNameLength = 200;
+    private const int MaxCommissionPercentage = 100;
+    private const int MinCommissionPercentage = 0;
+
     public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request);
@@ -95,28 +101,28 @@ public sealed class BrokerService(
         {
             throw new ArgumentException("Broker phone is required.");
         }
-        if (request.BrokerCode.Trim().Length > 50)
+        if (request.BrokerCode.Trim().Length > MaxBrokerCodeLength)
         {
             throw new ArgumentException("Broker code cannot be longer than 50 characters.");
         }
-        if (request.Name.Trim().Length > 200)
+        if (request.Name.Trim().Length > MaxNameLength)
         {
             throw new ArgumentException("Broker name cannot be longer than 200 characters.");
         }
-        if (request.Phone.Trim().Length > 50)
+        if (request.Phone.Trim().Length > MaxPhoneLength)
         {
             throw new ArgumentException("Broker phone cannot be longer than 50 characters.");
         }
-        if (request.CommissionPercentage is < 0 or > 100)
+        if (request.CommissionPercentage is < MinCommissionPercentage or > MaxCommissionPercentage)
         {
             throw new ArgumentOutOfRangeException(nameof(request));
         }
-        if (string.IsNullOrWhiteSpace(request.Email)
-            || request.Email.Trim().Length > 254
-            || !new EmailAddressAttribute().IsValid(request.Email.Trim()))
+        if (string.IsNullOrWhiteSpace(request.Email))
         {
-            throw new ArgumentException("Invalid email address format.", nameof(request));
+            throw new ArgumentException("Broker email is required.", nameof(request));
         }
+
+        EmailValidator.ValidateFormatAndLength(request.Email);
     }
 
     private static BrokerDto MapToBrokerDto(Broker broker) => new()

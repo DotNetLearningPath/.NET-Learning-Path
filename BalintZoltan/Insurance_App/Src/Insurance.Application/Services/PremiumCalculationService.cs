@@ -7,6 +7,7 @@ public sealed class PremiumCalculationService(
     IFeeConfigurationRepository feeConfigurationRepository,
         IRiskFactorRepository riskFactorRepository) : IPremiumCalculationService
 {
+    private const decimal PercentageBase = 100m;
     public async Task<decimal> CalculateFinalPremiumAsync(
         decimal basePremium,
         DateTime effectiveAt,
@@ -32,6 +33,6 @@ public sealed class PremiumCalculationService(
             .Sum(configuration => configuration.AdjustmentPercentage);
         var totalPercentage = feePercentageTotal + riskAdjustmentTotal;
 
-        return basePremium * (1 + totalPercentage / 100m);
+        return basePremium * (1 + totalPercentage / PercentageBase);
     }
 }

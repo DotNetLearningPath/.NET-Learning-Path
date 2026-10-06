@@ -7,19 +7,12 @@ namespace Insurance.Api.Controllers;
 
 [ApiController]
 [Route("api/brokers")]
-public class BuildingsController : ControllerBase
+public class BuildingsController(IBuildingService buildingService) : ControllerBase
 {
-    private readonly IBuildingService _buildingService;
-
-    public BuildingsController(IBuildingService buildingService)
-    {
-        _buildingService = buildingService;
-    }
-
     [HttpGet("buildings/{buildingId:guid}", Name = nameof(GetBuildingByIdAsync))]
     public async Task<ActionResult<BuildingDto>> GetBuildingByIdAsync(Guid buildingId, CancellationToken cancellationToken)
     {
-        var building = await _buildingService.GetBuildingByIdAsync(buildingId, cancellationToken);
+        var building = await buildingService.GetBuildingByIdAsync(buildingId, cancellationToken);
 
         if (building is null)
         {
@@ -30,13 +23,12 @@ public class BuildingsController : ControllerBase
     }
 
     [HttpGet("clients/{clientId:guid}/buildings")]
-    public async Task<ActionResult<PagedResult<BuildingDto>>>
-        GetByClientIdAsync(
+    public async Task<ActionResult<PagedResult<BuildingDto>>> GetByClientIdAsync(
             Guid clientId,
             [FromQuery] PaginationRequest pagination,
             CancellationToken cancellationToken)
     {
-        var buildings = await _buildingService.GetBuildingByClientIdAsync(
+        var buildings = await buildingService.GetBuildingByClientIdAsync(
             clientId,
             pagination,
             cancellationToken);
@@ -51,7 +43,7 @@ public class BuildingsController : ControllerBase
         CancellationToken cancellationToken)
     {
         request.ClientId = clientId;
-        var building = await _buildingService.CreateBuildingAsync(request, cancellationToken);
+        var building = await buildingService.CreateBuildingAsync(request, cancellationToken);
 
         return CreatedAtRoute(
             nameof(GetBuildingByIdAsync),
@@ -65,7 +57,7 @@ public class BuildingsController : ControllerBase
         UpdateBuildingRequest request,
         CancellationToken cancellationToken)
     {
-        var building = await _buildingService.UpdateBuildingAsync(buildingId, request, cancellationToken);
+        var building = await buildingService.UpdateBuildingAsync(buildingId, request, cancellationToken);
 
         return Ok(building);
     }

@@ -25,6 +25,7 @@ public sealed class FeeConfigurationService(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var fee = new FeeConfiguration(
             request.Name,
             request.Type,
@@ -40,6 +41,7 @@ public sealed class FeeConfigurationService(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var fee = await repository.GetFeeConfigurationByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Fee configuration was not found.");
 

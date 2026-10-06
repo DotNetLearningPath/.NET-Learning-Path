@@ -14,19 +14,7 @@ public sealed class FakeBrokerService : IBrokerService
         CreateBrokerRequest request,
         CancellationToken cancellationToken)
     {
-        BrokerDto result;
-
-        if (BrokerToReturn is not null)
-        {
-            result = BrokerToReturn;
-        }
-        else
-        {
-            result = CreateDto();
-        }
-
-        LastBrokerResult = result;
-        return Task.FromResult(result);
+        return CreateResultTask();
     }
 
     public Task<BrokerDto?> GetBrokerByIdAsync(
