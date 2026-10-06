@@ -2,6 +2,7 @@
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Currencies;
+using InsuranceApp.Domain.Fees;
 using InsuranceApp.Domain.Geography;
 using InsuranceApp.Infrastructure.Persistence.Entities;
 
@@ -89,6 +90,19 @@ internal static class PersistenceMappings
         );
     }
 
+    public static FeeConfiguration ToDomain(this FeeConfigurationEntity entity)
+    {
+        return new(
+            id: entity.Id,
+            name: entity.Name,
+            type: entity.Type,
+            percentage: entity.Percentage,
+            effectiveFrom: entity.EffectiveFrom,
+            effectiveTo: entity.EffectiveTo,
+            isActive: entity.IsActive
+        );
+    }
+
     public static ClientEntity ToEntity(this Client client)
     {
         return new(
@@ -138,6 +152,19 @@ internal static class PersistenceMappings
             name: currency.Name,
             exchangeRateToBase: currency.ExchangeRateToBase,
             isActive: currency.IsActive
+        );
+    }
+
+    public static FeeConfigurationEntity ToEntity(this FeeConfiguration fee)
+    {
+        return new(
+            id: fee.Id,
+            name: fee.Name,
+            type: fee.Type,
+            percentage: fee.Percentage,
+            effectiveFrom: fee.EffectiveFrom,
+            effectiveTo: fee.EffectiveTo,
+            isActive: fee.IsActive
         );
     }
 }
