@@ -328,4 +328,57 @@ internal static class TestData
         }
     ];
     #endregion
+
+    #region Brokers
+
+    public static readonly Broker BrokerForCreate = new()
+    {
+        BrokerId = Guid.NewGuid(),
+        BrokerCode = "BR001",
+        Name = "John Broker",
+        Email = "john.broker@test.com",
+        Phone = "0712345678",
+        CommissionPercentage = 5.25m,
+        IsActive = true
+    };
+
+    public static readonly Broker BrokerForUpdate = new()
+    {
+        BrokerId = Guid.NewGuid(),
+        BrokerCode = "BR002",
+        Name = "Broker For Update",
+        Email = "broker.update@test.com",
+        Phone = "0722345678",
+        CommissionPercentage = 4.50m,
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    public static readonly List<Broker> BrokersList =
+    [
+        new()
+    {
+        BrokerId = Guid.NewGuid(),
+        BrokerCode = "BR101",
+        Name = "First Broker",
+        Email = "first.broker@test.com",
+        Phone = "0711111111",
+        CommissionPercentage = 5.25m,
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow
+    },
+    new()
+    {
+        BrokerId = Guid.NewGuid(),
+        BrokerCode = "BR102",
+        Name = "Second Broker",
+        Email = "second.broker@test.com",
+        Phone = "0722222222",
+        CommissionPercentage = 3.50m,
+        IsActive = false,
+        CreatedAt = DateTime.UtcNow
+    }
+    ];
+
+    #endregion
 }
