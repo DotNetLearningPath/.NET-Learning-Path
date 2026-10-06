@@ -6,19 +6,14 @@ namespace InsuranceApp.UnitTests.TestData.RiskFactors;
 
 internal static class RiskTargetTestData
 {
-    public static readonly Guid DefaultCountryId =
-        Guid.Parse("11111111-1111-1111-1111-111111111111");
-
-    public static readonly Guid DefaultCountyId =
-        Guid.Parse("22222222-2222-2222-2222-222222222222");
-
-    public static readonly Guid DefaultCityId =
-        Guid.Parse("33333333-3333-3333-3333-333333333333");
-
+    public const RiskFactorLevel DefaultRiskFactorLevel = RiskFactorLevel.Country;
     public const BuildingType DefaultBuildingType = BuildingType.Residential;
+    public static readonly Guid DefaultCountryId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    public static readonly Guid DefaultCountyId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    public static readonly Guid DefaultCityId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
     public static RiskTarget Create(
-        RiskFactorLevel level,
+        RiskFactorLevel level = DefaultRiskFactorLevel,
         Guid? id = null,
         BuildingType buildingType = DefaultBuildingType
     )
