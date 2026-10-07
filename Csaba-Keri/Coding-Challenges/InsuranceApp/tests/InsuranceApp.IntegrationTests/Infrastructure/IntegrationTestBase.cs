@@ -111,6 +111,18 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
+    protected async Task<JsonObject> CreateFeeAsync(JsonObject? request = null)
+    {
+        using var response = await HttpClient.PostAsJsonAsync(
+            requestUri: "/api/admin/fees",
+            value: request ?? TestData.Fee()
+        );
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        return await ReadJsonAsync(response);
+    }
+
     protected static async Task<JsonObject> ReadJsonAsync(HttpResponseMessage response)
     {
         var body = await response.Content.ReadFromJsonAsync<JsonObject>();

@@ -83,4 +83,21 @@ internal static class TestData
         ["exchangeRateToBase"] = exchangeRateToBase,
         ["isActive"] = isActive
     };
+
+    public static JsonObject Fee(
+        string name = "Standard Fee",
+        string type = "BrokerCommission",
+        decimal percentage = 2.125m,
+        string effectiveFrom = "2030-01-10",
+        string? effectiveTo = null,
+        bool isActive = true
+    ) => new()
+    {
+        ["name"] = name,
+        ["type"] = type,
+        ["percentage"] = percentage,
+        ["effectiveFrom"] = effectiveFrom,
+        ["effectiveTo"] = effectiveTo,
+        ["isActive"] = isActive
+    };
 }

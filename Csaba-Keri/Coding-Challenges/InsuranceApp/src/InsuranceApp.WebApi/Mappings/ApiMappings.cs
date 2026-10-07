@@ -9,15 +9,19 @@ using InsuranceApp.Application.Clients.Results;
 using InsuranceApp.Application.Common.Pagination;
 using InsuranceApp.Application.Currencies.Commands;
 using InsuranceApp.Application.Currencies.Results;
+using InsuranceApp.Application.Fees.Commands;
+using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
+using InsuranceApp.Domain.Fees;
 using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
 using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Currencies;
+using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
 
 namespace InsuranceApp.WebApi.Mappings;
@@ -58,6 +62,18 @@ internal static class ApiMappings
         };
     }
 
+    public static FeeType ToDomain(this FeeTypeDto type)
+    {
+        return type switch
+        {
+            FeeTypeDto.BrokerCommission => FeeType.BrokerCommission,
+            FeeTypeDto.RiskAdjustment => FeeType.RiskAdjustment,
+            FeeTypeDto.AdminFee => FeeType.AdminFee,
+            
+            _ => throw new ValidationException("Fee type is invalid.")
+        };
+    }
+
     public static ClientTypeDto ToDto(this ClientType type)
     {
         return type switch
@@ -92,6 +108,18 @@ internal static class ApiMappings
         };
     }
 
+    public static FeeTypeDto ToDto(this FeeType type)
+    {
+        return type switch
+        {
+            FeeType.BrokerCommission => FeeTypeDto.BrokerCommission,
+            FeeType.RiskAdjustment => FeeTypeDto.RiskAdjustment,
+            FeeType.AdminFee => FeeTypeDto.AdminFee,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
     public static CreateClientCommand ToCommand(this CreateClientRequest request)
     {
         return new(
@@ -112,32 +140,6 @@ internal static class ApiMappings
             Email: request.Email,
             Phone: request.Phone,
             PrimaryAddress: request.PrimaryAddress
-        );
-    }
-
-    public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
-    {
-        return new(
-            ClientId: clientId,
-            Type: request.Type!.Value.ToDomain(),
-            Address: request.Address!.ToCommand(),
-            ConstructionYear: request.ConstructionYear!.Value,
-            NumberOfFloors: request.NumberOfFloors!.Value,
-            SurfaceArea: request.SurfaceArea!.Value,
-            InsuredValue: request.InsuredValue!.Value
-        );
-    }
-
-    public static UpdateBuildingCommand ToUpdateCommand(this SaveBuildingRequest request, Guid buildingId)
-    {
-        return new(
-            BuildingId: buildingId,
-            Type: request.Type!.Value.ToDomain(),
-            Address: request.Address!.ToCommand(),
-            ConstructionYear: request.ConstructionYear!.Value,
-            NumberOfFloors: request.NumberOfFloors!.Value,
-            SurfaceArea: request.SurfaceArea!.Value,
-            InsuredValue: request.InsuredValue!.Value
         );
     }
 
@@ -187,6 +189,57 @@ internal static class ApiMappings
             CurrencyId: currencyId,
             Name: request.Name,
             ExchangeRateToBase: request.ExchangeRateToBase!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
+    {
+        return new(
+            ClientId: clientId,
+            Type: request.Type!.Value.ToDomain(),
+            Address: request.Address!.ToCommand(),
+            ConstructionYear: request.ConstructionYear!.Value,
+            NumberOfFloors: request.NumberOfFloors!.Value,
+            SurfaceArea: request.SurfaceArea!.Value,
+            InsuredValue: request.InsuredValue!.Value
+        );
+    }
+
+    public static CreateFeeCommand ToCreateCommand(this SaveFeeRequest request)
+    {
+        return new(
+            Name: request.Name,
+            Type: request.Type!.Value.ToDomain(),
+            Percentage: request.Percentage!.Value,
+            EffectiveFrom: request.EffectiveFrom!.Value,
+            EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateBuildingCommand ToUpdateCommand(this SaveBuildingRequest request, Guid buildingId)
+    {
+        return new(
+            BuildingId: buildingId,
+            Type: request.Type!.Value.ToDomain(),
+            Address: request.Address!.ToCommand(),
+            ConstructionYear: request.ConstructionYear!.Value,
+            NumberOfFloors: request.NumberOfFloors!.Value,
+            SurfaceArea: request.SurfaceArea!.Value,
+            InsuredValue: request.InsuredValue!.Value
+        );
+    }
+
+    public static UpdateFeeCommand ToUpdateCommand(this SaveFeeRequest request, Guid feeId)
+    {
+        return new(
+            FeeId: feeId,
+            Name: request.Name,
+            Type: request.Type!.Value.ToDomain(),
+            Percentage: request.Percentage!.Value,
+            EffectiveFrom: request.EffectiveFrom!.Value,
+            EffectiveTo: request.EffectiveTo,
             IsActive: request.IsActive!.Value
         );
     }
@@ -312,6 +365,19 @@ internal static class ApiMappings
             Code: result.Code,
             Name: result.Name,
             ExchangeRateToBase: result.ExchangeRateToBase,
+            IsActive: result.IsActive
+        );
+    }
+
+    public static FeeResponse ToResponse(this FeeResult result)
+    {
+        return new(
+            Id: result.Id,
+            Name: result.Name,
+            Type: result.Type.ToDto(),
+            Percentage: result.Percentage,
+            EffectiveFrom: result.EffectiveFrom,
+            EffectiveTo: result.EffectiveTo,
             IsActive: result.IsActive
         );
     }
