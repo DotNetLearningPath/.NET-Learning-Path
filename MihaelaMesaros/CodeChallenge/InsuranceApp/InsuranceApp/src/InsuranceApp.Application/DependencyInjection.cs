@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IBrokerService, BrokerService>();
 
         services.AddScoped<IPolicyService, PolicyService>();
+        services.AddSingleton<IPolicyNumberGenerator, PolicyNumberGenerator>();
 
         return services;
     }

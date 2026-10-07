@@ -1,6 +1,8 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.DTOs.Policy;
+using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Entities;
+using InsuranceApp.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
@@ -48,8 +50,26 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         return (policies, totalCount);
     }
 
-    public Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
     {
-        return dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
+        return await dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
     }
+
+    public async Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken)
+    {
+        dbContext.Policies.Add(policy);
+
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
+        {
+            dbContext.Entry(policy).State = EntityState.Detached;
+
+            throw new DuplicateEntityException(nameof(Policy));
+        }
+
+    }
+
 }

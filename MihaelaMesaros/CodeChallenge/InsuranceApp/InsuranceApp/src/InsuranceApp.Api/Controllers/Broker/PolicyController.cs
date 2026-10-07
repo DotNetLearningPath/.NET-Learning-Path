@@ -15,6 +15,8 @@ namespace InsuranceApp.Api.Controllers.Broker;
 [Route("api/brokers/policies")]
 public sealed class PoliciesController(IPolicyService policyService, ILogger<PoliciesController> logger) : ControllerBase
 {
+    private const string GetPolicyByIdRouteName = "GetPolicyById";
+
     /// <summary>
     /// Searches for policies based on the provided search criteria.
     /// </summary>
@@ -42,7 +44,7 @@ public sealed class PoliciesController(IPolicyService policyService, ILogger<Pol
     /// <param name="policyId">The policy identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The policy.</returns>
-    [HttpGet("{policyId:guid}")]
+    [HttpGet("{policyId:guid}", Name = GetPolicyByIdRouteName)]
     [ProducesResponseType(typeof(PolicyDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -57,4 +59,27 @@ public sealed class PoliciesController(IPolicyService policyService, ILogger<Pol
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Creates a new draft policy.
+    /// </summary>
+    /// <param name="request">The policy creation request.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The created draft policy.</returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(PolicyDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PolicyDto>> CreatePolicyAsync(CreatePolicyDto request, CancellationToken cancellationToken)
+    {
+        var result = await policyService.CreatePolicyAsync(request, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return result.Error!.ToProblemResult(logger);
+        }
+
+        return CreatedAtRoute(GetPolicyByIdRouteName, new { policyId = result.Value!.PolicyId }, result.Value);
+    }
+
 }

@@ -9,4 +9,6 @@ public interface IPolicyRepository
     Task<(IReadOnlyList<Policy> Items, int TotalCount)> SearchPoliciesAsync(PolicySearchDto policySearchDto, CancellationToken cancellationToken);
 
     Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken);
+
+    Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken);
 }
