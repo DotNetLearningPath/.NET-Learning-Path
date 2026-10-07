@@ -52,11 +52,7 @@ public sealed class RiskFactorServiceTests
 
         // Assert
         Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.Equal(command.Level, result.Level);
-        Assert.Equal(command.CountryId, result.CountryId);
-        Assert.Equal(command.CountyId, result.CountyId);
-        Assert.Equal(command.CityId, result.CityId);
-        Assert.Equal(command.BuildingType, result.BuildingType);
+        Assert.Equal(expectedTarget, result.Target);
         Assert.Equal(command.AdjustmentPercentage, result.AdjustmentPercentage);
         Assert.Equal(command.IsActive, result.IsActive);
 
@@ -101,8 +97,9 @@ public sealed class RiskFactorServiceTests
     {
         // Arrange
         var riskFactor = RiskFactorConfigurationTestData.Create();
+        var riskFactorId = riskFactor.Id;
         
-        _riskFactorRepository.GetRiskFactorByIdAsync(riskFactor.Id, Arg.Any<CancellationToken>())
+        _riskFactorRepository.GetRiskFactorByIdAsync(riskFactorId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<RiskFactorConfiguration?>(riskFactor));
 
         var level = RiskFactorLevel.County;
@@ -111,7 +108,7 @@ public sealed class RiskFactorServiceTests
         var isActive = false;
 
         var command = UpdateCommand(
-            riskFactorId: riskFactor.Id,
+            riskFactorId: riskFactorId,
             level: level,
             countyId: countyId,
             adjustmentPercentage: adjustmentPercentage,
@@ -124,13 +121,8 @@ public sealed class RiskFactorServiceTests
         var result = await _riskFactorService.UpdateRiskFactorAsync(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(riskFactor.Id, result.Id);
-        Assert.Equal(level, result.Level);
-        Assert.Equal(countyId, result.CountyId);
-        Assert.Equal(expectedTarget, riskFactor.Target);
-        Assert.Null(result.CountryId);
-        Assert.Null(result.CityId);
-        Assert.Null(result.BuildingType);
+        Assert.Equal(riskFactorId, result.Id);
+        Assert.Equal(expectedTarget, result.Target);
         Assert.Equal(adjustmentPercentage, result.AdjustmentPercentage);
         Assert.Equal(isActive, result.IsActive);
 
@@ -176,7 +168,7 @@ public sealed class RiskFactorServiceTests
 
         // Assert
         Assert.Equal(riskFactor.Id, result.Id);
-        Assert.Equal(riskFactor.Target.Level, result.Level);
+        Assert.Equal(riskFactor.Target, result.Target);
         Assert.Equal(riskFactor.AdjustmentPercentage, result.AdjustmentPercentage);
         Assert.Equal(riskFactor.IsActive, result.IsActive);
     }

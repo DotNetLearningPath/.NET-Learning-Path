@@ -1,15 +1,10 @@
-﻿using InsuranceApp.Domain.Buildings;
-using InsuranceApp.Domain.RiskFactors;
+﻿using InsuranceApp.Domain.RiskFactors.Targets;
 
 namespace InsuranceApp.Application.RiskFactors.Results;
 
 public record RiskFactorResult(
     Guid Id,
-    RiskFactorLevel Level,
-    Guid? CountryId,
-    Guid? CountyId,
-    Guid? CityId,
-    BuildingType? BuildingType,
+    RiskTarget Target,
     decimal AdjustmentPercentage,
     bool IsActive
 );

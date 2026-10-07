@@ -1,6 +1,5 @@
 ﻿using InsuranceApp.Application.RiskFactors.Commands;
 using InsuranceApp.Application.RiskFactors.Results;
-using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.RiskFactors;
 using InsuranceApp.Domain.RiskFactors.Targets;
 
@@ -23,32 +22,9 @@ internal static class RiskFactorMappings
 
     public static RiskFactorResult ToResult(this RiskFactorConfiguration riskFactor)
     {
-        return riskFactor.Target switch
-        {
-            CountryTarget target => CreateResult(riskFactor, countryId: target.CountryId),
-            CountyTarget target => CreateResult(riskFactor, countyId: target.CountyId),
-            CityTarget target => CreateResult(riskFactor, cityId: target.CityId),
-            BuildingTypeTarget target => CreateResult(riskFactor, buildingType: target.Type),
-            
-            _ => throw new InvalidOperationException("Unsupported risk factor target.")
-        };
-    }
-
-    private static RiskFactorResult CreateResult(
-        RiskFactorConfiguration riskFactor,
-        Guid? countryId = null,
-        Guid? countyId = null,
-        Guid? cityId = null,
-        BuildingType? buildingType = null
-    )
-    {
         return new(
             Id: riskFactor.Id,
-            Level: riskFactor.Target.Level,
-            CountryId: countryId,
-            CountyId: countyId,
-            CityId: cityId,
-            BuildingType: buildingType,
+            Target: riskFactor.Target,
             AdjustmentPercentage: riskFactor.AdjustmentPercentage,
             IsActive: riskFactor.IsActive
         );
