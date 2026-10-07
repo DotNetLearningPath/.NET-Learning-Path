@@ -36,7 +36,11 @@ public sealed class Program
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.UseOneOfForPolymorphism();
+            });
         }
 
         builder.Services.AddApplication();
