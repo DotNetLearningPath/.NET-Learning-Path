@@ -4,6 +4,7 @@ using InsuranceApp.Application.Clients;
 using InsuranceApp.Application.Currencies;
 using InsuranceApp.Application.Fees;
 using InsuranceApp.Application.Geography;
+using InsuranceApp.Application.RiskFactors;
 using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IBrokerRepository, BrokerRepository>();
         services.AddScoped<ICurrencyRepository, CurrencyRepository>();
         services.AddScoped<IFeeRepository, FeeRepository>();
+        services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
 
         return services;
     }

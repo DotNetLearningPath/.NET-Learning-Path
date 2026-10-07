@@ -16,6 +16,8 @@ public class InsuranceDbContext(
     public DbSet<CurrencyEntity> Currencies => Set<CurrencyEntity>();
     public DbSet<FeeConfigurationEntity> FeeConfigurations => Set<FeeConfigurationEntity>();
 
+    public DbSet<RiskFactorConfigurationEntity> RiskFactorConfigurations => Set<RiskFactorConfigurationEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

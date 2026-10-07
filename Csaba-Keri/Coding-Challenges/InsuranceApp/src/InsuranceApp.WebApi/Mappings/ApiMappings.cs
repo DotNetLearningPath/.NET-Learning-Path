@@ -12,10 +12,14 @@ using InsuranceApp.Application.Currencies.Results;
 using InsuranceApp.Application.Fees.Commands;
 using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
+using InsuranceApp.Application.RiskFactors.Commands;
+using InsuranceApp.Application.RiskFactors.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Fees;
+using InsuranceApp.Domain.RiskFactors;
+using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
@@ -23,6 +27,8 @@ using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
+using InsuranceApp.WebApi.Models.RiskFactors;
+using InsuranceApp.WebApi.Models.RiskFactors.Targets;
 
 namespace InsuranceApp.WebApi.Mappings;
 
@@ -71,6 +77,19 @@ internal static class ApiMappings
             FeeTypeDto.AdminFee => FeeType.AdminFee,
             
             _ => throw new ValidationException("Fee type is invalid.")
+        };
+    }
+
+    public static RiskFactorLevel ToDomain(this RiskFactorLevelDto level)
+    {
+        return level switch
+        {
+            RiskFactorLevelDto.Country => RiskFactorLevel.Country,
+            RiskFactorLevelDto.County => RiskFactorLevel.County,
+            RiskFactorLevelDto.City => RiskFactorLevel.City,
+            RiskFactorLevelDto.BuildingType => RiskFactorLevel.BuildingType,
+            
+            _ => throw new ValidationException("Risk factor level is invalid.")
         };
     }
 
@@ -218,6 +237,19 @@ internal static class ApiMappings
         );
     }
 
+    public static CreateRiskFactorCommand ToCreateCommand(this SaveRiskFactorRequest request)
+    {
+        return new(
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
     public static UpdateBuildingCommand ToUpdateCommand(this SaveBuildingRequest request, Guid buildingId)
     {
         return new(
@@ -240,6 +272,20 @@ internal static class ApiMappings
             Percentage: request.Percentage!.Value,
             EffectiveFrom: request.EffectiveFrom!.Value,
             EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateRiskFactorCommand ToUpdateCommand(this SaveRiskFactorRequest request, Guid riskFactorId)
+    {
+        return new(
+            RiskFactorId: riskFactorId,
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
             IsActive: request.IsActive!.Value
         );
     }
@@ -380,6 +426,38 @@ internal static class ApiMappings
             EffectiveTo: result.EffectiveTo,
             IsActive: result.IsActive
         );
+    }
+
+    public static RiskFactorResponse ToResponse(this RiskFactorResult result)
+    {
+        return new(
+            Id: result.Id,
+            Target: result.Target.ToResponse(),
+            AdjustmentPercentage: result.AdjustmentPercentage,
+            IsActive: result.IsActive
+        );
+    }
+
+    public static RiskTargetResponse ToResponse(this RiskTarget target)
+    {
+        return target switch
+        {
+            CountryTarget country =>
+                new CountryTargetResponse(CountryId: country.CountryId),
+            
+            CountyTarget county =>
+                new CountyTargetResponse(CountyId: county.CountyId),
+            
+            CityTarget city => 
+                new CityTargetResponse(CityId: city.CityId),
+            
+            BuildingTypeTarget buildingType =>
+                new BuildingTypeTargetResponse(BuildingType: buildingType.Type.ToDto()),
+
+            _ => throw new InvalidOperationException(
+                $"Unsupported risk target type: {target.GetType().Name}."
+            )
+        };
     }
 
     public static PagedResponse<TResponse> ToResponse<TResult, TResponse>(
