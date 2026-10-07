@@ -1,24 +1,18 @@
-﻿using Insurance.Application.Exceptions;
-using Insurance.Domain.Entities;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Geography;
+using Insurance.Application.Exceptions;
+using Insurance.Domain.Entities;
 
 namespace Insurance.Application.Services;
 
-public class GeographyService : IGeographyService
+public class GeographyService(
+    IGeographyRepository geographyRepository) : IGeographyService
 {
-    private readonly IGeographyRepository _geographyRepository;
-
-    public GeographyService(IGeographyRepository geographyRepository)
-    {
-        _geographyRepository = geographyRepository;
-    }
-
     private async Task CheckCountryExistsAsync(
         Guid countryId,
         CancellationToken cancellationToken)
     {
-        if (!await _geographyRepository.CountryExistsAsync(
+        if (!await geographyRepository.CountryExistsAsync(
                 countryId,
                 cancellationToken))
         {
@@ -30,7 +24,7 @@ public class GeographyService : IGeographyService
         Guid countyId,
         CancellationToken cancellationToken)
     {
-        if (!await _geographyRepository.CountyExistsAsync(
+        if (!await geographyRepository.CountyExistsAsync(
                 countyId,
                 cancellationToken))
         {
@@ -40,11 +34,9 @@ public class GeographyService : IGeographyService
 
     public async Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken)
     {
-        var countries = await _geographyRepository.GetCountriesAsync(cancellationToken);
+        var countries = await geographyRepository.GetCountriesAsync(cancellationToken);
 
-        return countries
-            .Select(MapToCountryDto)
-            .ToList();
+        return [.. countries.Select(MapToCountryDto)];
     }
 
     public async Task<IReadOnlyCollection<CountyDto>> GetCountiesByCountryIdAsync(
@@ -53,12 +45,10 @@ public class GeographyService : IGeographyService
     {
         await CheckCountryExistsAsync(countryId, cancellationToken);
 
-        var counties = await _geographyRepository
+        var counties = await geographyRepository
             .GetCountiesByCountryIdAsync(countryId, cancellationToken);
 
-        return counties
-            .Select(MapToCountyDto)
-            .ToList();
+        return [.. counties.Select(MapToCountyDto)];
     }
 
     public async Task<IReadOnlyCollection<CityDto>> GetCitiesByCountyIdAsync(
@@ -67,12 +57,10 @@ public class GeographyService : IGeographyService
     {
         await CheckCountyExistsAsync(countyId, cancellationToken);
 
-        var cities = await _geographyRepository
+        var cities = await geographyRepository
             .GetCitiesByCountyIdAsync(countyId, cancellationToken);
 
-        return cities
-            .Select(MapToCityDto)
-            .ToList();
+        return [.. cities.Select(MapToCityDto)];
     }
 
     private static CountryDto MapToCountryDto(Country country)

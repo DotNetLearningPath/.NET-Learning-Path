@@ -33,6 +33,18 @@
     {
       "key": "identificationNumber",
       "value": ""
+    },
+    {
+      "key": "feeId",
+      "value": ""
+    },
+    {
+      "key": "brokerId",
+      "value": ""
+    },
+    {
+      "key": "brokerCode",
+      "value": ""
     }
   ],
   "item": [
@@ -393,6 +405,209 @@
             },
             "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
           }
+        }
+      ]
+    },
+    {
+      "name": "Fees",
+      "item": [
+        {
+          "name": "List fee configurations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains paged items', function () { pm.expect(body.items).to.be.an('array'); });",
+                  "pm.test('Page number is 1', function () { pm.expect(body.pageNumber).to.eql(1); });",
+                  "pm.test('Page size is 10', function () { pm.expect(body.pageSize).to.eql(10); });",
+                  "pm.test('Total count is numeric', function () { pm.expect(body.totalCount).to.be.a('number'); });",
+                  "pm.test('Total pages is numeric', function () { pm.expect(body.totalPages).to.be.a('number'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/fees?pageNumber=1&pageSize=10"
+          }
+        },
+        {
+          "name": "Create fee configuration",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('feeName', 'Postman Fee ' + Date.now().toString().slice(-8));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains fee id', function () { pm.expect(body.id).to.be.a('string').and.not.empty; });",
+                  "pm.test('Fee name is correct', function () { pm.expect(body.name).to.eql(pm.collectionVariables.get('feeName')); });",
+                  "pm.collectionVariables.set('feeId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{feeName}}\",\n  \"type\": 2,\n  \"percentage\": 5.5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees"
+          }
+        },
+        {
+          "name": "Update fee configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Fee percentage was updated', function () { pm.expect(pm.response.json().percentage).to.eql(6.5); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{feeName}} Updated\",\n  \"type\": 2,\n  \"percentage\": 6.5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees/{{feeId}}"
+          }
+        },
+        {
+          "name": "Deactivate fee configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204 No Content', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/fees/{{feeId}}/deactivate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Brokers",
+      "item": [
+        {
+          "name": "Create broker",
+          "event": [{
+            "listen": "prerequest",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('brokerCode', 'PM-' + Date.now().toString().slice(-8));"
+            ] }
+          }, {
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 201 Created', function () { pm.response.to.have.status(201); });",
+              "const body = pm.response.json();",
+              "pm.test('Response contains broker id', function () { pm.expect(body.id).to.be.a('string').and.not.empty; });",
+              "pm.test('Broker code is correct', function () { pm.expect(body.brokerCode).to.eql(pm.collectionVariables.get('brokerCode')); });",
+              "pm.test('Broker is active', function () { pm.expect(body.status).to.eql(1); });",
+              "pm.collectionVariables.set('brokerId', body.id);"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brokerCode\": \"{{brokerCode}}\",\n  \"name\": \"Postman Broker\",\n  \"email\": \"postman.broker@example.com\",\n  \"phone\": \"+40712345000\",\n  \"commissionPercentage\": 10\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/admin/brokers"
+          }
+        },
+        {
+          "name": "List brokers",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Response contains paged items', function () { pm.expect(body.items).to.be.an('array'); });",
+              "pm.test('Page number is 1', function () { pm.expect(body.pageNumber).to.eql(1); });",
+              "pm.test('Page size is 10', function () { pm.expect(body.pageSize).to.eql(10); });",
+              "pm.test('Total count is numeric', function () { pm.expect(body.totalCount).to.be.a('number'); });",
+              "pm.test('Total pages is numeric', function () { pm.expect(body.totalPages).to.be.a('number'); });"
+            ] }
+          }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/brokers?pageNumber=1&pageSize=10" }
+        },
+        {
+          "name": "Get broker by id",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Returned id matches requested id', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('brokerId')); });"
+            ] }
+          }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/brokers/{{brokerId}}" }
+        },
+        {
+          "name": "Update broker",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Broker name was updated', function () { pm.expect(pm.response.json().name).to.eql('Postman Broker Updated'); });",
+              "pm.test('Commission was updated', function () { pm.expect(pm.response.json().commissionPercentage).to.eql(12.5); });"
+            ] }
+          }],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brokerCode\": \"{{brokerCode}}\",\n  \"name\": \"Postman Broker Updated\",\n  \"email\": \"postman.broker.updated@example.com\",\n  \"phone\": \"+40712345001\",\n  \"commissionPercentage\": 12.5\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/admin/brokers/{{brokerId}}"
+          }
+        },
+        {
+          "name": "Deactivate broker",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+            "pm.test('Broker is inactive', function () { pm.expect(pm.response.json().status).to.eql(0); });"
+          ] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/admin/brokers/{{brokerId}}/deactivate" }
+        },
+        {
+          "name": "Activate broker",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });",
+            "pm.test('Broker is active', function () { pm.expect(pm.response.json().status).to.eql(1); });"
+          ] } }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/admin/brokers/{{brokerId}}/activate" }
         }
       ]
     },
@@ -781,6 +996,174 @@
             },
             "url": "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
           }
+        },
+        {
+          "name": "Create fee configuration - invalid percentage",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Fee\",\n  \"type\": 2,\n  \"percentage\": 150,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees"
+          }
+        },
+        {
+          "name": "Update fee configuration - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingFeeId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Missing Fee\",\n  \"type\": 2,\n  \"percentage\": 5,\n  \"effectiveFrom\": \"2026-01-01T00:00:00Z\",\n  \"effectiveTo\": null,\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/admin/fees/{{missingFeeId}}"
+          }
+        },
+        {
+          "name": "Deactivate fee configuration - not found",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('missingFeeId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/fees/{{missingFeeId}}/deactivate"
+          }
+        },
+        {
+          "name": "Get broker - not found",
+          "event": [{
+            "listen": "prerequest",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.variables.set('missingBrokerId', pm.variables.replaceIn('{{$guid}}'));"
+            ] }
+          }, {
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+            ] }
+          }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/brokers/{{missingBrokerId}}" }
+        },
+        {
+          "name": "Create broker - invalid required fields",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 400 Bad Request', function () { pm.response.to.have.status(400); });"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brokerCode\": \"\",\n  \"name\": \"\",\n  \"email\": \"invalid-email\",\n  \"phone\": \"\",\n  \"commissionPercentage\": 150\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/admin/brokers"
+          }
+        },
+        {
+          "name": "Update broker - not found",
+          "event": [{
+            "listen": "prerequest",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.variables.set('missingBrokerId', pm.variables.replaceIn('{{$guid}}'));"
+            ] }
+          }, {
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+            ] }
+          }],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brokerCode\": \"MISSING\",\n  \"name\": \"Missing Broker\",\n  \"email\": \"missing@example.com\",\n  \"phone\": \"+40712345000\",\n  \"commissionPercentage\": 10\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/admin/brokers/{{missingBrokerId}}"
+          }
+        },
+        {
+          "name": "Deactivate broker - not found",
+          "event": [{
+            "listen": "prerequest",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.variables.set('missingBrokerId', pm.variables.replaceIn('{{$guid}}'));"
+            ] }
+          }, {
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+            ] }
+          }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/admin/brokers/{{missingBrokerId}}/deactivate" }
+        },
+        {
+          "name": "Activate broker - not found",
+          "event": [{
+            "listen": "prerequest",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.variables.set('missingBrokerId', pm.variables.replaceIn('{{$guid}}'));"
+            ] }
+          }, {
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 404 Not Found', function () { pm.response.to.have.status(404); });"
+            ] }
+          }],
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/admin/brokers/{{missingBrokerId}}/activate" }
         }
       ]
     }

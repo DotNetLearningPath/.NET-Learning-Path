@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configurations;
+namespace Insurance.Infrastructure.Persistence.Configurations;
 
 public sealed class BuildingConfiguration
     : IEntityTypeConfiguration<Building>

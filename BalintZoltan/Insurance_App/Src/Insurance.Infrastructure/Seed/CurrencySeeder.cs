@@ -1,39 +1,33 @@
 using System.Text.Json;
 using Insurance.Domain.Entities;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class CurrencySeeder
+public sealed class CurrencySeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public CurrencySeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.CurrencyFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.CurrencyFile));
 
+        JsonSerializerOptions jsonSerializerCurrency = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        JsonSerializerOptions currency = jsonSerializerCurrency;
         var currencies = await JsonSerializer.DeserializeAsync<
             List<CurrencySeedData>>(
                 stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                },
+                currency,
                 cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.CurrencyFile} file is empty or invalid.");
+                $"The {options.Value.CurrencyFile} file is empty or invalid.");
 
         var existingCodes = await dbContext.Currencies
             .Select(currency => currency.Code)

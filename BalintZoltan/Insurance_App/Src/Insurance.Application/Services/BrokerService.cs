@@ -7,12 +7,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Insurance.Application.Services;
 
-public sealed class BrokerService : IBrokerService
+public sealed class BrokerService(
+    IBrokerRepository brokerRepository) : IBrokerService
 {
-    private readonly IBrokerRepository _brokerRepository;
-
-    public BrokerService(IBrokerRepository brokerRepository) => _brokerRepository = brokerRepository;
-
     public async Task<BrokerDto> CreateBrokerAsync(CreateBrokerRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request);
@@ -22,22 +19,22 @@ public sealed class BrokerService : IBrokerService
             request.Email.Trim(),
             request.Phone.Trim(),
             commissionPercentage: request.CommissionPercentage);
-        await _brokerRepository.AddBrokerAsync(broker, cancellationToken);
+        await brokerRepository.AddBrokerAsync(broker, cancellationToken);
         return MapToBrokerDto(broker);
     }
 
     public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var broker = await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken);
+        var broker = await brokerRepository.GetBrokerByIdAsync(id, cancellationToken);
         return broker is null ? null : MapToBrokerDto(broker);
     }
 
     public async Task<PagedResult<BrokerDto>> ListBrokersAsync(PaginationRequest pagination, CancellationToken cancellationToken)
     {
-        var result = await _brokerRepository.ListBrokersAsync(pagination, cancellationToken);
+        var result = await brokerRepository.ListBrokersAsync(pagination, cancellationToken);
         return new PagedResult<BrokerDto>
         {
-            Items = result.Items.Select(MapToBrokerDto).ToList(),
+            Items = [.. result.Items.Select(MapToBrokerDto)],
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
             TotalCount = result.TotalCount
@@ -49,7 +46,7 @@ public sealed class BrokerService : IBrokerService
         ValidateRequest(request);
         var broker = await GetRequiredBrokerAsync(id, cancellationToken);
         broker.Update(request.BrokerCode, request.Name, request.Email, request.Phone, request.CommissionPercentage);
-        await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
+        await brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
         return MapToBrokerDto(broker);
     }
 
@@ -74,12 +71,12 @@ public sealed class BrokerService : IBrokerService
         {
             broker.Deactivate();
         }
-        await _brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
+        await brokerRepository.UpdateBrokerAsync(broker, cancellationToken);
         return MapToBrokerDto(broker);
     }
 
     private async Task<Broker> GetRequiredBrokerAsync(Guid id, CancellationToken cancellationToken) =>
-        await _brokerRepository.GetBrokerByIdAsync(id, cancellationToken)
+        await brokerRepository.GetBrokerByIdAsync(id, cancellationToken)
         ?? throw new NotFoundException("Broker was not found.");
 
     private static void ValidateRequest(IBrokerRequest request)

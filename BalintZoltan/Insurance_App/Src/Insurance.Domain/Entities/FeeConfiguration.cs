@@ -28,14 +28,7 @@ public class FeeConfiguration
         {
             throw new ArgumentException("Fee type is not valid.", nameof(type));
         }
-        if (percentage < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(percentage));
-        }
-        if (type == FeeType.Percentage && percentage > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(percentage));
-        }
+        ValidatePercentage(percentage);
         if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
         {
             throw new ArgumentException(
@@ -78,17 +71,18 @@ public class FeeConfiguration
         {
             throw new ArgumentException("Fee type is not valid.", nameof(type));
         }
-        if (percentage < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(percentage));
-        }
-        if (type == FeeType.Percentage && percentage > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(percentage));
-        }
+        ValidatePercentage(percentage);
         if (effectiveTo.HasValue && effectiveTo < effectiveFrom)
         {
             throw new ArgumentException("Effective end cannot precede effective start.", nameof(effectiveTo));
+        }
+    }
+
+    private static void ValidatePercentage(decimal percentage)
+    {
+        if (percentage < 0 || percentage > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(percentage));
         }
     }
 }

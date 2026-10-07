@@ -1,40 +1,37 @@
-using Insurance.Domain.Enums;
 using Insurance.Application.Abstractions;
+using Insurance.Application.DTO.Premiums;
 
 namespace Insurance.Application.Services;
 
-public sealed class PremiumCalculationService : IPremiumCalculationService
+public sealed class PremiumCalculationService(
+    IFeeConfigurationRepository feeConfigurationRepository,
+        IRiskFactorRepository riskFactorRepository) : IPremiumCalculationService
 {
-    private readonly IFeeConfigurationRepository _feeConfigurationRepository;
-
-    public PremiumCalculationService(
-        IFeeConfigurationRepository feeConfigurationRepository,
-        IRiskFactorRepository? riskFactorRepository = null)
-    {
-        _feeConfigurationRepository = feeConfigurationRepository;
-    }
-
     public async Task<decimal> CalculateFinalPremiumAsync(
         decimal basePremium,
         DateTime effectiveAt,
-        CancellationToken cancellationToken)
+        PremiumCalculationContext context,
+        CancellationToken cancellationToken = default)
     {
-        if (basePremium < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(basePremium));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative<decimal>(basePremium);
+        ArgumentNullException.ThrowIfNull(context);
 
-        var configurations = await _feeConfigurationRepository
+        var feeConfigurations = await feeConfigurationRepository
             .GetActiveFeeConfigurationsAsync(effectiveAt, cancellationToken);
 
-        var percentageTotal = configurations
-            .Where(configuration => configuration.Type == FeeType.Percentage)
-            .Sum(configuration => configuration.Percentage);
+        var riskFactors = await riskFactorRepository.GetApplicableRiskFactorsAsync(
+            context.CountryId,
+            context.CountyId,
+            context.CityId,
+            context.BuildingType,
+            cancellationToken);
 
-        var fixedAmountTotal = configurations
-            .Where(configuration => configuration.Type == FeeType.FixedAmount)
+        var feePercentageTotal = feeConfigurations
             .Sum(configuration => configuration.Percentage);
+        var riskAdjustmentTotal = riskFactors
+            .Sum(configuration => configuration.AdjustmentPercentage);
+        var totalPercentage = feePercentageTotal + riskAdjustmentTotal;
 
-        return basePremium * (1 + percentageTotal / 100m) + fixedAmountTotal;
+        return basePremium * (1 + totalPercentage / 100m);
     }
 }

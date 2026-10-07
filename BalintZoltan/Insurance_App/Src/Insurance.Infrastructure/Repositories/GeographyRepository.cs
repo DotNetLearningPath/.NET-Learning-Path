@@ -1,36 +1,30 @@
-﻿using Insurance.Domain.Entities;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
+using Insurance.Domain.Entities;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public sealed class GeographyRepository : IGeographyRepository
+public sealed class GeographyRepository(
+    InsuranceDbContext dbContext) : IGeographyRepository
 {
-    private readonly InsuranceDbContext _dbContext;
-
-    public GeographyRepository(InsuranceDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public Task<bool> CountryExistsAsync(
         Guid countryId,
         CancellationToken cancellationToken) =>
-        _dbContext.Countries.AnyAsync(
+        dbContext.Countries.AnyAsync(
             country => country.Id == countryId,
             cancellationToken);
 
     public Task<bool> CountyExistsAsync(
         Guid countyId,
         CancellationToken cancellationToken) =>
-        _dbContext.Counties.AnyAsync(
+        dbContext.Counties.AnyAsync(
             county => county.Id == countyId,
             cancellationToken);
 
     public async Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken)
     {
-        return await _dbContext.Countries
+        return await dbContext.Countries
             .AsNoTracking()
             .OrderBy(country => country.Name)
             .ToListAsync(cancellationToken);
@@ -39,7 +33,7 @@ public sealed class GeographyRepository : IGeographyRepository
     public async Task<IReadOnlyCollection<County>>
         GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken)
     {
-        return await _dbContext.Counties
+        return await dbContext.Counties
             .AsNoTracking()
             .Where(county => county.CountryId == countryId)
             .OrderBy(county => county.Name)
@@ -49,7 +43,7 @@ public sealed class GeographyRepository : IGeographyRepository
     public async Task<IReadOnlyCollection<City>>
         GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken)
     {
-        return await _dbContext.Cities
+        return await dbContext.Cities
             .AsNoTracking()
             .Where(city => city.CountyId == countyId)
             .OrderBy(city => city.Name)
@@ -58,7 +52,7 @@ public sealed class GeographyRepository : IGeographyRepository
 
     public async Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken)
     {
-        return await _dbContext.Cities
+        return await dbContext.Cities
             .AsNoTracking()
             .AnyAsync(city => city.Id == cityId, cancellationToken);
     }

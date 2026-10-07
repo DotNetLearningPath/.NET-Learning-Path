@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -139,7 +138,7 @@ namespace Insurance.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FeeConfigurations_Name_EffectiveFrom",
                 table: "FeeConfigurations",
-                columns: new[] { "Name", "EffectiveFrom" });
+                columns: ["Name", "EffectiveFrom"]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Policies_BrokerId",
@@ -170,7 +169,7 @@ namespace Insurance.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RiskFactorConfigurations_Level_ReferenceId",
                 table: "RiskFactorConfigurations",
-                columns: new[] { "Level", "ReferenceId" },
+                columns: ["Level", "ReferenceId"],
                 unique: true);
         }
 

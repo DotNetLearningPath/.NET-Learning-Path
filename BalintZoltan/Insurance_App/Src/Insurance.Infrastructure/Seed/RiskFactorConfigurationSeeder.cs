@@ -1,32 +1,26 @@
-using System.Text.Json;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class RiskFactorConfigurationSeeder
+public sealed class RiskFactorConfigurationSeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public RiskFactorConfigurationSeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(InsuranceDbContext dbContext, string contentRootPath, CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(SeedFilePath.Get(
             contentRootPath,
-            _options.BasePath,
-            _options.RiskFactorConfigurationFile));
+            options.Value.BasePath,
+            options.Value.RiskFactorConfigurationFile));
+        JsonSerializerOptions jsonSerializerRiskFactor = new() { PropertyNameCaseInsensitive = true };
+        JsonSerializerOptions riskFactor = jsonSerializerRiskFactor;
         var configurations = await JsonSerializer.DeserializeAsync<List<RiskFactorSeedData>>(
-            stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, cancellationToken)
+            stream, riskFactor, cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.RiskFactorConfigurationFile} file is empty or invalid.");
+                $"The {options.Value.RiskFactorConfigurationFile} file is empty or invalid.");
 
         var references = await LoadGeographyReferencesAsync(dbContext, cancellationToken);
         var existingConfigurations = await dbContext.RiskFactorConfigurations

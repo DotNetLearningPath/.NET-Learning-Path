@@ -1,6 +1,6 @@
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Insurance.Application.DTO.Common;
 
 namespace Insurance.Application.Abstractions;
 

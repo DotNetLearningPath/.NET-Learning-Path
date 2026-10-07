@@ -1,0 +1,46 @@
+info:
+  name: Create building
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/brokers/clients/{{clientId}}/buildings"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clientId": "{{clientId}}",
+        "cityId": "{{cityId}}",
+        "street": "Postman Street",
+        "number": "10",
+        "constructionYear": 2000,
+        "type": 5,
+        "numberOfFloors": 2,
+        "surfaceArea": 120.5,
+        "insuredValue": 150000,
+        "isFloodRiskZone": false,
+        "isEarthquakeRiskZone": false
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains building id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        bru.setCollectionVar('buildingId', body.id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,37 @@
+info:
+  name: Update fee configuration - not found
+  type: http
+  seq: 13
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/fees/{{missingFeeId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Missing Fee",
+        "type": 2,
+        "percentage": 5,
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "effectiveTo": null,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('missingFeeId', bru.interpolate('{{$guid}}'));
+    - type: after-response
+      code: test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

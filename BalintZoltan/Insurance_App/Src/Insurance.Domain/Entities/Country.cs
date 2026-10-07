@@ -5,7 +5,7 @@ public class Country
     public Guid Id { get; private set; }
     public string Name { get; private set; }
 
-    private readonly List<County> _counties = new();
+    private readonly List<County> _counties = [];
 
     public IReadOnlyCollection<County> Counties => _counties;
     private static void CheckCountryName(string name)

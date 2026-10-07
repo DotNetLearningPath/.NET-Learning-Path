@@ -1,33 +1,27 @@
-﻿using Insurance.Domain.Entities;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public sealed class ClientRepository : IClientRepository
+public sealed class ClientRepository(
+    InsuranceDbContext dbContext) : IClientRepository
 {
-    private readonly InsuranceDbContext _dbContext;
-
-    public ClientRepository(InsuranceDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task AddClientAsync(Client client, CancellationToken cancellationToken)
     {
-        await _dbContext.Clients.AddAsync(client, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Clients.AddAsync(client, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<bool> ExistsClientByIdentificationNumberAsync(
         string identificationNumber,
-        CancellationToken cancellationToken, 
+        CancellationToken cancellationToken,
         Guid? excludedClientId = null)
     {
-        return await _dbContext.Clients.AnyAsync(client =>
+        return await dbContext.Clients.AnyAsync(client =>
             client.IdentificationNumber == identificationNumber
             && (!excludedClientId.HasValue
                 || client.Id != excludedClientId.Value), cancellationToken);
@@ -35,7 +29,7 @@ public sealed class ClientRepository : IClientRepository
 
     public async Task<Client?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _dbContext.Clients
+        return await dbContext.Clients
             .FirstOrDefaultAsync(client => client.Id == id, cancellationToken);
     }
 
@@ -45,7 +39,7 @@ public sealed class ClientRepository : IClientRepository
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Clients
+        var query = dbContext.Clients
             .AsNoTracking()
             .AsQueryable();
 
@@ -71,7 +65,7 @@ public sealed class ClientRepository : IClientRepository
 
     public async Task UpdateClientAsync(Client client, CancellationToken cancellationToken)
     {
-        _dbContext.Clients.Update(client);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        dbContext.Clients.Update(client);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

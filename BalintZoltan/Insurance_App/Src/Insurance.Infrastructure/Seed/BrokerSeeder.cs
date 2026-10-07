@@ -1,40 +1,34 @@
-using System.Text.Json;
-using Insurance.Domain.Enums;
-using Infrastructure.Seed;
 using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class BrokerSeeder
+public sealed class BrokerSeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public BrokerSeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.BrokerFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.BrokerFile));
 
+        JsonSerializerOptions jsonSerializerBroker = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        JsonSerializerOptions broker = jsonSerializerBroker;
         var brokers = await JsonSerializer.DeserializeAsync<
             List<BrokerSeedData>>(
                 stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                },
+                broker,
                 cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.BrokerFile} file is empty or invalid.");
+                $"The {options.Value.BrokerFile} file is empty or invalid.");
 
         var existingCodes = await dbContext.Brokers
             .Select(broker => broker.BrokerCode)

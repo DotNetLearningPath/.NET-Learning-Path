@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/Resource/">
     <File Path="resources/code guidelines.docx" />
-    <File Path="resources/CodeReview.md" />
-    <File Path="tests/postman/Insurance.Api.postman_collection.json" />
+    <File Path="Resources/CodingGuidelinesFindings.md" />
+    <File Path="Test/Postman/Insurance.Api.postman_collection.json" />
   </Folder>
   <Folder Name="/Src/">
     <Project Path="src/Insurance.Api/Insurance.Api.csproj" Id="3ee874b4-1eb3-45f5-8118-71d640091b27" />

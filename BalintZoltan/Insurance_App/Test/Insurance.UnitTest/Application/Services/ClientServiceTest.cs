@@ -1,9 +1,9 @@
 using Insurance.Application.DTO.Clients;
 using Insurance.Application.DTO.Common;
-using Insurance.Domain.Entities;
-using Insurance.Domain.Enums;
 using Insurance.Application.Exceptions;
 using Insurance.Application.Services;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Insurance.UnitTest.Application.Helper;
 
 namespace Insurance.UnitTest.Application.Services

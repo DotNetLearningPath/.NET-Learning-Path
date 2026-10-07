@@ -1,12 +1,12 @@
-using Insurance.Domain.Entities;
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 
 namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeClientRepository : IClientRepository
 {
-    public readonly Dictionary<Guid, Client> Storage = new();
+    public readonly Dictionary<Guid, Client> Storage = [];
 
     public void Seed(Client client) => Storage[client.Id] = client;
 
@@ -64,7 +64,7 @@ public sealed class FakeClientRepository : IClientRepository
 
         return Task.FromResult(new PagedResult<Client>
         {
-            Items = all.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
+            Items = [.. all.Skip((pageNumber - 1) * pageSize).Take(pageSize)],
             PageNumber = pageNumber,
             PageSize = pageSize,
             TotalCount = all.Count
@@ -73,7 +73,6 @@ public sealed class FakeClientRepository : IClientRepository
 
     public Task UpdateClientAsync(Client client, CancellationToken cancellationToken)
     {
-        Storage[client.Id] = client;
-        return Task.CompletedTask;
+        return AddClientAsync(client, cancellationToken);
     }
 }
