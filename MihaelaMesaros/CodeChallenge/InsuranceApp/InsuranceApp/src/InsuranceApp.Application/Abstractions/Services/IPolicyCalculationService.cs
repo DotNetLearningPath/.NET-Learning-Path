@@ -1,6 +1,14 @@
-﻿namespace InsuranceApp.Application.Abstractions.Services;
+﻿using InsuranceApp.Application.Common;
+using InsuranceApp.Domain.Entities;
+
+namespace InsuranceApp.Application.Abstractions.Services;
 
 public interface IPolicyCalculationService
 {
-    Task<decimal> CalculateFinalPremiumAsync(decimal basePremium, Guid buildingId, CancellationToken cancellationToken);
+    Task<Result<decimal>> CalculateFinalPremiumAsync(
+        decimal basePremium, 
+        Building building, 
+        DateTime policyStartDate,
+        CancellationToken cancellationToken
+    );
 }

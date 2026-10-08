@@ -28,6 +28,20 @@ internal sealed class RiskFactorConfigRepository(InsuranceDbContext dbContext) :
         return dbContext.RiskFactorConfigs.FirstOrDefaultAsync(x => x.RiskFactorConfigId == riskFactorConfigId, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<RiskFactorConfig>> GetActiveRiskFactorConfigsAsync(Guid countryId, Guid countyId, Guid cityId, Guid buildingTypeId, CancellationToken cancellationToken)
+    {
+        return await dbContext.RiskFactorConfigs
+            .AsNoTracking()
+            .Where(x => x.IsActive
+                && (
+                    (x.Level == RiskFactorLevel.Country && x.ReferenceId == countryId) ||
+                    (x.Level == RiskFactorLevel.County && x.ReferenceId == countyId) ||
+                    (x.Level == RiskFactorLevel.City && x.ReferenceId == cityId) ||
+                    (x.Level == RiskFactorLevel.BuildingType && x.ReferenceId == buildingTypeId)
+                )
+            ).ToListAsync(cancellationToken);
+    }
+
     public Task<bool> RiskFactorConfigExistsAsync(RiskFactorLevel level, Guid referenceId, Guid? excludeRiskFactorConfigId, CancellationToken cancellationToken)
     {
         return dbContext.RiskFactorConfigs

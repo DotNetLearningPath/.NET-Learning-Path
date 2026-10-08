@@ -20,8 +20,8 @@
 @brokerId = 8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C
 @policyId = 00000000-0000-0000-0000-000000000000
 
-@policyStartDate = 2026-09-01
-@policyEndDate = 2026-09-30
+@policyStartDate = 2026-10-01
+@policyEndDate = 2026-12-31
 @policyBasePremium = 100.00
 
 
@@ -610,8 +610,8 @@ Accept: application/json
   "buildingId": "{{buildingId}}",
   "brokerId": "{{brokerId}}",
   "currencyId": "{{currencyId}}",
-  "startDate": "2026-11-01",
-  "endDate": "2027-10-31",
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
   "basePremium": 0
 }
 
@@ -630,7 +630,7 @@ Accept: application/json
   "currencyId": "{{currencyId}}",
   "startDate": "2027-10-31",
   "endDate": "2026-11-01",
-  "basePremium": 1000.00
+  "basePremium": {{policyBasePremium}}
 }
 
 ###
@@ -646,9 +646,9 @@ Accept: application/json
   "buildingId": "{{buildingId}}",
   "brokerId": "{{brokerId}}",
   "currencyId": "{{currencyId}}",
-  "startDate": "2026-11-01",
-  "endDate": "2027-10-31",
-  "basePremium": 1000.00
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": {{policyBasePremium}}
 }
 
 ###
@@ -664,9 +664,9 @@ Accept: application/json
   "buildingId": "{{buildingId}}",
   "brokerId": "{{brokerId}}",
   "currencyId": "{{currencyId}}",
-  "startDate": "2026-11-01",
-  "endDate": "2027-10-31",
-  "basePremium": 1000.00
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": {{policyBasePremium}}
 }
 
 ###

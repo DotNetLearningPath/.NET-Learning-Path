@@ -10,5 +10,7 @@ public interface IPolicyRepository
 
     Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken);
 
+    Task<bool> PolicyNumberExistsAsync(string policyNumber, CancellationToken cancellationToken);
+
     Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken);
 }

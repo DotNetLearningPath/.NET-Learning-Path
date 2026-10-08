@@ -1,7 +1,6 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
-using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Constants;
@@ -13,11 +12,9 @@ namespace InsuranceApp.Application.Services;
 
 public sealed class PolicyService(
     IPolicyRepository policyRepository,
-    IClientRepository clientRepository,
-    IBuildingRepository buildingRepository,
-    IBrokerRepository brokerRepository,
-    ICurrencyRepository currencyRepository,
+    IPolicyReferenceService policyReferenceService,
     IPolicyNumberGenerator policyNumberGenerator,
+    IPolicyCalculationService policyCalculationService,
     ILogger<PolicyService> logger
     ) : IPolicyService
 {
@@ -94,14 +91,14 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(validationPolicyDetails);
         }
 
-        var client = await clientRepository.GetClientByIdAsync(createPolicyDto.ClientId, cancellationToken);
+        var client = await policyReferenceService.ClientRepository.GetClientByIdAsync(createPolicyDto.ClientId, cancellationToken);
 
         if (client is null)
         {
             return Result<PolicyDto>.Failure(PolicyErrors.ClientNotFound);
         }
 
-        var building = await buildingRepository.GetBuildingByIdAsync(createPolicyDto.BuildingId, cancellationToken);
+        var building = await policyReferenceService.BuildingRepository.GetBuildingByIdAsync(createPolicyDto.BuildingId, cancellationToken);
 
         if (building is null)
         {
@@ -114,7 +111,7 @@ public sealed class PolicyService(
                 PolicyErrors.BuildingDoesNotBelongToClient);
         }
 
-        var broker = await brokerRepository.GetBrokerByIdAsync(createPolicyDto.BrokerId, cancellationToken);
+        var broker = await policyReferenceService.BrokerRepository.GetBrokerByIdAsync(createPolicyDto.BrokerId, cancellationToken);
 
         if (broker is null)
         {
@@ -126,7 +123,7 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.InactiveBroker);
         }
 
-        var currency = await currencyRepository.GetCurrencyByIdAsync(createPolicyDto.CurrencyId, cancellationToken);
+        var currency = await policyReferenceService.CurrencyRepository.GetCurrencyByIdAsync(createPolicyDto.CurrencyId, cancellationToken);
 
         if (currency is null)
         {
@@ -146,7 +143,18 @@ public sealed class PolicyService(
         {
             return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberNotGenerated);
         }
-        
+
+        var resultCalculateFinalPremium = 
+            await policyCalculationService.CalculateFinalPremiumAsync(
+                createPolicyDto.BasePremium, 
+                building, 
+                createPolicyDto.StartDate,
+                cancellationToken);
+
+        if (!resultCalculateFinalPremium.IsSuccess && resultCalculateFinalPremium.Error is not null)
+        {
+            return Result<PolicyDto>.Failure(resultCalculateFinalPremium.Error);
+        }
 
         var policy = new Policy
         {
@@ -159,7 +167,7 @@ public sealed class PolicyService(
             StartDate = createPolicyDto.StartDate,
             EndDate = createPolicyDto.EndDate,
             BasePremium = createPolicyDto.BasePremium,
-            FinalPremium = createPolicyDto.BasePremium,
+            FinalPremium = resultCalculateFinalPremium.Value,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -195,7 +203,6 @@ public sealed class PolicyService(
             policy.BasePremium,
             policy.FinalPremium);
     }
-
 
     private static Error? ValidatePolicyDetails(CreatePolicyDto dto)
     {
