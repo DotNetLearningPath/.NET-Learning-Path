@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Constants;
@@ -17,7 +18,8 @@ public sealed class PolicyService(
     IBrokerRepository brokerRepository,
     ICurrencyRepository currencyRepository,
     IPolicyNumberGenerator policyNumberGenerator,
-    ILogger<PolicyService> logger) : IPolicyService
+    ILogger<PolicyService> logger
+    ) : IPolicyService
 {
     public async Task<Result<PagedResult<PolicyDto>>> SearchPoliciesAsync(PolicySearchDto policySearchDto, CancellationToken cancellationToken)
     {
@@ -136,9 +138,19 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.InactiveCurrency);
         }
 
+        var generatedPolicyNumber = policyNumberGenerator.GeneratePolicyNumber();
+
+        var policyNumberExists = await policyRepository.PolicyNumberExistsAsync(generatedPolicyNumber, cancellationToken);
+
+        if (policyNumberExists)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberNotGenerated);
+        }
+        
+
         var policy = new Policy
         {
-            PolicyId = Guid.NewGuid(),
+            PolicyNumber = generatedPolicyNumber,
             ClientId = createPolicyDto.ClientId,
             BuildingId = createPolicyDto.BuildingId,
             BrokerId = createPolicyDto.BrokerId,
@@ -151,23 +163,13 @@ public sealed class PolicyService(
             CreatedAt = DateTime.UtcNow
         };
 
-        for (var attempt = 1; attempt <= PolicyConstraints.MaxPolicyNumberGenerationAttempts; attempt++)
+        try
         {
-            policy.PolicyNumber = policyNumberGenerator.GeneratePolicyNumber();
-
-            try
-            {
-                await policyRepository.AddPolicyAsync(policy, cancellationToken);
-                break;
-            }
-            catch (DuplicateEntityException) when (attempt < PolicyConstraints.MaxPolicyNumberGenerationAttempts)
-            {
-                LogPolicyNumberRetry(policy, attempt);
-            }
-            catch (DuplicateEntityException)
-            {
-                return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberGenerationFailed);
-            }
+            await policyRepository.AddPolicyAsync(policy, cancellationToken);
+        }
+        catch (DuplicateEntityException)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberNotGenerated);
         }
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -233,15 +235,6 @@ public sealed class PolicyService(
         }
 
         return null;
-    }
-
-    private void LogPolicyNumberRetry(Policy policy, int attempt)
-    {
-        logger.LogWarning(
-            "Could not generate policy number on create draft policy by broker {BrokerId}. Policy number {PolicyNumber} already exists. Retrying attempt #{Attempt}.",
-            policy.BrokerId,
-            policy.PolicyNumber,
-            attempt);
     }
 
 }

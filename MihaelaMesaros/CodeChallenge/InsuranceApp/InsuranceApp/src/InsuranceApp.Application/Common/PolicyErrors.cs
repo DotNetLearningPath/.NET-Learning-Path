@@ -42,5 +42,5 @@ public static class PolicyErrors
 
     public static readonly Error InactiveCurrency = new("Policy.InactiveCurrency", "The selected currency is inactive.", ErrorType.Validation);
 
-    public static readonly Error PolicyNumberGenerationFailed = new("Policy.PolicyNumberGenerationFailed", "A unique policy number could not be generated.", ErrorType.Conflict);
+    public static readonly Error PolicyNumberNotGenerated = new("Policy.PolicyNumberNotGenerated", "Could not generate a valid policy number.", ErrorType.Conflict);
 }

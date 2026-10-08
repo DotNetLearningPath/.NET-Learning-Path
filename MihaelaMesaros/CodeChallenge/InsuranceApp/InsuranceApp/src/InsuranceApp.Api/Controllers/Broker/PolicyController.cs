@@ -81,5 +81,4 @@ public sealed class PoliciesController(IPolicyService policyService, ILogger<Pol
 
         return CreatedAtRoute(GetPolicyByIdRouteName, new { policyId = result.Value!.PolicyId }, result.Value);
     }
-
 }

@@ -55,6 +55,11 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         return await dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
     }
 
+    public async Task<bool> PolicyNumberExistsAsync(string policyNumber, CancellationToken cancellationToken)
+    {
+        return await dbContext.Policies.AnyAsync(x => x.PolicyNumber == policyNumber, cancellationToken);
+    }
+
     public async Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken)
     {
         dbContext.Policies.Add(policy);
@@ -65,8 +70,6 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         }
         catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
         {
-            dbContext.Entry(policy).State = EntityState.Detached;
-
             throw new DuplicateEntityException(nameof(Policy));
         }
 

@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Services;
+using System.Text;
 
 namespace InsuranceApp.Application.Services;
 
@@ -6,10 +7,17 @@ public sealed class PolicyNumberGenerator : IPolicyNumberGenerator
 {
     public string GeneratePolicyNumber()
     {
-        //return "2026-TEST123456";
+        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const int noChars = 10;
 
-        var fromString = Guid.NewGuid().ToString("N")[..10];
-        var finalGenerated = $"{DateTime.UtcNow:yyyy}-{fromString}";
+        var randomPart = new StringBuilder(noChars);
+        for (var i = 0; i < noChars; i++)
+        {
+            var randomIndex = Random.Shared.Next(characters.Length);
+            randomPart.Append(characters[randomIndex]);
+        }
+
+        var finalGenerated = $"{DateTime.UtcNow.Year}-{randomPart}";
 
         return finalGenerated.ToUpperInvariant();
     }
