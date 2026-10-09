@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Application.DTOs.Broker;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Constants;
@@ -84,56 +85,41 @@ public sealed class PolicyService(
 
     public async Task<Result<PolicyDto>> CreatePolicyAsync(CreatePolicyDto createPolicyDto, CancellationToken cancellationToken)
     {
-        var validationPolicyDetails = ValidatePolicyDetails(createPolicyDto);
+        var validationPolicyInputDetails = ValidatePolicyInputDetails(createPolicyDto);
 
-        if (validationPolicyDetails is not null)
+        if (validationPolicyInputDetails is not null)
         {
-            return Result<PolicyDto>.Failure(validationPolicyDetails);
+            return Result<PolicyDto>.Failure(validationPolicyInputDetails);
         }
 
-        var client = await policyReferenceService.ClientRepository.GetClientByIdAsync(createPolicyDto.ClientId, cancellationToken);
 
-        if (client is null)
+        var validationPolicyReferences = await policyReferenceService.ValidatePolicyReferencesAsync(
+            createPolicyDto.ClientId,
+            createPolicyDto.BuildingId,
+            createPolicyDto.BrokerId,
+            createPolicyDto.CurrencyId,
+            cancellationToken
+        );
+
+        if (!validationPolicyReferences.IsSuccess)
         {
-            return Result<PolicyDto>.Failure(PolicyErrors.ClientNotFound);
+            if (validationPolicyReferences.Error is null)
+            {
+                return Result<PolicyDto>.Failure(PolicyErrors.PolicyReferencesValidationFailed);
+            }
+            else
+            {
+                return Result<PolicyDto>.Failure(validationPolicyReferences.Error);
+            }
         }
 
-        var building = await policyReferenceService.BuildingRepository.GetBuildingByIdAsync(createPolicyDto.BuildingId, cancellationToken);
-
-        if (building is null)
+        if (validationPolicyReferences.Value is null)
         {
-            return Result<PolicyDto>.Failure(PolicyErrors.BuildingNotFound);
+            return Result<PolicyDto>.Failure(PolicyErrors.PolicyReferencesValidationFailed);
         }
 
-        if (building.ClientId != createPolicyDto.ClientId)
-        {
-            return Result<PolicyDto>.Failure(
-                PolicyErrors.BuildingDoesNotBelongToClient);
-        }
+        var building = validationPolicyReferences.Value.Building;
 
-        var broker = await policyReferenceService.BrokerRepository.GetBrokerByIdAsync(createPolicyDto.BrokerId, cancellationToken);
-
-        if (broker is null)
-        {
-            return Result<PolicyDto>.Failure(PolicyErrors.BrokerNotFound);
-        }
-
-        if (!broker.IsActive)
-        {
-            return Result<PolicyDto>.Failure(PolicyErrors.InactiveBroker);
-        }
-
-        var currency = await policyReferenceService.CurrencyRepository.GetCurrencyByIdAsync(createPolicyDto.CurrencyId, cancellationToken);
-
-        if (currency is null)
-        {
-            return Result<PolicyDto>.Failure(PolicyErrors.CurrencyNotFound);
-        }
-
-        if (!currency.IsActive)
-        {
-            return Result<PolicyDto>.Failure(PolicyErrors.InactiveCurrency);
-        }
 
         var generatedPolicyNumber = policyNumberGenerator.GeneratePolicyNumber();
 
@@ -188,6 +174,151 @@ public sealed class PolicyService(
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
 
+    public async Task<Result<PolicyDto>> ActivatePolicyAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        if (policyId == Guid.Empty)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.InvalidPolicyId);
+        }
+
+        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, cancellationToken);
+
+        if (policy is null)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.NotFound(policyId));
+        }
+
+        if (policy.Status != PolicyStatus.Draft)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.PolicyNotDraft);
+        }
+
+        var datetimeNow = DateTime.UtcNow;
+
+        if (policy.StartDate.Date < datetimeNow.Date)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.StartDateInPast);
+        }
+
+
+        var policyDto = new CreatePolicyDto(
+            policy.ClientId,
+            policy.BuildingId,
+            policy.BrokerId,
+            policy.CurrencyId,
+            policy.StartDate,
+            policy.EndDate,
+            policy.BasePremium);
+
+        var validationPolicyInputDetails = ValidatePolicyInputDetails(policyDto);
+
+        if (validationPolicyInputDetails is not null)
+        {
+            return Result<PolicyDto>.Failure(validationPolicyInputDetails);
+        }
+
+
+        var validationPolicyReferences = await policyReferenceService.ValidatePolicyReferencesAsync(
+            policyDto.ClientId,
+            policyDto.BuildingId,
+            policyDto.BrokerId,
+            policyDto.CurrencyId,
+            cancellationToken
+        );
+
+        if (!validationPolicyReferences.IsSuccess)
+        {
+            if (validationPolicyReferences.Error is null)
+            {
+                return Result<PolicyDto>.Failure(PolicyErrors.PolicyReferencesValidationFailed);
+            }
+            else
+            {
+                return Result<PolicyDto>.Failure(validationPolicyReferences.Error);
+            }
+        }
+
+        if (validationPolicyReferences.Value is null)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.PolicyReferencesValidationFailed);
+        }
+
+
+        var overlappingPolicyExists = await policyRepository.CheckOverlappingPolicyExistsAsync(
+            policy.BuildingId,
+            PolicyStatus.Active,
+            policy.StartDate,
+            policy.EndDate,
+            cancellationToken);
+
+        if (overlappingPolicyExists)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.OverlappingPolicyExists);
+        }
+
+        policy.Status = PolicyStatus.Active;
+        policy.ActivationDate = datetimeNow;
+        policy.ModifiedAt = datetimeNow;
+
+        await policyRepository.SavePolicyChangesAsync(cancellationToken);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Policy {PolicyId} activated.", policyId);
+        }
+
+        return Result<PolicyDto>.Success(MapPolicyToDto(policy));
+    }
+
+    public async Task<Result<PolicyDto>> CancelPolicyAsync(Guid policyId, CancelPolicyDto cancelPolicyDto, CancellationToken cancellationToken)
+    {
+        if (policyId == Guid.Empty)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.InvalidPolicyId);
+        }
+
+        if (string.IsNullOrWhiteSpace(cancelPolicyDto.CancellationReason))
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.CancellationReasonRequired);
+        }
+
+        if (cancelPolicyDto.CancellationReason.Length > PolicyConstraints.CancellationReasonMaxLength)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.InvalidCancellationReasonMaxLength);
+        }
+
+        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, cancellationToken);
+
+        if (policy is null)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.NotFound(policyId));
+        }
+
+        if (policy.Status != PolicyStatus.Active)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.CancellationInactivePolicy);
+        }
+
+        if (policy.EndDate < DateTime.UtcNow.Date)
+        {
+            return Result<PolicyDto>.Failure(PolicyErrors.CancellationExpiredPolicy);
+        }
+
+        policy.Status = PolicyStatus.Cancelled;
+        policy.CancellationDate = DateTime.UtcNow;
+        policy.CancellationReason = cancelPolicyDto.CancellationReason;
+        policy.ModifiedAt = DateTime.UtcNow;
+
+        await policyRepository.SavePolicyChangesAsync(cancellationToken);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Policy {PolicyId} has been cancelled.", policyId);
+        }
+
+        return Result<PolicyDto>.Success(MapPolicyToDto(policy));
+    }
+
     private static PolicyDto MapPolicyToDto(Policy policy)
     {
         return new PolicyDto(
@@ -204,7 +335,7 @@ public sealed class PolicyService(
             policy.FinalPremium);
     }
 
-    private static Error? ValidatePolicyDetails(CreatePolicyDto dto)
+    private static Error? ValidatePolicyInputDetails(CreatePolicyDto dto)
     {
         if (dto.ClientId == Guid.Empty)
         {
@@ -236,7 +367,7 @@ public sealed class PolicyService(
             return PolicyErrors.InvalidBasePremium;
         }
 
-        if (dto.StartDate > dto.EndDate)
+        if (dto.StartDate.Date > dto.EndDate.Date)
         {
             return PolicyErrors.InvalidDateRange;
         }

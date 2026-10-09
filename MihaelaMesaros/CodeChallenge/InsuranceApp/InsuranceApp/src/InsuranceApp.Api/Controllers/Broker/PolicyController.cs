@@ -1,7 +1,9 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Application.DTOs.Broker;
 using InsuranceApp.Application.DTOs.Policy;
+using InsuranceApp.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Broker;
@@ -81,4 +83,43 @@ public sealed class PoliciesController(IPolicyService policyService, ILogger<Pol
 
         return CreatedAtRoute(GetPolicyByIdRouteName, new { policyId = result.Value!.PolicyId }, result.Value);
     }
+
+    /// <summary>
+    /// Activates an existing draft policy.
+    /// </summary>
+    [HttpPost("{policyId:guid}/activate")]
+    [ProducesResponseType(typeof(PolicyDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PolicyDto>> ActivatePolicyAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        var result = await policyService.ActivatePolicyAsync(policyId, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return result.Error!.ToProblemResult(logger);
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Cancels an existing active policy.
+    /// </summary>
+    [HttpPost("{policyId:guid}/cancel")]
+    [ProducesResponseType(typeof(PolicyDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PolicyDto>> CancelPolicyAsync(Guid policyId, CancelPolicyDto request, CancellationToken cancellationToken)
+    {
+        var result = await policyService.CancelPolicyAsync(policyId, request, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return result.Error!.ToProblemResult(logger);
+        }
+
+        return Ok(result.Value);
+    }
+
 }

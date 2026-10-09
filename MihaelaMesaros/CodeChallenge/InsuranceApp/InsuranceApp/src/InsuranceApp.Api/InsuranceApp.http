@@ -18,9 +18,9 @@
 @riskFactorConfigId = BB66291C-62B7-F111-BC3C-BCF1054861B1
 
 @brokerId = 8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C
-@policyId = 00000000-0000-0000-0000-000000000000
+@policyId = 6cbfe0f6-dc3b-4f41-bfdc-08df254ef4c7
 
-@policyStartDate = 2026-10-01
+@policyStartDate = 2026-10-09
 @policyEndDate = 2026-12-31
 @policyBasePremium = 100.00
 
@@ -577,6 +577,26 @@ Accept: application/json
   "startDate": "{{policyStartDate}}",
   "endDate": "{{policyEndDate}}",
   "basePremium": {{policyBasePremium}}
+}
+
+###
+
+### Activate policy
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies/3f839f0b-b6a7-438f-24c4-08df2612c1c8/activate
+Content-Type: application/json
+Accept: application/json
+
+###
+
+### Cancel policy
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies/3f839f0b-b6a7-438f-24c4-08df2612c1c8/cancel
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cancellationReason": " aaa "
 }
 
 ###

@@ -10,4 +10,8 @@ public interface IPolicyService
     Task<Result<PolicyDto>> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken);
 
     Task<Result<PolicyDto>> CreatePolicyAsync(CreatePolicyDto createPolicyDto, CancellationToken cancellationToken);
+
+    Task<Result<PolicyDto>> ActivatePolicyAsync(Guid policyId, CancellationToken cancellationToken);
+
+    Task<Result<PolicyDto>> CancelPolicyAsync(Guid policyId, CancelPolicyDto cancelPolicyDto, CancellationToken cancellationToken);
 }

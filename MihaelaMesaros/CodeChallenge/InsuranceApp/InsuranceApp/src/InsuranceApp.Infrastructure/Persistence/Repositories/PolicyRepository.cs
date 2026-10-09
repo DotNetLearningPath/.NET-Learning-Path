@@ -2,6 +2,7 @@
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Entities;
+using InsuranceApp.Domain.Enums;
 using InsuranceApp.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,6 +56,11 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         return await dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
     }
 
+    public async Task<Policy?> GetPolicyForUpdateAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        return await dbContext.Policies.FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
+    }
+
     public async Task<bool> PolicyNumberExistsAsync(string policyNumber, CancellationToken cancellationToken)
     {
         return await dbContext.Policies.AnyAsync(x => x.PolicyNumber == policyNumber, cancellationToken);
@@ -73,6 +79,16 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
             throw new DuplicateEntityException(nameof(Policy));
         }
 
+    }
+
+    public async Task SavePolicyChangesAsync(CancellationToken cancellationToken)
+    {
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> CheckOverlappingPolicyExistsAsync(Guid buildingId, PolicyStatus status, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+    {
+        return await dbContext.Policies.AnyAsync(x => x.BuildingId == buildingId && x.Status == status && x.StartDate <= endDate && x.EndDate >= startDate, cancellationToken);
     }
 
 }

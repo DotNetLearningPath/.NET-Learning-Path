@@ -1,11 +1,15 @@
-﻿using InsuranceApp.Application.Abstractions.Persistence;
+﻿using InsuranceApp.Application.Common;
+using InsuranceApp.Application.Models.Services;
 
 namespace InsuranceApp.Application.Abstractions.Services;
 
 public interface IPolicyReferenceService
 {
-    IClientRepository ClientRepository { get; }
-    IBuildingRepository BuildingRepository { get; }
-    IBrokerRepository BrokerRepository { get; }
-    ICurrencyRepository CurrencyRepository { get; }
+    Task<Result<PolicyReferences>> ValidatePolicyReferencesAsync(
+        Guid clientId,
+        Guid buildingId,
+        Guid brokerId,
+        Guid currencyId,
+        CancellationToken cancellationToken
+    );
 }
