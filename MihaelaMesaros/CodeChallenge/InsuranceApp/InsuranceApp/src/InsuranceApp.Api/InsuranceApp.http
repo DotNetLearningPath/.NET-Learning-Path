@@ -7,15 +7,22 @@
 
 @countryId = E3DD7DAD-60B7-F111-BC3C-BCF1054861B1
 @countyId = E9DD7DAD-60B7-F111-BC3C-BCF1054861B1
-@cityId = f1dd7dad-60b7-f111-bc3c-bcf1054861b1
+@cityId = F1DD7DAD-60B7-F111-BC3C-BCF1054861B1
 
-@clientId = 00000000-0000-0000-0000-000000000000
-@buildingId = 00000000-0000-0000-0000-000000000000
+@clientId = 04877263-B004-4F6A-D8C6-08DF1B2E0397
+@buildingId = BA72DBB6-F4A3-4677-696D-08DF2453AC1A
 @buildingTypeId = 574239F9-60B7-F111-BC3C-BCF1054861B1
 
 @currencyId = 13DCB6BD-61B7-F111-BC3C-BCF1054861B1
 @feeConfigId = 9EA036E6-61B7-F111-BC3C-BCF1054861B1
+@riskFactorConfigId = BB66291C-62B7-F111-BC3C-BCF1054861B1
 
+@brokerId = 8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C
+@policyId = 6cbfe0f6-dc3b-4f41-bfdc-08df254ef4c7
+
+@policyStartDate = 2026-10-09
+@policyEndDate = 2026-12-31
+@policyBasePremium = 100.00
 
 
 ### Get countries
@@ -341,6 +348,345 @@ Accept: application/json
   "surfaceArea": 0,
   "insuredValue": 750000.00,
   "riskIndicators": "Flood zone"
+}
+
+###
+
+# ============================================================
+# Admin - Risk Factor Configurations
+# ============================================================
+
+### Get risk factor configurations
+
+GET {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Accept: application/json
+
+###
+
+### Get risk factor configuration by ID
+
+GET {{InsuranceApp_HostAddress}}/api/admin/risk-factors/{{riskFactorConfigId}}
+Accept: application/json
+
+###
+
+### Create country risk factor
+
+POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "level": 1,
+  "referenceId": "{{countryId}}",
+  "adjustmentPercentage": 5.00,
+  "isActive": true
+}
+
+###
+
+### Create county risk factor
+
+POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "level": 2,
+  "referenceId": "{{countyId}}",
+  "adjustmentPercentage": 3.00,
+  "isActive": true
+}
+
+###
+
+### Create city risk factor
+
+POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "level": 3,
+  "referenceId": "{{cityId}}",
+  "adjustmentPercentage": 2.00,
+  "isActive": true
+}
+
+###
+
+### Create building type risk factor
+
+POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "level": 4,
+  "referenceId": "{{buildingTypeId}}",
+  "adjustmentPercentage": 4.00,
+  "isActive": true
+}
+
+###
+
+### Update risk factor configuration
+
+PUT {{InsuranceApp_HostAddress}}/api/admin/risk-factors/{{riskFactorConfigId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "level": 3,
+  "referenceId": "{{cityId}}",
+  "adjustmentPercentage": 2.50,
+  "isActive": true
+}
+
+###
+
+# ============================================================
+# Admin - Brokers
+# ============================================================
+
+### Get brokers
+
+GET {{InsuranceApp_HostAddress}}/api/admin/brokers
+Accept: application/json
+
+###
+
+### Get broker by ID
+
+GET {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}
+Accept: application/json
+
+###
+
+### Create broker
+
+POST {{InsuranceApp_HostAddress}}/api/admin/brokers
+Content-Type: application/json
+Accept: application/json
+
+{
+  "brokerCode": "BR001",
+  "name": "Demo Broker",
+  "email": "broker@test.com",
+  "phone": "0712345678",
+  "commissionPercentage": 5.25,
+  "isActive": true
+}
+
+###
+
+### Update broker
+
+PUT {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "brokerCode": "BR001",
+  "name": "Demo Broker Updated",
+  "email": "broker.updated@test.com",
+  "phone": "0722345678",
+  "commissionPercentage": 3.50
+}
+
+###
+
+### Activate broker
+
+POST {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}/activate
+Accept: application/json
+
+###
+
+### Deactivate broker
+
+POST {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}/deactivate
+Accept: application/json
+
+###
+
+# ============================================================
+# Broker - Policies
+# ============================================================
+
+### Search policies
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search policies by client
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?clientId={{clientId}}&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search policies by broker
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?brokerId={{brokerId}}&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search policies by status
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?status=1&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search policies by date range
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?startDate=2026-10-01&endDate=2027-10-01&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Search policies with all filters
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies?clientId={{clientId}}&brokerId={{brokerId}}&status=1&startDate=2026-10-01&endDate=2027-10-01&pageNumber=1&pageSize=20
+Accept: application/json
+
+###
+
+### Get policy by ID
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies/{{policyId}}
+Accept: application/json
+
+###
+
+### Create draft policy
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": "{{clientId}}",
+  "buildingId": "{{buildingId}}",
+  "brokerId": "{{brokerId}}",
+  "currencyId": "{{currencyId}}",
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": {{policyBasePremium}}
+}
+
+###
+
+### Activate policy
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies/3f839f0b-b6a7-438f-24c4-08df2612c1c8/activate
+Content-Type: application/json
+Accept: application/json
+
+###
+
+### Cancel policy
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies/3f839f0b-b6a7-438f-24c4-08df2612c1c8/cancel
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cancellationReason": " aaa "
+}
+
+###
+
+# ============================================================
+# Policy - Validation / Error scenarios
+# ============================================================
+
+### Policy - non-existing ID -> 404
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies/ffffffff-ffff-ffff-ffff-ffffffffffff
+Accept: application/json
+
+###
+
+### Policy - empty ID -> 400
+
+GET {{InsuranceApp_HostAddress}}/api/brokers/policies/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+###
+
+### Policy - invalid base premium -> 400
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": "{{clientId}}",
+  "buildingId": "{{buildingId}}",
+  "brokerId": "{{brokerId}}",
+  "currencyId": "{{currencyId}}",
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": 0
+}
+
+###
+
+### Policy - invalid period -> 400
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": "{{clientId}}",
+  "buildingId": "{{buildingId}}",
+  "brokerId": "{{brokerId}}",
+  "currencyId": "{{currencyId}}",
+  "startDate": "2027-10-31",
+  "endDate": "2026-11-01",
+  "basePremium": {{policyBasePremium}}
+}
+
+###
+
+### Policy - non-existing client -> 404
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+  "buildingId": "{{buildingId}}",
+  "brokerId": "{{brokerId}}",
+  "currencyId": "{{currencyId}}",
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": {{policyBasePremium}}
+}
+
+###
+
+### Policy - empty client ID -> 400
+
+POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": "00000000-0000-0000-0000-000000000000",
+  "buildingId": "{{buildingId}}",
+  "brokerId": "{{brokerId}}",
+  "currencyId": "{{currencyId}}",
+  "startDate": "{{policyStartDate}}",
+  "endDate": "{{policyEndDate}}",
+  "basePremium": {{policyBasePremium}}
 }
 
 ###

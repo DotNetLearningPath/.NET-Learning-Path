@@ -11,6 +11,8 @@ public interface IRiskFactorConfigRepository
 
     Task<RiskFactorConfig?> GetRiskFactorConfigForUpdateAsync(Guid riskFactorConfigId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<RiskFactorConfig>> GetActiveRiskFactorConfigsAsync(Guid countryId, Guid countyId, Guid cityId, Guid buildingTypeId, CancellationToken cancellationToken);
+
     Task<bool> RiskFactorConfigExistsAsync(RiskFactorLevel level, Guid referenceId, Guid? excludeRiskFactorConfigId, CancellationToken cancellationToken);
 
     Task<bool> ReferenceExistsAsync(RiskFactorLevel level, Guid referenceId, CancellationToken cancellationToken);
