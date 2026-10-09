@@ -86,7 +86,7 @@ public class Policy
             FinalPremium = data.FinalPremium,
             AppliedAdjustments = data.AppliedAdjustments,
 
-            PolicyNumber = $"POL-{data.PolicyId:N}".ToUpperInvariant(),
+            PolicyNumber = PolicyNumberGenerator.Generate(data.PolicyId),
             Status = PolicyStatus.Draft,
             CreatedAt = now,
             UpdatedAt = now
