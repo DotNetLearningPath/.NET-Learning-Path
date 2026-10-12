@@ -410,6 +410,125 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyAdjustmentEntity", b =>
+                {
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("policy_id");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid>("ConfigurationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("configuration_id");
+
+                    b.Property<decimal>("Percentage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("percentage");
+
+                    b.HasKey("PolicyId", "Source", "ConfigurationId");
+
+                    b.ToTable("policy_adjustments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_policy_adjustments_percentage", "(source = 'Fee' AND percentage BETWEEN 0 AND 100)\r\nOR (source = 'RiskFactor' AND percentage BETWEEN -100 AND 100)");
+
+                            t.HasCheckConstraint("ck_policy_adjustments_source", "source IN ('Fee', 'RiskFactor')");
+                        });
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("BasePremium")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("base_premium");
+
+                    b.Property<Guid>("BrokerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("broker_id");
+
+                    b.Property<Guid>("BuildingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("building_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("CurrencyExchangeRateToBase")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)")
+                        .HasColumnName("currency_exchange_rate_to_base");
+
+                    b.Property<Guid>("CurrencyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("currency_id");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<decimal>("FinalPremium")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("final_premium");
+
+                    b.Property<string>("PolicyNumber")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("policy_number");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrokerId");
+
+                    b.HasIndex("BuildingId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("PolicyNumber")
+                        .IsUnique();
+
+                    b.ToTable("policies", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_policies_currency_exchange_rate_to_base", "currency_exchange_rate_to_base > 0");
+
+                            t.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
+
+                            t.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium > 0");
+
+                            t.HasCheckConstraint("ck_policies_status", "status IN ('Draft', 'Active', 'Expired', 'Cancelled')");
+                        });
+                });
+
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.RiskFactorConfigurationEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -464,7 +583,7 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_risk_factor_configurations_building_type", "building_type IS NULL OR building_type IN ('Residential', 'Office', 'Industrial')");
 
-                            t.HasCheckConstraint("ck_risk_factor_configurations_target", "(level = 'Country' AND country_id IS NOT NULL AND county_id IS NULL AND city_id IS NULL AND building_type IS NULL)\r\nOR (level = 'County' AND county_id IS NOT NULL AND country_id IS NULL AND city_id IS NULL AND building_type IS NULL)\r\nOR (level = 'City' AND city_id IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND building_type IS NULL)\r\nOR (level = 'BuildingType' AND building_type IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND city_id IS NULL)");
+                            t.HasCheckConstraint("ck_risk_factor_configurations_target", "(level = 'Country' AND country_id IS NOT NULL AND county_id IS NULL AND city_id IS NULL AND building_type IS NULL)\nOR (level = 'County' AND county_id IS NOT NULL AND country_id IS NULL AND city_id IS NULL AND building_type IS NULL)\nOR (level = 'City' AND city_id IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND building_type IS NULL)\nOR (level = 'BuildingType' AND building_type IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND city_id IS NULL)");
                         });
                 });
 
@@ -503,6 +622,46 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyAdjustmentEntity", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.PolicyEntity", null)
+                        .WithMany("AppliedAdjustments")
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyEntity", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.BrokerEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BrokerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_policies_broker_id");
+
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.BuildingEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_policies_building_id");
+
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.ClientEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_policies_client_id");
+
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.CurrencyEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_policies_currency_id");
+                });
+
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.RiskFactorConfigurationEntity", b =>
                 {
                     b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.CityEntity", null)
@@ -522,6 +681,11 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CountyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_risk_factor_configurations_county_id");
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyEntity", b =>
+                {
+                    b.Navigation("AppliedAdjustments");
                 });
 #pragma warning restore 612, 618
         }
