@@ -3,7 +3,6 @@ using InsuranceApp.Application.Models.Persistence;
 using InsuranceApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using Dapper;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
@@ -56,20 +55,26 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
 
     public async Task<GeographyDetails?> GetGeographyDetailsByCityAsync(Guid cityId, CancellationToken cancellationToken)
     {
-        var connection = dbContext.Database.GetDbConnection();
-
-        var parameters = new { CityId = cityId };
-
-        var command = new CommandDefinition(
-            "dbo.Geography_GetByCity",
-            parameters,
-            commandType: CommandType.StoredProcedure,
-            commandTimeout: 30,
-            cancellationToken: cancellationToken
-        );
-
-        return await connection.QuerySingleOrDefaultAsync<GeographyDetails>(command);
+        return await dbContext.Cities
+            .AsNoTracking()
+            .Where(city => city.CityId == cityId)
+            .Join(
+                dbContext.Counties,
+                city => city.CountyId,
+                county => county.CountyId,
+                (city, county) => new { city, county }
+            )
+            .Join(
+                dbContext.Countries,
+                x => x.county.CountryId,
+                country => country.CountryId,
+                (x, country) => new GeographyDetails(
+                    country.CountryId,
+                    x.county.CountyId,
+                    x.city.CityId
+                )
+            )
+            .SingleOrDefaultAsync(cancellationToken);
     }
-
 
 }

@@ -1,7 +1,6 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
-using InsuranceApp.Application.DTOs.Broker;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Constants;
@@ -137,9 +136,9 @@ public sealed class PolicyService(
                 createPolicyDto.StartDate,
                 cancellationToken);
 
-        if (!resultCalculateFinalPremium.IsSuccess && resultCalculateFinalPremium.Error is not null)
+        if (!resultCalculateFinalPremium.IsSuccess)
         {
-            return Result<PolicyDto>.Failure(resultCalculateFinalPremium.Error);
+            return Result<PolicyDto>.Failure(resultCalculateFinalPremium.Error ?? PolicyErrors.FinalPremiumCalculationFailed);
         }
 
         var policy = new Policy
@@ -243,18 +242,6 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.PolicyReferencesValidationFailed);
         }
 
-
-        var overlappingPolicyExists = await policyRepository.CheckOverlappingPolicyExistsAsync(
-            policy.BuildingId,
-            PolicyStatus.Active,
-            policy.StartDate,
-            policy.EndDate,
-            cancellationToken);
-
-        if (overlappingPolicyExists)
-        {
-            return Result<PolicyDto>.Failure(PolicyErrors.OverlappingPolicyExists);
-        }
 
         policy.Status = PolicyStatus.Active;
         policy.ActivationDate = datetimeNow;

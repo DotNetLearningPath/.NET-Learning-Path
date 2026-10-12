@@ -27,6 +27,7 @@ public static class PolicyErrors
     public static readonly Error InvalidBasePremium = new("Policy.InvalidBasePremium", "Base premium must be greater than zero.", ErrorType.Validation);
 
     public static readonly Error InvalidBasePremiumScale = new("Policy.InvalidBasePremiumScale", $"Base premium must have a maximum of {PolicyConstraints.PremiumScale} decimal places.", ErrorType.Validation);
+    public static readonly Error FinalPremiumCalculationFailed = new("Policy.FinalPremiumCalculationFailed", "Could not calculate final premium.", ErrorType.Validation);
 
     public static readonly Error ClientNotFound = new("Policy.ClientNotFound", "Client was not found.", ErrorType.NotFound);
 
@@ -46,8 +47,6 @@ public static class PolicyErrors
     public static readonly Error PolicyNumberNotGenerated = new("Policy.PolicyNumberNotGenerated", "Could not generate a valid policy number.", ErrorType.Conflict);
     public static readonly Error PolicyNotDraft = new("Policy.PolicyNotDraft", "This policy cannot be activated because it is not in draft status.", ErrorType.Validation);
     public static readonly Error StartDateInPast = new("Policy.StartDateInPast", "Policy start date must be in the future.", ErrorType.Validation);
-    public static readonly Error OverlappingPolicyExists = new("Policy.OverlappingPolicyExists", "There already exists an active policy for the selected building and period.", ErrorType.Conflict);
-    
 
     public static readonly Error CancellationInactivePolicy = new("Policy.CancellationInactivePolicy", "Policy is not active and cannot be cancelled.", ErrorType.Validation);
     public static readonly Error CancellationExpiredPolicy = new("Policy.CancellationExpiredPolicy", "Policy is expired and cannot be cancelled.", ErrorType.Validation);
