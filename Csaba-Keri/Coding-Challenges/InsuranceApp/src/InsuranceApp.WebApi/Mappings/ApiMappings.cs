@@ -12,12 +12,15 @@ using InsuranceApp.Application.Currencies.Results;
 using InsuranceApp.Application.Fees.Commands;
 using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
+using InsuranceApp.Application.Policies.Commands;
+using InsuranceApp.Application.Policies.Results;
 using InsuranceApp.Application.RiskFactors.Commands;
 using InsuranceApp.Application.RiskFactors.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Fees;
+using InsuranceApp.Domain.Policies;
 using InsuranceApp.Domain.RiskFactors;
 using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.WebApi.Models.Brokers;
@@ -27,6 +30,7 @@ using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
+using InsuranceApp.WebApi.Models.Policies;
 using InsuranceApp.WebApi.Models.RiskFactors;
 using InsuranceApp.WebApi.Models.RiskFactors.Targets;
 
@@ -139,6 +143,30 @@ internal static class ApiMappings
         };
     }
 
+    public static PolicyStatusDto ToDto(this PolicyStatus status)
+    {
+        return status switch
+        {
+            PolicyStatus.Draft => PolicyStatusDto.Draft,
+            PolicyStatus.Active => PolicyStatusDto.Active,
+            PolicyStatus.Expired => PolicyStatusDto.Expired,
+            PolicyStatus.Cancelled => PolicyStatusDto.Cancelled,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+    }
+
+    public static AdjustmentSourceDto ToDto(this AdjustmentSource source)
+    {
+        return source switch
+        {
+            AdjustmentSource.Fee => AdjustmentSourceDto.Fee,
+            AdjustmentSource.RiskFactor => AdjustmentSourceDto.RiskFactor,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+    }
+
     public static CreateClientCommand ToCommand(this CreateClientRequest request)
     {
         return new(
@@ -209,6 +237,19 @@ internal static class ApiMappings
             Name: request.Name,
             ExchangeRateToBase: request.ExchangeRateToBase!.Value,
             IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static CreateDraftPolicyCommand ToCommand(this CreateDraftPolicyRequest request)
+    {
+        return new(
+            ClientId: request.ClientId!.Value,
+            BuildingId: request.BuildingId!.Value,
+            BrokerId: request.BrokerId!.Value,
+            CurrencyId: request.CurrencyId!.Value,
+            StartDate: request.StartDate!.Value,
+            EndDate: request.EndDate!.Value,
+            BasePremium: request.BasePremium!.Value
         );
     }
 
@@ -458,6 +499,40 @@ internal static class ApiMappings
                 $"Unsupported risk target type: {target.GetType().Name}."
             )
         };
+    }
+
+    public static PolicyResponse ToResponse(this PolicyResult result)
+    {
+        return new(
+            Id: result.Id,
+            PolicyNumber: result.PolicyNumber,
+            Status: result.Status.ToDto(),
+            ClientId: result.ClientId,
+            BuildingId: result.BuildingId,
+            BrokerId: result.BrokerId,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            CurrencyExchangeRateToBase: result.CurrencyExchangeRateToBase,
+            StartDate: result.StartDate,
+            EndDate: result.EndDate,
+            BasePremium: result.BasePremium,
+            FinalPremium: result.FinalPremium,
+            CreatedAt: result.CreatedAt,
+            UpdatedAt: result.UpdatedAt,
+            
+            AppliedAdjustments: [.. result.AppliedAdjustments.Select(
+                adjustment => adjustment.ToResponse()
+            )]
+        );
+    }
+
+    public static AppliedAdjustmentResponse ToResponse(this AppliedAdjustment adjustment)
+    {
+        return new(
+            Source: adjustment.Source.ToDto(),
+            ConfigurationId: adjustment.ConfigurationId,
+            Percentage: adjustment.Percentage
+        );
     }
 
     public static PagedResponse<TResponse> ToResponse<TResult, TResponse>(
