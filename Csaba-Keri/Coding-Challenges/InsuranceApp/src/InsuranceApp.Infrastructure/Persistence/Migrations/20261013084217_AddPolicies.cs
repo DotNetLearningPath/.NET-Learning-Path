@@ -35,7 +35,7 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_policies", x => x.id);
                     table.CheckConstraint("ck_policies_currency_exchange_rate_to_base", "currency_exchange_rate_to_base > 0");
                     table.CheckConstraint("ck_policies_period", "end_date >= start_date");
-                    table.CheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium > 0");
+                    table.CheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium >= 0");
                     table.CheckConstraint("ck_policies_status", "status IN ('Draft', 'Active', 'Expired', 'Cancelled')");
                     table.ForeignKey(
                         name: "fk_policies_broker_id",

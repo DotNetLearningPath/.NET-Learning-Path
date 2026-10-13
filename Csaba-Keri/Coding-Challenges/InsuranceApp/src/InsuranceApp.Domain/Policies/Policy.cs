@@ -36,8 +36,8 @@ public class Policy
         ValidatePolicyPeriod(data.StartDate, data.EndDate);
         ValidateTimestamps(data.CreatedAt, data.UpdatedAt);
 
-        ValidatePremium(data.BasePremium, nameof(data.BasePremium));
-        ValidatePremium(data.FinalPremium, nameof(data.FinalPremium));
+        ValidateBasePremium(data.BasePremium);
+        ValidateFinalPremium(data.FinalPremium);
 
         var adjustments = CopyAndValidateAdjustments(
             data.AppliedAdjustments
@@ -150,14 +150,27 @@ public class Policy
         }
     }
 
-    private static void ValidatePremium(decimal premium, string parameterName)
+    private static void ValidateBasePremium(decimal basePremium)
     {
-        if (!PolicyRules.IsValidPremium(premium))
+        if (!PolicyRules.IsValidBasePremium(basePremium))
         {
             throw new ArgumentOutOfRangeException(
-                parameterName,
-                premium,
-                $"Premium must be greater than 0, at most {PolicyRules.MaxPremium}" +
+                nameof(basePremium),
+                basePremium,
+                $"Base premium must be greater than 0, at most {PolicyRules.MaxPremium}" +
+                $", and have at most {PolicyRules.MoneyScale} decimal places."
+            );
+        }
+    }
+
+    private static void ValidateFinalPremium(decimal finalPremium)
+    {
+        if (!PolicyRules.IsValidFinalPremium(finalPremium))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(finalPremium),
+                finalPremium,
+                $"Final premium must be between {PolicyRules.MinFinalPremium} and {PolicyRules.MaxPremium}" +
                 $", and have at most {PolicyRules.MoneyScale} decimal places."
             );
         }

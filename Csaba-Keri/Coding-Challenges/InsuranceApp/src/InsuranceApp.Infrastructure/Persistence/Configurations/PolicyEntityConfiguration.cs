@@ -16,7 +16,7 @@ public class PolicyEntityConfiguration : IEntityTypeConfiguration<PolicyEntity>
             
             table.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
             
-            table.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium > 0");
+            table.HasCheckConstraint("ck_policies_premiums", $"base_premium > 0 AND final_premium >= {PolicyRules.MinFinalPremium}");
             
             table.HasCheckConstraint("ck_policies_currency_exchange_rate_to_base", "currency_exchange_rate_to_base > 0");
         });

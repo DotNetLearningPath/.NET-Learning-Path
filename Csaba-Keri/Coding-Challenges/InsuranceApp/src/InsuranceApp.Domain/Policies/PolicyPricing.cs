@@ -10,6 +10,8 @@ public static class PolicyPricing
 
         var finalPremium = basePremium * (1m + totalPercentage / 100m);
 
-        return decimal.Round(finalPremium, PolicyRules.MoneyScale, MidpointRounding.AwayFromZero);
+        var roundedPremium = decimal.Round(finalPremium, PolicyRules.MoneyScale, MidpointRounding.AwayFromZero);
+
+        return Math.Max(roundedPremium, PolicyRules.MinFinalPremium);
     }
 }

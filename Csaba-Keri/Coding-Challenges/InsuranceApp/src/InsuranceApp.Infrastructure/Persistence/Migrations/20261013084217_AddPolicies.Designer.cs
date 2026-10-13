@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InsuranceApp.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(InsuranceDbContext))]
-    [Migration("20261012161601_AddPolicies")]
+    [Migration("20261013084217_AddPolicies")]
     partial class AddPolicies
     {
         /// <inheritdoc />
@@ -526,7 +526,7 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
 
-                            t.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium > 0");
+                            t.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium >= 0");
 
                             t.HasCheckConstraint("ck_policies_status", "status IN ('Draft', 'Active', 'Expired', 'Cancelled')");
                         });

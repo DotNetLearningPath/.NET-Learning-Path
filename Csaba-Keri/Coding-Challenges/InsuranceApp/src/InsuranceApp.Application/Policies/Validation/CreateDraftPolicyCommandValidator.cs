@@ -38,7 +38,7 @@ public class CreateDraftPolicyCommandValidator : AbstractValidator<CreateDraftPo
             .WithMessage("End date must be on or after the start date.");
 
         RuleFor(command => command.BasePremium)
-            .Must(PolicyRules.IsValidPremium)
+            .Must(PolicyRules.IsValidBasePremium)
             .WithMessage(
                 $"Base premium must be positive, at most {PolicyRules.MaxPremium}" +
                 $", and have at most {PolicyRules.MoneyScale} decimal places."

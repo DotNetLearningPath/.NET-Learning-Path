@@ -523,7 +523,7 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
 
-                            t.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium > 0");
+                            t.HasCheckConstraint("ck_policies_premiums", "base_premium > 0 AND final_premium >= 0");
 
                             t.HasCheckConstraint("ck_policies_status", "status IN ('Draft', 'Active', 'Expired', 'Cancelled')");
                         });
