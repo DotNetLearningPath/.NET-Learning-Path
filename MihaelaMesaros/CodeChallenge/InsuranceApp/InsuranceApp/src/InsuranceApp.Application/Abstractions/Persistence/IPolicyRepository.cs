@@ -17,6 +17,5 @@ public interface IPolicyRepository
     Task AddPolicyAsync(Policy policy, CancellationToken cancellationToken);
 
     Task SavePolicyChangesAsync(CancellationToken cancellationToken);
-
-    Task<bool> CheckOverlappingPolicyExistsAsync(Guid buildingId, PolicyStatus status, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+    
 }

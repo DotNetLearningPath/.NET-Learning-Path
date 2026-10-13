@@ -86,9 +86,4 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> CheckOverlappingPolicyExistsAsync(Guid buildingId, PolicyStatus status, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-    {
-        return await dbContext.Policies.AnyAsync(x => x.BuildingId == buildingId && x.Status == status && x.StartDate <= endDate && x.EndDate >= startDate, cancellationToken);
-    }
-
 }

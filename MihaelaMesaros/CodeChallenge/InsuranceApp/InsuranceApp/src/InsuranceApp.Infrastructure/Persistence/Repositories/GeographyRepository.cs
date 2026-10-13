@@ -55,26 +55,20 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
 
     public async Task<GeographyDetails?> GetGeographyDetailsByCityAsync(Guid cityId, CancellationToken cancellationToken)
     {
-        return await dbContext.Cities
-            .AsNoTracking()
-            .Where(city => city.CityId == cityId)
-            .Join(
-                dbContext.Counties,
-                city => city.CountyId,
-                county => county.CountyId,
-                (city, county) => new { city, county }
-            )
-            .Join(
-                dbContext.Countries,
-                x => x.county.CountryId,
-                country => country.CountryId,
-                (x, country) => new GeographyDetails(
-                    country.CountryId,
-                    x.county.CountyId,
-                    x.city.CityId
-                )
-            )
-            .SingleOrDefaultAsync(cancellationToken);
+        IQueryable<GeographyDetails> query =
+            from city in dbContext.Cities.AsNoTracking()
+            join county in dbContext.Counties on city.CountyId equals county.CountyId
+            join country in dbContext.Countries on county.CountryId equals country.CountryId
+            where city.CityId == cityId
+            select new GeographyDetails(
+                country.CountryId,
+                county.CountyId,
+                city.CityId
+            );
+
+        var result = await query.SingleOrDefaultAsync(cancellationToken);
+
+        return result;
     }
 
 }

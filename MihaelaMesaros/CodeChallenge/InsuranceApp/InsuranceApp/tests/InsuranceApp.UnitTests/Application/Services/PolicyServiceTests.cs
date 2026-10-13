@@ -421,6 +421,30 @@ public sealed class PolicyServiceTests
         _repositoryMock.Verify(x => x.AddPolicyAsync(It.IsAny<Policy>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(-100)]
+    public async Task CreatePolicyAsync_InvalidBasePremium_ReturnsValidationError(decimal basePremium)
+    {
+        // Arrange
+        var policyDto = TestData.CreatePolicyDto() with { BasePremium = basePremium };
+
+        // Act & Assert
+        await AssertInvalidCreatePolicyAsync(policyDto, PolicyErrors.InvalidBasePremium);
+    }
+
+    [Theory]
+    [InlineData(100.123)]
+    [InlineData(500.999)]
+    public async Task CreatePolicyAsync_InvalidBasePremiumScale_ReturnsValidationError(decimal basePremium)
+    {
+        // Arrange
+        var policyDto = TestData.CreatePolicyDto() with { BasePremium = basePremium };
+
+        // Act & Assert
+        await AssertInvalidCreatePolicyAsync(policyDto, PolicyErrors.InvalidBasePremiumScale);
+    }
     #endregion
 
     #region Activate Policy Tests
@@ -557,6 +581,26 @@ public sealed class PolicyServiceTests
         _repositoryMock.Verify(x => x.SavePolicyChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task ActivatePolicyAsync_InvalidDateRange_ReturnsValidationError()
+    {
+        // Arrange
+        var policy = TestData.CreateDraftPolicy1();
+        policy.EndDate = policy.StartDate.AddDays(-1);
+
+        SetupExistingPolicyForUpdate(policy);
+
+        // Act
+        var result = await _service.ActivatePolicyAsync(policy.PolicyId, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.NotNull(result.Error);
+        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(PolicyErrors.InvalidDateRange.Code, result.Error.Code);
+
+        _repositoryMock.Verify(x => x.SavePolicyChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
     #endregion
 
     #region Cancel Policy Tests

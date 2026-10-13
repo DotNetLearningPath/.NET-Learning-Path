@@ -5,6 +5,7 @@ using InsuranceApp.Application.DTOs.Currency;
 using InsuranceApp.Application.DTOs.FeeConfig;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
+using InsuranceApp.Application.Models.Persistence;
 using InsuranceApp.Application.Models.Services;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
@@ -110,8 +111,12 @@ internal static class TestData
         };
     }
 
-    #endregion
+    public static GeographyDetails CreateGeographyDetails(Guid cityId)
+    {
+        return new GeographyDetails(Guid.NewGuid(), Guid.NewGuid(), cityId);
+    }
 
+    #endregion
 
     #region Clients
 
