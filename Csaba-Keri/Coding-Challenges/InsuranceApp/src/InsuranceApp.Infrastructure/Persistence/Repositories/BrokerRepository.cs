@@ -28,7 +28,7 @@ public class BrokerRepository(InsuranceDbContext context) : IBrokerRepository
             .AsNoTracking()
             .OrderBy(broker => broker.Name)
             .ThenBy(broker => broker.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public Task<bool> BrokerExistsByCodeAsync(string code, CancellationToken cancellationToken)
