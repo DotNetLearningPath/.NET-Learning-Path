@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Application.DTOs.Building;
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.FeeConfig;
+using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
@@ -10,6 +11,7 @@ namespace InsuranceApp.IntegrationTests.Common;
 internal static class TestData
 {
     public static readonly Guid NonExistingId = new("99999999-9999-9999-9999-999999999999");
+
 
     #region Geography
     private static readonly Guid RomaniaId = Guid.NewGuid();
@@ -59,8 +61,8 @@ internal static class TestData
         new()
         {
             CityId = Guid.NewGuid(),
-            CountyId = ClujCountyId,
-            Name = "Turda"
+            CountyId = BrasovCountyId,
+            Name = "Brasov"
         }
     ];
     #endregion
@@ -89,11 +91,23 @@ internal static class TestData
         IdentificationNumber = "1980101223344",
         Email = "john@test.com",
         Phone = "0712345678",
-        Address = "Cluj-Napoca",
+        Address = "Str. Progresului 32",
         CreatedAt = DateTime.UtcNow
     };
 
-    public static readonly List<Client> ClientsForSearch =
+    public static readonly Client ClientForRead2 = new()
+    {
+        ClientId = Guid.NewGuid(),
+        ClientType = ClientType.Company,
+        Name = "DaroImob",
+        IdentificationNumber = "434543534543",
+        Email = "daroimob@test.com",
+        Phone = "070711223344",
+        Address = "Piata Sfatului 5",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    public static readonly List<Client> ClientsList =
     [
         new()
         {
@@ -198,6 +212,41 @@ internal static class TestData
         350.50m,
         1_250_000.00m,
         "Earthquake risk zone");
+
+    public static readonly List<Building> BuildingsList =
+    [
+        new Building
+        {
+            BuildingId = Guid.NewGuid(),
+            ClientId = ClientsList[0].ClientId,
+            CityId = Cities[0].CityId,
+            BuildingTypeId = BuildingTypes[0].BuildingTypeId,
+            AddressStreet = "Memorandumului",
+            AddressStreetNumber = "25A",
+            ConstructionYear = 2015,
+            NumberOfFloors = 4,
+            SurfaceArea = 185.50m,
+            InsuredValue = 750_000.00m,
+            RiskIndicators = "Flood zone",
+            CreatedAt = DateTime.UtcNow
+        },
+        new Building
+        {
+            BuildingId = Guid.NewGuid(),
+            ClientId = ClientsList[1].ClientId,
+            CityId = Cities[1].CityId,
+            BuildingTypeId = BuildingTypes[1].BuildingTypeId,
+            AddressStreet = "Progresului",
+            AddressStreetNumber = "33",
+            ConstructionYear = 2010,
+            NumberOfFloors = 2,
+            SurfaceArea = 68.50m,
+            InsuredValue = 90_000.00m,
+            RiskIndicators = "",
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+
     #endregion
 
 
@@ -208,7 +257,8 @@ internal static class TestData
         Code = "EUR",
         Name = "Euro",
         ExchangeRateToBase = 5.11m,
-        IsActive = true
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow
     };
 
     public static readonly Currency CurrencyForUpdate = new()
@@ -251,8 +301,8 @@ internal static class TestData
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
-        new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-        new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+        DateTime.UtcNow.Date.AddYears(-1),
+        DateTime.UtcNow.Date.AddYears(1),
         true
     );
 
@@ -260,8 +310,8 @@ internal static class TestData
         "Standard broker fee",
         FeeType.BrokerCommission,
         2.5000m,
-        new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-        new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+        DateTime.UtcNow.Date.AddYears(-1),
+        DateTime.UtcNow.Date.AddYears(1),
         true
     );
 
@@ -273,8 +323,8 @@ internal static class TestData
             Name = "Standard broker fee",
             FeeType = FeeType.BrokerCommission,
             Percentage = 2.5000m,
-            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            EffectiveTo = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveFrom = DateTime.UtcNow.Date.AddYears(-1),
+            EffectiveTo = DateTime.UtcNow.Date.AddYears(1),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         },
@@ -284,7 +334,7 @@ internal static class TestData
             Name = "Admin fee",
             FeeType = FeeType.AdminFee,
             Percentage = 1.0000m,
-            EffectiveFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EffectiveFrom = DateTime.UtcNow.Date.AddYears(-1),
             EffectiveTo = null,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
@@ -329,6 +379,7 @@ internal static class TestData
     ];
     #endregion
 
+
     #region Brokers
 
     public static readonly Broker BrokerForCreate = new()
@@ -339,7 +390,8 @@ internal static class TestData
         Email = "john.broker@test.com",
         Phone = "0712345678",
         CommissionPercentage = 5.25m,
-        IsActive = true
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow
     };
 
     public static readonly Broker BrokerForUpdate = new()
@@ -354,31 +406,112 @@ internal static class TestData
         CreatedAt = DateTime.UtcNow
     };
 
+    public static readonly Broker BrokerInactive = new()
+    {
+        BrokerId = Guid.NewGuid(),
+        BrokerCode = "BR103",
+        Name = "Third Broker",
+        Email = "third.broker@test.com",
+        Phone = "0733333333",
+        CommissionPercentage = 10.50m,
+        IsActive = false,
+        CreatedAt = DateTime.UtcNow
+    };
+
     public static readonly List<Broker> BrokersList =
     [
         new()
-    {
-        BrokerId = Guid.NewGuid(),
-        BrokerCode = "BR101",
-        Name = "First Broker",
-        Email = "first.broker@test.com",
-        Phone = "0711111111",
-        CommissionPercentage = 5.25m,
-        IsActive = true,
-        CreatedAt = DateTime.UtcNow
-    },
-    new()
-    {
-        BrokerId = Guid.NewGuid(),
-        BrokerCode = "BR102",
-        Name = "Second Broker",
-        Email = "second.broker@test.com",
-        Phone = "0722222222",
-        CommissionPercentage = 3.50m,
-        IsActive = false,
-        CreatedAt = DateTime.UtcNow
-    }
+        {
+            BrokerId = Guid.NewGuid(),
+            BrokerCode = "BR101",
+            Name = "First Broker",
+            Email = "first.broker@test.com",
+            Phone = "0711111111",
+            CommissionPercentage = 5.25m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        },
+        new()
+        {
+            BrokerId = Guid.NewGuid(),
+            BrokerCode = "BR102",
+            Name = "Second Broker",
+            Email = "second.broker@test.com",
+            Phone = "0722222222",
+            CommissionPercentage = 3.50m,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        }
     ];
+
+    #endregion
+
+
+    #region Policies
+    public static List<Policy> PoliciesList =>
+    [
+        new Policy
+        {
+            PolicyId = Guid.NewGuid(),
+            PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
+            ClientId = BuildingsList[0].ClientId,
+            BuildingId = BuildingsList[0].BuildingId,
+            BrokerId = BrokersList[0].BrokerId,
+            CurrencyId = CurrencyForCreate.CurrencyId,
+            Status = PolicyStatus.Draft,
+            StartDate = DateTime.UtcNow.Date.AddDays(1),
+            EndDate = DateTime.UtcNow.Date.AddMonths(6),
+            BasePremium = 1000m,
+            FinalPremium = 1050m,
+            CreatedAt = DateTime.UtcNow
+        },
+        new Policy
+        {
+            PolicyId = Guid.NewGuid(),
+            PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
+            ClientId = BuildingsList[1].ClientId,
+            BuildingId = BuildingsList[1].BuildingId,
+            BrokerId = BrokersList[1].BrokerId,
+            CurrencyId = CurrencyForCreate.CurrencyId,
+            Status = PolicyStatus.Active,
+            StartDate = DateTime.UtcNow.Date.AddMonths(7),
+            EndDate = DateTime.UtcNow.Date.AddYears(1),
+            BasePremium = 2000m,
+            FinalPremium = 2200m,
+            ActivationDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
+        }
+    ];
+
+    public static Policy CreatePolicyForRead()
+    {
+        return new Policy
+        {
+            PolicyId = Guid.NewGuid(),
+            PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
+            ClientId = BuildingForRead.ClientId,
+            BuildingId = BuildingForRead.BuildingId,
+            BrokerId = BrokerForCreate.BrokerId,
+            CurrencyId = CurrencyForCreate.CurrencyId,
+            Status = PolicyStatus.Draft,
+            StartDate = DateTime.UtcNow.Date.AddDays(1),
+            EndDate = DateTime.UtcNow.Date.AddYears(1),
+            BasePremium = 1000m,
+            FinalPremium = 1050m,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static CreatePolicyDto PolicyDtoForCreate => new(
+        BuildingForRead.ClientId,
+        BuildingForRead.BuildingId,
+        BrokerForCreate.BrokerId,
+        CurrencyForCreate.CurrencyId,
+        DateTime.UtcNow.Date.AddDays(1),
+        DateTime.UtcNow.Date.AddYears(1),
+        1000m);
+
+    public static CancelPolicyDto PolicyDtoForCancel => new("This policy is being cancelled because it is no longer needed.");
 
     #endregion
 }

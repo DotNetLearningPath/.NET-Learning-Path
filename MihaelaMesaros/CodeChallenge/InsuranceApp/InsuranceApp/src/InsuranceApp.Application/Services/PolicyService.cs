@@ -200,14 +200,7 @@ public sealed class PolicyService(
         }
 
 
-        var policyDto = new CreatePolicyDto(
-            policy.ClientId,
-            policy.BuildingId,
-            policy.BrokerId,
-            policy.CurrencyId,
-            policy.StartDate,
-            policy.EndDate,
-            policy.BasePremium);
+        var policyDto = MapPolicyToCreateDto(policy);
 
         var validationPolicyInputDetails = ValidatePolicyInputDetails(policyDto);
 
@@ -320,6 +313,19 @@ public sealed class PolicyService(
             policy.EndDate,
             policy.BasePremium,
             policy.FinalPremium);
+    }
+
+    private static CreatePolicyDto MapPolicyToCreateDto(Policy policy)
+    {
+        return new CreatePolicyDto(
+            policy.ClientId,
+            policy.BuildingId,
+            policy.BrokerId,
+            policy.CurrencyId,
+            policy.StartDate,
+            policy.EndDate,
+            policy.BasePremium
+        );
     }
 
     private static Error? ValidatePolicyInputDetails(CreatePolicyDto dto)

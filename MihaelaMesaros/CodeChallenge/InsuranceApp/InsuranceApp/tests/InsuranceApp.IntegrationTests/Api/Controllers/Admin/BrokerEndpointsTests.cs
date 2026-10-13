@@ -403,9 +403,9 @@ public sealed class BrokerEndpointsTests(InsuranceAppWebApplicationFactory facto
         await SeedAsync(TestData.BrokersList);
 
         var brokerToUpdate = TestData.BrokersList[0];
-        var brokerWithDuplicateCode = TestData.BrokersList[1];
+        var existingBroker = TestData.BrokersList[1];
 
-        var request = new UpdateBrokerDto(brokerWithDuplicateCode.BrokerCode, brokerToUpdate.Name, brokerToUpdate.Email, brokerToUpdate.Phone, brokerToUpdate.CommissionPercentage);
+        var request = new UpdateBrokerDto(existingBroker.BrokerCode, brokerToUpdate.Name, brokerToUpdate.Email, brokerToUpdate.Phone, brokerToUpdate.CommissionPercentage);
 
         // Act
         var response = await HttpClient.PutAsJsonAsync($"{BaseUrl}/{brokerToUpdate.BrokerId}", request);
@@ -555,7 +555,7 @@ public sealed class BrokerEndpointsTests(InsuranceAppWebApplicationFactory facto
     public async Task ActivateBroker_InactiveBroker_ReturnsOkAndPersistsChanges()
     {
         // Arrange
-        var broker = TestData.BrokersList[1];
+        var broker = TestData.BrokerInactive;
         await SeedAsync(broker);
 
         // Act
