@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IFeeRepository, FeeRepository>();
         services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
         services.AddScoped<IPolicyRepository, PolicyRepository>();
+        services.AddScoped<IPolicyQueryRepository, PolicyQueryRepository>();
 
         return services;
     }
