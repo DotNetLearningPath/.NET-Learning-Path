@@ -4,6 +4,7 @@ using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Currencies;
 using InsuranceApp.Domain.Fees;
 using InsuranceApp.Domain.Geography;
+using InsuranceApp.Domain.Policies;
 using InsuranceApp.Domain.RiskFactors;
 using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.Infrastructure.Persistence.Entities;
@@ -115,6 +116,41 @@ internal static class PersistenceMappings
         );
     }
 
+    public static AppliedAdjustment ToDomain(this PolicyAdjustmentEntity entity)
+    {
+        return new(
+            source: entity.Source,
+            configurationId: entity.ConfigurationId,
+            percentage: entity.Percentage
+        );
+    }
+
+    public static Policy ToDomain(this PolicyEntity entity)
+    {
+        return new(new PolicyData
+        {
+            PolicyId = entity.Id,
+            PolicyNumber = entity.PolicyNumber,
+            Status = entity.Status,
+            ClientId = entity.ClientId,
+            BuildingId = entity.BuildingId,
+            BrokerId = entity.BrokerId,
+            CurrencyId = entity.CurrencyId,
+            CurrencyExchangeRateToBase = entity.CurrencyExchangeRateToBase,
+            StartDate = entity.StartDate,
+            EndDate = entity.EndDate,
+            BasePremium = entity.BasePremium,
+            FinalPremium = entity.FinalPremium,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+
+            AppliedAdjustments = entity.AppliedAdjustments
+                .OrderBy(adjustment => adjustment.Source)
+                .ThenBy(adjustment => adjustment.ConfigurationId)
+                .Select(adjustment => adjustment.ToDomain())
+        });
+    }
+
     public static RiskTarget ToTarget(this RiskFactorConfigurationEntity entity)
     {
         return (entity.Level, entity.CountryId, entity.CountyId, entity.CityId, entity.BuildingType) switch
@@ -204,6 +240,41 @@ internal static class PersistenceMappings
 
             _ => throw new InvalidOperationException("Unsupported risk factor target.")
         };
+    }
+
+    public static PolicyAdjustmentEntity ToEntity(this AppliedAdjustment adjustment, Guid policyId)
+    {
+        return new(
+            policyId: policyId,
+            source: adjustment.Source,
+            configurationId: adjustment.ConfigurationId,
+            percentage: adjustment.Percentage
+        );
+    }
+
+    public static PolicyEntity ToEntity(this Policy policy)
+    {
+        return new(new PolicyEntityData
+        {
+            PolicyId = policy.Id,
+            PolicyNumber = policy.PolicyNumber,
+            Status = policy.Status,
+            ClientId = policy.ClientId,
+            BuildingId = policy.BuildingId,
+            BrokerId = policy.BrokerId,
+            CurrencyId = policy.CurrencyId,
+            CurrencyExchangeRateToBase = policy.CurrencyExchangeRateToBase,
+            StartDate = policy.StartDate,
+            EndDate = policy.EndDate,
+            BasePremium = policy.BasePremium,
+            FinalPremium = policy.FinalPremium,
+            CreatedAt = policy.CreatedAt,
+            UpdatedAt = policy.UpdatedAt,
+
+            AppliedAdjustments = [.. policy.AppliedAdjustments.Select(
+                adjustment => adjustment.ToEntity(policy.Id)
+            )]
+        });
     }
 
     private static RiskFactorConfigurationEntity CreateRiskFactorEntity(
