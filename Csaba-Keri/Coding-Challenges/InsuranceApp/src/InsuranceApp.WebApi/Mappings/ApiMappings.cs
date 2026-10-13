@@ -12,10 +12,17 @@ using InsuranceApp.Application.Currencies.Results;
 using InsuranceApp.Application.Fees.Commands;
 using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
+using InsuranceApp.Application.Policies.Commands;
+using InsuranceApp.Application.Policies.Results;
+using InsuranceApp.Application.RiskFactors.Commands;
+using InsuranceApp.Application.RiskFactors.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
 using InsuranceApp.Domain.Fees;
+using InsuranceApp.Domain.Policies;
+using InsuranceApp.Domain.RiskFactors;
+using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
@@ -23,6 +30,9 @@ using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
+using InsuranceApp.WebApi.Models.Policies;
+using InsuranceApp.WebApi.Models.RiskFactors;
+using InsuranceApp.WebApi.Models.RiskFactors.Targets;
 
 namespace InsuranceApp.WebApi.Mappings;
 
@@ -74,6 +84,19 @@ internal static class ApiMappings
         };
     }
 
+    public static RiskFactorLevel ToDomain(this RiskFactorLevelDto level)
+    {
+        return level switch
+        {
+            RiskFactorLevelDto.Country => RiskFactorLevel.Country,
+            RiskFactorLevelDto.County => RiskFactorLevel.County,
+            RiskFactorLevelDto.City => RiskFactorLevel.City,
+            RiskFactorLevelDto.BuildingType => RiskFactorLevel.BuildingType,
+            
+            _ => throw new ValidationException("Risk factor level is invalid.")
+        };
+    }
+
     public static ClientTypeDto ToDto(this ClientType type)
     {
         return type switch
@@ -117,6 +140,30 @@ internal static class ApiMappings
             FeeType.AdminFee => FeeTypeDto.AdminFee,
             
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    public static PolicyStatusDto ToDto(this PolicyStatus status)
+    {
+        return status switch
+        {
+            PolicyStatus.Draft => PolicyStatusDto.Draft,
+            PolicyStatus.Active => PolicyStatusDto.Active,
+            PolicyStatus.Expired => PolicyStatusDto.Expired,
+            PolicyStatus.Cancelled => PolicyStatusDto.Cancelled,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+    }
+
+    public static AdjustmentSourceDto ToDto(this AdjustmentSource source)
+    {
+        return source switch
+        {
+            AdjustmentSource.Fee => AdjustmentSourceDto.Fee,
+            AdjustmentSource.RiskFactor => AdjustmentSourceDto.RiskFactor,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
     }
 
@@ -193,6 +240,19 @@ internal static class ApiMappings
         );
     }
 
+    public static CreateDraftPolicyCommand ToCommand(this CreateDraftPolicyRequest request)
+    {
+        return new(
+            ClientId: request.ClientId!.Value,
+            BuildingId: request.BuildingId!.Value,
+            BrokerId: request.BrokerId!.Value,
+            CurrencyId: request.CurrencyId!.Value,
+            StartDate: request.StartDate!.Value,
+            EndDate: request.EndDate!.Value,
+            BasePremium: request.BasePremium!.Value
+        );
+    }
+
     public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
     {
         return new(
@@ -214,6 +274,19 @@ internal static class ApiMappings
             Percentage: request.Percentage!.Value,
             EffectiveFrom: request.EffectiveFrom!.Value,
             EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static CreateRiskFactorCommand ToCreateCommand(this SaveRiskFactorRequest request)
+    {
+        return new(
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
             IsActive: request.IsActive!.Value
         );
     }
@@ -240,6 +313,20 @@ internal static class ApiMappings
             Percentage: request.Percentage!.Value,
             EffectiveFrom: request.EffectiveFrom!.Value,
             EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateRiskFactorCommand ToUpdateCommand(this SaveRiskFactorRequest request, Guid riskFactorId)
+    {
+        return new(
+            RiskFactorId: riskFactorId,
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
             IsActive: request.IsActive!.Value
         );
     }
@@ -379,6 +466,72 @@ internal static class ApiMappings
             EffectiveFrom: result.EffectiveFrom,
             EffectiveTo: result.EffectiveTo,
             IsActive: result.IsActive
+        );
+    }
+
+    public static RiskFactorResponse ToResponse(this RiskFactorResult result)
+    {
+        return new(
+            Id: result.Id,
+            Target: result.Target.ToResponse(),
+            AdjustmentPercentage: result.AdjustmentPercentage,
+            IsActive: result.IsActive
+        );
+    }
+
+    public static RiskTargetResponse ToResponse(this RiskTarget target)
+    {
+        return target switch
+        {
+            CountryTarget country =>
+                new CountryTargetResponse(CountryId: country.CountryId),
+            
+            CountyTarget county =>
+                new CountyTargetResponse(CountyId: county.CountyId),
+            
+            CityTarget city => 
+                new CityTargetResponse(CityId: city.CityId),
+            
+            BuildingTypeTarget buildingType =>
+                new BuildingTypeTargetResponse(BuildingType: buildingType.Type.ToDto()),
+
+            _ => throw new InvalidOperationException(
+                $"Unsupported risk target type: {target.GetType().Name}."
+            )
+        };
+    }
+
+    public static PolicyResponse ToResponse(this PolicyResult result)
+    {
+        return new(
+            Id: result.Id,
+            PolicyNumber: result.PolicyNumber,
+            Status: result.Status.ToDto(),
+            ClientId: result.ClientId,
+            BuildingId: result.BuildingId,
+            BrokerId: result.BrokerId,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            CurrencyExchangeRateToBase: result.CurrencyExchangeRateToBase,
+            StartDate: result.StartDate,
+            EndDate: result.EndDate,
+            BasePremium: result.BasePremium,
+            FinalPremium: result.FinalPremium,
+            CreatedAt: result.CreatedAt,
+            UpdatedAt: result.UpdatedAt,
+            
+            AppliedAdjustments: [.. result.AppliedAdjustments.Select(
+                adjustment => adjustment.ToResponse()
+            )]
+        );
+    }
+
+    public static AppliedAdjustmentResponse ToResponse(this AppliedAdjustment adjustment)
+    {
+        return new(
+            Source: adjustment.Source.ToDto(),
+            ConfigurationId: adjustment.ConfigurationId,
+            Percentage: adjustment.Percentage
         );
     }
 

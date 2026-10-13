@@ -15,6 +15,9 @@ public class InsuranceDbContext(
     public DbSet<BrokerEntity> Brokers => Set<BrokerEntity>();
     public DbSet<CurrencyEntity> Currencies => Set<CurrencyEntity>();
     public DbSet<FeeConfigurationEntity> FeeConfigurations => Set<FeeConfigurationEntity>();
+    public DbSet<RiskFactorConfigurationEntity> RiskFactorConfigurations => Set<RiskFactorConfigurationEntity>();
+    public DbSet<PolicyEntity> Policies => Set<PolicyEntity>();
+    public DbSet<PolicyAdjustmentEntity> PolicyAdjustments => Set<PolicyAdjustmentEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
