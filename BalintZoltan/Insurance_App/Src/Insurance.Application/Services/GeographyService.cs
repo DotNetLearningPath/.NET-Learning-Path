@@ -32,14 +32,14 @@ public class GeographyService(
         }
     }
 
-    public async Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken)
+    public async Task<List<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken)
     {
         var countries = await geographyRepository.GetCountriesAsync(cancellationToken);
 
         return [.. countries.Select(MapToCountryDto)];
     }
 
-    public async Task<IReadOnlyCollection<CountyDto>> GetCountiesByCountryIdAsync(
+    public async Task<List<CountyDto>> GetCountiesByCountryIdAsync(
         Guid countryId,
         CancellationToken cancellationToken)
     {
@@ -51,7 +51,7 @@ public class GeographyService(
         return [.. counties.Select(MapToCountyDto)];
     }
 
-    public async Task<IReadOnlyCollection<CityDto>> GetCitiesByCountyIdAsync(
+    public async Task<List<CityDto>> GetCitiesByCountyIdAsync(
         Guid countyId,
         CancellationToken cancellationToken)
     {

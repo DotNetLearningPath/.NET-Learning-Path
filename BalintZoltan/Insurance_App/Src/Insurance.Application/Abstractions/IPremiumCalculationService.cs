@@ -8,5 +8,5 @@ public interface IPremiumCalculationService
         decimal basePremium,
         DateTime effectiveAt,
         PremiumCalculationContext context,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken);
 }

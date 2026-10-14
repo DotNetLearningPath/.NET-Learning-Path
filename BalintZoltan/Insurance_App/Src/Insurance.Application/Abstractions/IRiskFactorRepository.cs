@@ -19,7 +19,7 @@ public interface IRiskFactorRepository
         BuildingType buildingType,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
+    Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
         Guid? countryId,
         Guid? countyId,
         Guid? cityId,

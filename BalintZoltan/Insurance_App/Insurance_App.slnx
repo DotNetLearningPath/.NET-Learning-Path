@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Resource/">
-    <File Path="resources/code guidelines.docx" />
+    <File Path="Resources/code guidelines.txt" />
     <File Path="Resources/CodingGuidelinesFindings.md" />
     <File Path="Test/Postman/Insurance.Api.postman_collection.json" />
   </Folder>

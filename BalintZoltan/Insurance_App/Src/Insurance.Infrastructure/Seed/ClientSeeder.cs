@@ -1,9 +1,9 @@
-using System.Text.Json;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Insurance.Infrastructure.Seed;
 
@@ -38,7 +38,7 @@ public sealed class ClientSeeder(IOptions<SeedDataOptions> options)
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ClientSeedData>> LoadAsync(
+    public async Task<List<ClientSeedData>> LoadAsync(
         string contentRootPath,
         CancellationToken cancellationToken)
     {

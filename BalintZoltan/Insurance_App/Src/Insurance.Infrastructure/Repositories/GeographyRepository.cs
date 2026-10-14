@@ -22,7 +22,7 @@ public sealed class GeographyRepository(
             county => county.Id == countyId,
             cancellationToken);
 
-    public async Task<IReadOnlyCollection<Country>> GetCountriesAsync(CancellationToken cancellationToken)
+    public async Task<List<Country>> GetCountriesAsync(CancellationToken cancellationToken)
     {
         return await dbContext.Countries
             .AsNoTracking()
@@ -30,8 +30,7 @@ public sealed class GeographyRepository(
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<County>>
-        GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken)
+    public async Task<List<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken)
     {
         return await dbContext.Counties
             .AsNoTracking()
@@ -40,8 +39,7 @@ public sealed class GeographyRepository(
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<City>>
-        GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken)
+    public async Task<List<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken)
     {
         return await dbContext.Cities
             .AsNoTracking()

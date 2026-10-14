@@ -10,7 +10,7 @@ public sealed class FeeConfigurationService(
 {
     public async Task<PagedResult<FeeConfigurationDto>> ListAsync(
         PaginationRequest pagination,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var page = await repository.ListFeeConfigurationsAsync(pagination, cancellationToken);
         return new PagedResult<FeeConfigurationDto>
@@ -23,8 +23,9 @@ public sealed class FeeConfigurationService(
     }
     public async Task<FeeConfigurationDto> CreateAsync(
         SaveFeeConfigurationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var fee = new FeeConfiguration(
             request.Name,
             request.Type,
@@ -38,8 +39,9 @@ public sealed class FeeConfigurationService(
     public async Task<FeeConfigurationDto> UpdateAsync(
         Guid id,
         SaveFeeConfigurationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var fee = await repository.GetFeeConfigurationByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Fee configuration was not found.");
 
@@ -64,7 +66,7 @@ public sealed class FeeConfigurationService(
     }
     public async Task DeactivateAsync(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var fee = await repository.GetFeeConfigurationByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Fee configuration was not found.");

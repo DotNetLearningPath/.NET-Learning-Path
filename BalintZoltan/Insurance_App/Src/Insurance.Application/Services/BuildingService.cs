@@ -31,6 +31,7 @@ public class BuildingService(
 
     public async Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         await CheckClientExistAsync(request.ClientId, cancellationToken);
         await CheckCityExistAsync(request.CityId, cancellationToken);
 
@@ -85,6 +86,7 @@ public class BuildingService(
         UpdateBuildingRequest request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         var building = await buildingRepository.GetBuildingByIdAsync(id, cancellationToken) ?? throw new NotFoundException("Building was not found.");
 
         await CheckCityExistAsync(request.CityId, cancellationToken);

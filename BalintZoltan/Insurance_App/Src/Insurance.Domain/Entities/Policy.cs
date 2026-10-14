@@ -1,5 +1,4 @@
 using Insurance.Domain.Enums;
-using System.Runtime.Intrinsics.X86;
 
 namespace Insurance.Domain.Entities;
 

@@ -34,7 +34,7 @@ public sealed class FeeConfigurationRepository(
             .OrderByDescending(configuration => configuration.EffectiveFrom)
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
+    public async Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
         CancellationToken cancellationToken) =>
         await dbContext.FeeConfigurations

@@ -40,7 +40,7 @@ public sealed class FakeRiskFactorRepository : IRiskFactorRepository
         return Task.FromResult(match);
     }
 
-    public Task<IReadOnlyCollection<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
+    public Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
         Guid? countryId,
         Guid? countyId,
         Guid? cityId,
@@ -52,7 +52,7 @@ public sealed class FakeRiskFactorRepository : IRiskFactorRepository
         var cityReference = cityId?.ToString();
         var buildingTypeReference = buildingType?.ToString();
 
-        IReadOnlyCollection<RiskFactorConfiguration> matches = [.. Storage
+        List<RiskFactorConfiguration> matches = [.. Storage
             .Where(configuration => configuration.IsActive
                 && ((countryReference != null
                         && configuration.Level == RiskFactorLevel.Country

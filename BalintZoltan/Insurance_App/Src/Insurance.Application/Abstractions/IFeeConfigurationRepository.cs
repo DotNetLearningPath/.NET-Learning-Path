@@ -15,7 +15,7 @@ public interface IFeeConfigurationRepository
         DateTime effectiveAt,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
+    Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
         CancellationToken cancellationToken);
 
