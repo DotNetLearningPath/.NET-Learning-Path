@@ -66,6 +66,7 @@ public static class DependencyInjection
         services.AddScoped<IValidator<CreateRiskFactorCommand>, CreateRiskFactorCommandValidator>();
         services.AddScoped<IValidator<UpdateRiskFactorCommand>, UpdateRiskFactorCommandValidator>();
         services.AddScoped<IValidator<CreateDraftPolicyCommand>, CreateDraftPolicyCommandValidator>();
+        services.AddScoped<IValidator<CancelPolicyCommand>, CancelPolicyCommandValidator>();
         services.AddScoped<IValidator<SearchPoliciesQuery>, SearchPoliciesQueryValidator>();
 
         return services;
