@@ -42,7 +42,7 @@ public sealed class CountyConfiguration
             .HasMaxLength(150);
 
         builder.HasOne<Country>()
-            .WithMany(country => country.Counties)
+            .WithMany()
             .HasForeignKey(county => county.CountryId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -78,7 +78,7 @@ public sealed class CityConfiguration
             .HasMaxLength(20);
 
         builder.HasOne<County>()
-            .WithMany(county => county.Cities)
+            .WithMany()
             .HasForeignKey(city => city.CountyId)
             .OnDelete(DeleteBehavior.Restrict);
 

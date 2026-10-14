@@ -6,10 +6,6 @@ public class County
     public Guid CountryId { get; private set; }
     public string Name { get; private set; }
 
-    private readonly List<City> _cities = [];
-
-    public IReadOnlyCollection<City> Cities => _cities;
-
     public County(Guid countryId, string name)
     {
         if (countryId == Guid.Empty)

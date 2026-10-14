@@ -29,7 +29,8 @@ public sealed class PremiumCalculationServiceTest
         var result = await _service.CalculateFinalPremiumAsync(
             125m,
             _effectiveAt,
-            new PremiumCalculationContext());
+            new PremiumCalculationContext(),
+            CancellationToken.None);
 
         Assert.Equal(125m, result);
     }
@@ -47,7 +48,8 @@ public sealed class PremiumCalculationServiceTest
         var result = await _service.CalculateFinalPremiumAsync(
             100m,
             _effectiveAt,
-            new PremiumCalculationContext());
+            new PremiumCalculationContext(),
+            CancellationToken.None);
 
         Assert.Equal(111m, result);
     }
@@ -84,7 +86,8 @@ public sealed class PremiumCalculationServiceTest
         var result = await _service.CalculateFinalPremiumAsync(
             100m,
             _effectiveAt,
-            context);
+            context,
+            CancellationToken.None);
 
         Assert.Equal(114.5m, result);
     }
@@ -114,7 +117,8 @@ public sealed class PremiumCalculationServiceTest
         var result = await _service.CalculateFinalPremiumAsync(
             100m,
             _effectiveAt,
-            context);
+            context,
+            CancellationToken.None);
 
         Assert.Equal(100m, result);
     }
@@ -133,7 +137,8 @@ public sealed class PremiumCalculationServiceTest
         var result = await _service.CalculateFinalPremiumAsync(
             100m,
             policyStartDate,
-            new PremiumCalculationContext());
+            new PremiumCalculationContext(),
+            CancellationToken.None);
 
         Assert.Equal(104m, result);
     }
@@ -145,7 +150,8 @@ public sealed class PremiumCalculationServiceTest
             _service.CalculateFinalPremiumAsync(
                 -1m,
                 _effectiveAt,
-                new PremiumCalculationContext()));
+                new PremiumCalculationContext(),
+                CancellationToken.None));
     }
 
     [Fact]
@@ -155,7 +161,8 @@ public sealed class PremiumCalculationServiceTest
             _service.CalculateFinalPremiumAsync(
                 100m,
                 _effectiveAt,
-                null!));
+                null!,
+                CancellationToken.None));
     }
 
     static private FeeConfiguration CreateFee(

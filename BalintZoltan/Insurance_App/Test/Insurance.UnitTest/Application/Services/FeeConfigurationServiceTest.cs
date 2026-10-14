@@ -29,7 +29,7 @@ public sealed class FeeConfigurationServiceTest
     {
         var request = CreateRequest(type);
 
-        var dto = await _service.CreateAsync(request);
+        var dto = await _service.CreateAsync(request, CancellationToken.None);
 
         var savedFee = Assert.Single(_repository.Storage);
         Assert.Equal(savedFee.Id, dto.Id);
@@ -55,7 +55,8 @@ public sealed class FeeConfigurationServiceTest
         {
             PageNumber = 2,
             PageSize = 1
-        });
+        },
+        CancellationToken.None);
 
         var dto = Assert.Single(result.Items);
         Assert.Equal(secondFee.Id, dto.Id);
@@ -81,7 +82,7 @@ public sealed class FeeConfigurationServiceTest
             IsActive = isActive
         };
 
-        var dto = await _service.UpdateAsync(fee.Id, request);
+        var dto = await _service.UpdateAsync(fee.Id, request, CancellationToken.None);
 
         Assert.Equal("Updated fee", fee.Name);
         Assert.Equal(FeeType.BrokerCommission, fee.Type);
@@ -98,7 +99,7 @@ public sealed class FeeConfigurationServiceTest
     public async Task UpdateAsync_ThrowsNotFoundWhenFeeDoesNotExist()
     {
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
-            _service.UpdateAsync(Guid.NewGuid(), CreateRequest(FeeType.AdminFee)));
+            _service.UpdateAsync(Guid.NewGuid(), CreateRequest(FeeType.AdminFee), CancellationToken.None));
 
         Assert.Equal("Fee configuration was not found.", exception.Message);
         Assert.Equal(0, _repository.UpdateCallCount);
@@ -119,7 +120,7 @@ public sealed class FeeConfigurationServiceTest
         };
 
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            _service.UpdateAsync(fee.Id, request));
+            _service.UpdateAsync(fee.Id, request, CancellationToken.None));
 
         Assert.Equal("Original fee", fee.Name);
         Assert.Equal(2m, fee.Percentage);
@@ -132,7 +133,7 @@ public sealed class FeeConfigurationServiceTest
         var fee = CreateFee("Fee to deactivate", FeeType.AdminFee, 2m);
         await _repository.AddFeeConfigurationAsync(fee, CancellationToken.None);
 
-        await _service.DeactivateAsync(fee.Id);
+        await _service.DeactivateAsync(fee.Id, CancellationToken.None);
 
         Assert.False(fee.IsActive);
         Assert.Equal(1, _repository.DeactivateCallCount);
@@ -142,7 +143,7 @@ public sealed class FeeConfigurationServiceTest
     public async Task DeactivateAsync_ThrowsNotFoundWhenFeeDoesNotExist()
     {
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
-            _service.DeactivateAsync(Guid.NewGuid()));
+            _service.DeactivateAsync(Guid.NewGuid(), CancellationToken.None));
 
         Assert.Equal("Fee configuration was not found.", exception.Message);
         Assert.Equal(0, _repository.DeactivateCallCount);
