@@ -63,6 +63,11 @@ internal static class PolicyQueryMappings
             FinalPremium: entity.FinalPremium,
             CreatedAt: entity.CreatedAt,
             UpdatedAt: entity.UpdatedAt,
+            ActivatedAt: entity.ActivatedAt,
+            CancelledAt: entity.CancelledAt,
+            CancellationEffectiveDate: entity.CancellationEffectiveDate,
+            CancellationReason: entity.CancellationReason,
+            ExpiredAt: entity.ExpiredAt,
 
             AppliedAdjustments: [.. entity.AppliedAdjustments
                 .OrderBy(adjustment => adjustment.Source)
