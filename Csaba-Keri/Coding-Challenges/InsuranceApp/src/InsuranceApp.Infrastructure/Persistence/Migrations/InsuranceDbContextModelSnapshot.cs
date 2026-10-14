@@ -433,7 +433,7 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policy_adjustments", null, t =>
                         {
-                            t.HasCheckConstraint("ck_policy_adjustments_percentage", "(source = 'Fee' AND percentage BETWEEN 0 AND 100)\r\nOR (source = 'RiskFactor' AND percentage BETWEEN -100 AND 100)");
+                            t.HasCheckConstraint("ck_policy_adjustments_percentage", "(source = 'Fee' AND percentage BETWEEN 0 AND 100)\nOR (source = 'RiskFactor' AND percentage BETWEEN -100 AND 100)");
 
                             t.HasCheckConstraint("ck_policy_adjustments_source", "source IN ('Fee', 'RiskFactor')");
                         });
@@ -444,6 +444,10 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("activated_at");
 
                     b.Property<decimal>("BasePremium")
                         .HasPrecision(14, 2)
@@ -457,6 +461,19 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BuildingId")
                         .HasColumnType("uuid")
                         .HasColumnName("building_id");
+
+                    b.Property<DateOnly?>("CancellationEffectiveDate")
+                        .HasColumnType("date")
+                        .HasColumnName("cancellation_effective_date");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancellation_reason");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid")
@@ -478,6 +495,10 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date")
                         .HasColumnName("end_date");
+
+                    b.Property<DateTimeOffset?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
 
                     b.Property<decimal>("FinalPremium")
                         .HasPrecision(14, 2)
@@ -517,9 +538,17 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("PolicyNumber")
                         .IsUnique();
 
+                    b.HasIndex("Status", "EndDate");
+
                     b.ToTable("policies", null, t =>
                         {
+                            t.HasCheckConstraint("ck_policies_cancellation_audit", "(cancelled_at IS NULL AND cancellation_effective_date IS NULL AND cancellation_reason IS NULL)\r\nOR (status = 'Cancelled' AND cancelled_at IS NOT NULL AND cancellation_effective_date IS NOT NULL\r\nAND cancellation_reason IS NOT NULL AND length(btrim(cancellation_reason)) > 0\r\nAND cancellation_effective_date = (cancelled_at AT TIME ZONE 'UTC')::date\r\nAND cancellation_effective_date <= end_date)");
+
                             t.HasCheckConstraint("ck_policies_currency_exchange_rate_to_base", "currency_exchange_rate_to_base > 0");
+
+                            t.HasCheckConstraint("ck_policies_expiry_audit", "expired_at IS NULL OR (status = 'Expired' AND end_date < (expired_at AT TIME ZONE 'UTC')::date)");
+
+                            t.HasCheckConstraint("ck_policies_lifecycle_timestamps", "updated_at >= created_at\r\nAND (activated_at IS NULL OR (activated_at >= created_at AND activated_at <= updated_at AND status <> 'Draft'))\r\nAND (cancelled_at IS NULL OR (cancelled_at >= created_at AND cancelled_at <= updated_at\r\nAND (activated_at IS NULL OR cancelled_at >= activated_at)))\r\nAND (expired_at IS NULL OR (expired_at >= created_at AND expired_at <= updated_at\r\nAND (activated_at IS NULL OR expired_at >= activated_at)))");
 
                             t.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
 
