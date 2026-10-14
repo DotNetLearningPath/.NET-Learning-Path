@@ -87,7 +87,7 @@ public sealed class PolicyTests
             "CurrencyId" => draftPolicyData with { CurrencyId = Guid.Empty },
             "ExchangeRate" => draftPolicyData with { CurrencyExchangeRateToBase = 0m },
             "Period" => draftPolicyData with { EndDate = draftPolicyData.StartDate.AddDays(-1) },
-            "Premium" => draftPolicyData with { FinalPremium = 0m },
+            "Premium" => draftPolicyData with { FinalPremium = PolicyRules.MinFinalPremium - 0.01m },
 
             _ => draftPolicyData
         };
