@@ -16,17 +16,7 @@ public class ClientService(
     private const int IndividualIdentificationNumberLength = 13;
     private const int CompanyIdentificationNumberType1Length = 2;
     private const int CompanyIdentificationNumberType2Length = 10;
-    private async Task CheckClientIdentificationNumberExistAsync(string identificationNumber, CancellationToken cancellationToken)
-    {
-        var exists = await clientRepository
-            .ExistsClientByIdentificationNumberAsync(identificationNumber, cancellationToken: cancellationToken);
 
-        if (exists)
-        {
-            throw new InvalidOperationException(
-                "A client with this identification number already exists.");
-        }
-    }
     public async Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -110,6 +100,19 @@ public class ClientService(
 
         return MapToClientDto(client);
     }
+
+    private async Task CheckClientIdentificationNumberExistAsync(string identificationNumber, CancellationToken cancellationToken)
+    {
+        var exists = await clientRepository
+            .ExistsClientByIdentificationNumberAsync(identificationNumber, cancellationToken: cancellationToken);
+
+        if (exists)
+        {
+            throw new InvalidOperationException(
+                "A client with this identification number already exists.");
+        }
+    }
+
     private static void ValidateIdentificationNumber(
             ClientType clientType,
             string identificationNumber)
@@ -146,10 +149,6 @@ public class ClientService(
         {
             return;
         }
-
-
-
-
         EmailValidator.ValidateFormatAndLength(email);
     }
 

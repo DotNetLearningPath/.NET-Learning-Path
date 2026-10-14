@@ -8,29 +8,6 @@ namespace Insurance.Application.Services;
 public class GeographyService(
     IGeographyRepository geographyRepository) : IGeographyService
 {
-    private async Task CheckCountryExistsAsync(
-        Guid countryId,
-        CancellationToken cancellationToken)
-    {
-        if (!await geographyRepository.CountryExistsAsync(
-                countryId,
-                cancellationToken))
-        {
-            throw new NotFoundException("Country was not found.");
-        }
-    }
-
-    private async Task CheckCountyExistsAsync(
-        Guid countyId,
-        CancellationToken cancellationToken)
-    {
-        if (!await geographyRepository.CountyExistsAsync(
-                countyId,
-                cancellationToken))
-        {
-            throw new NotFoundException("County was not found.");
-        }
-    }
 
     public async Task<List<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken)
     {
@@ -61,6 +38,30 @@ public class GeographyService(
             .GetCitiesByCountyIdAsync(countyId, cancellationToken);
 
         return [.. cities.Select(MapToCityDto)];
+    }
+
+    private async Task CheckCountryExistsAsync(
+        Guid countryId,
+        CancellationToken cancellationToken)
+    {
+        if (!await geographyRepository.CountryExistsAsync(
+                countryId,
+                cancellationToken))
+        {
+            throw new NotFoundException("Country was not found.");
+        }
+    }
+
+    private async Task CheckCountyExistsAsync(
+        Guid countyId,
+        CancellationToken cancellationToken)
+    {
+        if (!await geographyRepository.CountyExistsAsync(
+                countyId,
+                cancellationToken))
+        {
+            throw new NotFoundException("County was not found.");
+        }
     }
 
     private static CountryDto MapToCountryDto(Country country)

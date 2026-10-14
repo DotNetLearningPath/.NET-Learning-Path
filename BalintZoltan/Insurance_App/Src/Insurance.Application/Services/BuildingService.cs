@@ -11,23 +11,6 @@ public class BuildingService(
         IClientRepository clientRepository,
         IGeographyRepository geographyRepository) : IBuildingService
 {
-    private async Task CheckClientExistAsync(Guid clientId, CancellationToken cancellationToken)
-    {
-        if (await clientRepository.GetClientByIdAsync(clientId, cancellationToken) is null)
-        {
-            throw new NotFoundException("Client was not found.");
-        }
-    }
-
-    private async Task CheckCityExistAsync(Guid cityId, CancellationToken cancellationToken)
-    {
-        var cityExists = await geographyRepository.CityExistsAsync(cityId, cancellationToken);
-
-        if (!cityExists)
-        {
-            throw new NotFoundException("City was not found.");
-        }
-    }
 
     public async Task<BuildingDto> CreateBuildingAsync(CreateBuildingRequest request, CancellationToken cancellationToken)
     {
@@ -105,6 +88,24 @@ public class BuildingService(
         await buildingRepository.UpdateBuildingAsync(building, cancellationToken);
 
         return MapToBuildingDto(building);
+    }
+
+    private async Task CheckClientExistAsync(Guid clientId, CancellationToken cancellationToken)
+    {
+        if (await clientRepository.GetClientByIdAsync(clientId, cancellationToken) is null)
+        {
+            throw new NotFoundException("Client was not found.");
+        }
+    }
+
+    private async Task CheckCityExistAsync(Guid cityId, CancellationToken cancellationToken)
+    {
+        var cityExists = await geographyRepository.CityExistsAsync(cityId, cancellationToken);
+
+        if (!cityExists)
+        {
+            throw new NotFoundException("City was not found.");
+        }
     }
 
     private static BuildingDto MapToBuildingDto(Building building)

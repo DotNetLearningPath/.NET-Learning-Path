@@ -12,6 +12,56 @@ namespace Insurance.Domain.Entities
         public string? Phone { get; private set; }
         public string? Address { get; private set; }
 
+        public Client(
+                    ClientType type,
+                    string name,
+                    string identificationNumber,
+                    string? email = null,
+                    string? phone = null,
+                    string? address = null)
+        {
+            CheckClientType(type);
+            CheckClientName(name);
+            CheckClientId(identificationNumber);
+
+            Id = Guid.NewGuid();
+            Type = type;
+            Name = name;
+            IdentificationNumber = identificationNumber;
+            Email = email;
+            Phone = phone;
+            Address = address;
+        }
+
+        public void UpdateContactDetails(
+            string? email,
+            string? phone,
+            string? address)
+        {
+            Email = email;
+            Phone = phone;
+            Address = address;
+        }
+
+        public void ChangeName(string name)
+        {
+            CheckClientName(name);
+
+            Name = name;
+        }
+
+        public void ChangeType(ClientType type)
+        {
+            CheckClientType(type);
+            Type = type;
+        }
+
+        public void ChangeIdentificationNumber(string identificationNumber)
+        {
+            CheckClientId(identificationNumber);
+
+            IdentificationNumber = identificationNumber;
+        }
 
         private static void CheckClientType(ClientType type)
         {
@@ -37,56 +87,6 @@ namespace Insurance.Domain.Entities
                 throw new ArgumentException(
                     "Identification number is required.");
             }
-        }
-
-        public Client(
-            ClientType type,
-            string name,
-            string identificationNumber,
-            string? email = null,
-            string? phone = null,
-            string? address = null)
-        {
-            CheckClientType(type);
-            CheckClientName(name);
-            CheckClientId(identificationNumber);
-
-
-            Id = Guid.NewGuid();
-            Type = type;
-            Name = name;
-            IdentificationNumber = identificationNumber;
-            Email = email;
-            Phone = phone;
-            Address = address;
-        }
-        public void UpdateContactDetails(
-            string? email,
-            string? phone,
-            string? address)
-        {
-            Email = email;
-            Phone = phone;
-            Address = address;
-        }
-
-        public void ChangeName(string name)
-        {
-            CheckClientName(name);
-
-            Name = name;
-        }
-        public void ChangeType(ClientType type)
-        {
-            CheckClientType(type);
-            Type = type;
-        }
-
-        public void ChangeIdentificationNumber(string identificationNumber)
-        {
-            CheckClientId(identificationNumber);
-
-            IdentificationNumber = identificationNumber;
         }
     }
 }
