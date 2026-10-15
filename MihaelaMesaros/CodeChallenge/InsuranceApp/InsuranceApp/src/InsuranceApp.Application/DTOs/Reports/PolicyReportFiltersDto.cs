@@ -5,7 +5,7 @@ namespace InsuranceApp.Application.DTOs.Reports;
 public sealed record PolicyReportFiltersDto(
     DateTime? From,
     DateTime? To,
-    PolicyStatus? Status,
-    Guid? Currency,
-    Guid? BuildingType
+    string? Status,
+    string? Currency,
+    string? BuildingType
 );

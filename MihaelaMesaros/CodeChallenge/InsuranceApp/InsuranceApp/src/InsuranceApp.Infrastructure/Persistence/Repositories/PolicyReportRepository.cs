@@ -22,11 +22,11 @@ public sealed class PolicyReportRepository(InsuranceDbContext dbContext) : IPoli
         var queryParameters = new
         {
             @GroupType = groupType.ToString(),
-            @From = policyReportFiltersDto.From,
-            @To = policyReportFiltersDto.To,
-            @Status = policyReportFiltersDto.Status,
-            @CurrencyId = policyReportFiltersDto.Currency,
-            @BuildingTypeId = policyReportFiltersDto.BuildingType
+            @From = (policyReportFiltersDto.From == null ? null : policyReportFiltersDto.From),
+            @To = (policyReportFiltersDto.To == null ? null : policyReportFiltersDto.To),
+            @Status = string.IsNullOrWhiteSpace(policyReportFiltersDto.Status) ? null : (int?)Enum.Parse<PolicyStatus>(policyReportFiltersDto.Status, true),
+            @Currency = string.IsNullOrWhiteSpace(policyReportFiltersDto.Currency) ? null : policyReportFiltersDto.Currency.Trim(),
+            @BuildingType = string.IsNullOrWhiteSpace(policyReportFiltersDto.BuildingType) ? null : policyReportFiltersDto.BuildingType.Trim()
         };
 
         const string query = """
@@ -58,12 +58,21 @@ public sealed class PolicyReportRepository(InsuranceDbContext dbContext) : IPoli
                 INNER JOIN dbo.Countries co ON co.CountryId = cou.CountryId
                 INNER JOIN dbo.Currencies cu ON cu.CurrencyId = p.CurrencyId
                 INNER JOIN dbo.Brokers br ON br.BrokerId = p.BrokerId
+                INNER JOIN dbo.BuildingTypes bt ON bt.BuildingTypeId = b.BuildingTypeId
             WHERE
                 (@From IS NULL OR p.StartDate >= @From)
-                AND (@To IS NULL OR p.StartDate < DATEADD(DAY, 1, @To))
+                AND (@To IS NULL OR p.StartDate <= @To)
                 AND (@Status IS NULL OR p.Status = @Status)
-                AND (@CurrencyId IS NULL OR p.CurrencyId = @CurrencyId)
-                AND (@BuildingTypeId IS NULL OR b.BuildingTypeId = @BuildingTypeId)
+                AND (
+                    @Currency IS NULL
+                    OR cu.CurrencyId = TRY_CONVERT(uniqueidentifier, @Currency)
+                    OR cu.Code = @Currency
+                )
+                AND (
+                    @BuildingType IS NULL
+                    OR b.BuildingTypeId = TRY_CONVERT(uniqueidentifier, @BuildingType)
+                    OR bt.[Name] = @BuildingType
+                )
         )
         SELECT
             GroupId,

@@ -20,7 +20,7 @@
 @brokerId = 8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C
 @policyId = 6cbfe0f6-dc3b-4f41-bfdc-08df254ef4c7
 
-@policyStartDate = 2026-10-14
+@policyStartDate = 2026-10-15
 @policyEndDate = 2026-12-31
 @policyBasePremium = 100.00
 
@@ -697,9 +697,12 @@ Accept: application/json
 
 @from = 2026-10-01
 @to = 2027-10-01
-@status = 1
-@currency = 13DCB6BD-61B7-F111-BC3C-BCF1054861B1
-@buildingType = 574239F9-60B7-F111-BC3C-BCF1054861B1
+#@status = 1
+@status = Active
+#@currency = 13DCB6BD-61B7-F111-BC3C-BCF1054861B1
+@currency = EUR
+#@buildingType = 574239F9-60B7-F111-BC3C-BCF1054861B1
+@buildingType = Residential
 
 # --------------------------------
 # Policies by country
@@ -710,6 +713,26 @@ Accept: application/json
 
 ### No filter
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country
+Accept: application/json
+
+### Without From
+GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from=&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
+Accept: application/json
+
+### Without To
+GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to=&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
+Accept: application/json
+
+### Without Status
+GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status=&currency={{currency}}&buildingType={{buildingType}}
+Accept: application/json
+
+### Without Currency
+GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status={{status}}&currency=&buildingType={{buildingType}}
+Accept: application/json
+
+### Without BuildingType
+GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType=
 Accept: application/json
 
 ###
