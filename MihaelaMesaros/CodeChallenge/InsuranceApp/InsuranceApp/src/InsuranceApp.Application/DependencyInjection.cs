@@ -27,6 +27,8 @@ public static class DependencyInjection
         services.AddScoped<IPolicyNumberGenerator, PolicyNumberGenerator>();
         services.AddScoped<IPolicyCalculationService, PolicyCalculationService>();
 
+        services.AddScoped<IPolicyReportService, PolicyReportService>();
+
         return services;
     }
 }

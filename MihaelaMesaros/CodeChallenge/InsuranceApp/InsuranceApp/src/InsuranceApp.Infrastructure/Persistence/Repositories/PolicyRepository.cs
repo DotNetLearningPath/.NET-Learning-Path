@@ -2,7 +2,6 @@
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Domain.Entities;
-using InsuranceApp.Domain.Enums;
 using InsuranceApp.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 

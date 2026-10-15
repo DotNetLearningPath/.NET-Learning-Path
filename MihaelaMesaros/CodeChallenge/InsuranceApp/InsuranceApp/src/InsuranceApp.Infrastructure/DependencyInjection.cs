@@ -41,6 +41,8 @@ public static class DependencyInjection
 
         services.AddScoped<IPolicyRepository, PolicyRepository>();
 
+        services.AddScoped<IPolicyReportRepository, PolicyReportRepository>();
+
         return services;
     }
 }
