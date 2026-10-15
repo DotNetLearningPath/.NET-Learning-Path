@@ -8,7 +8,7 @@ namespace Insurance.Application.Services;
 public sealed class FeeConfigurationService(
     IFeeConfigurationRepository repository) : IFeeConfigurationService
 {
-    public async Task<PagedResult<FeeConfigurationDto>> ListAsync(
+    public async Task<PagedResult<FeeConfigurationDto>> ListFeeAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public sealed class FeeConfigurationService(
             TotalCount = page.TotalCount
         };
     }
-    public async Task<FeeConfigurationDto> CreateAsync(
+    public async Task<FeeConfigurationDto> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)
     {
@@ -36,7 +36,7 @@ public sealed class FeeConfigurationService(
         await repository.AddFeeConfigurationAsync(fee, cancellationToken);
         return MapToFeeConfigurationDto(fee);
     }
-    public async Task<FeeConfigurationDto> UpdateAsync(
+    public async Task<FeeConfigurationDto> UpdateFeeAsync(
         Guid id,
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public sealed class FeeConfigurationService(
         await repository.UpdateFeeConfigurationAsync(fee, cancellationToken);
         return MapToFeeConfigurationDto(fee);
     }
-    public async Task DeactivateAsync(
+    public async Task DeactivateFeeAsync(
         Guid id,
         CancellationToken cancellationToken)
     {

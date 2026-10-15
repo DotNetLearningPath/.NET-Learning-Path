@@ -10,35 +10,35 @@ public sealed class FeeConfigurationsController(
     IFeeConfigurationService feeConfigurationService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PagedResult<FeeConfigurationDto>>> ListAsync(
+    public async Task<ActionResult<PagedResult<FeeConfigurationDto>>> ListFeeAsync(
         [FromQuery] PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var fees = await feeConfigurationService.ListAsync(pagination, cancellationToken);
+        var fees = await feeConfigurationService.ListFeeAsync(pagination, cancellationToken);
         return Ok(fees);
     }
 
     [HttpPost]
-    public async Task<ActionResult<FeeConfigurationDto>> CreateAsync(
+    public async Task<ActionResult<FeeConfigurationDto>> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)
     {
-        var fee = await feeConfigurationService.CreateAsync(request, cancellationToken);
+        var fee = await feeConfigurationService.CreateFeeAsync(request, cancellationToken);
         return Created($"/api/admin/fees/{fee.Id}", fee);
     }
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<FeeConfigurationDto>> UpdateAsync(
+    public async Task<ActionResult<FeeConfigurationDto>> UpdateFeeAsync(
         Guid id,
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)
     {
-        var fee = await feeConfigurationService.UpdateAsync(id, request, cancellationToken);
+        var fee = await feeConfigurationService.UpdateFeeAsync(id, request, cancellationToken);
         return Ok(fee);
     }
     [HttpPost("{id:guid}/deactivate")]
-    public async Task<IActionResult> DeactivateAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeactivateFeeAsync(Guid id, CancellationToken cancellationToken)
     {
-        await feeConfigurationService.DeactivateAsync(id, cancellationToken);
+        await feeConfigurationService.DeactivateFeeAsync(id, cancellationToken);
         return NoContent();
     }
 }

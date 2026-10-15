@@ -4,20 +4,20 @@ namespace Insurance.Application.Abstractions;
 
 public interface IFeeConfigurationService
 {
-    Task<PagedResult<FeeConfigurationDto>> ListAsync(
+    Task<PagedResult<FeeConfigurationDto>> ListFeeAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken);
 
-    Task<FeeConfigurationDto> CreateAsync(
+    Task<FeeConfigurationDto> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken);
 
-    Task<FeeConfigurationDto> UpdateAsync(
+    Task<FeeConfigurationDto> UpdateFeeAsync(
         Guid id,
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken);
 
-    Task DeactivateAsync(
+    Task DeactivateFeeAsync(
         Guid id,
         CancellationToken cancellationToken);
 }
