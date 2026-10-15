@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Domain.Constants;
 using InsuranceApp.Domain.Entities;
 
 namespace InsuranceApp.Application.Services;
@@ -39,7 +40,7 @@ public sealed class PolicyCalculationService(
 
         var totalPercentage = feePercentage + riskPercentage;
 
-        var finalPremium = decimal.Round(basePremium * (1 + totalPercentage / 100m), 2);
+        var finalPremium = decimal.Round(basePremium * (1 + totalPercentage / 100m), CommonConstraints.PriceDecimalPlaces, CommonConstraints.MidpointRoundingMode);
 
         return Result<decimal>.Success(finalPremium);
     }

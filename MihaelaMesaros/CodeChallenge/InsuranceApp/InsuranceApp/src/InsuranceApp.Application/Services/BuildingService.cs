@@ -277,7 +277,7 @@ public sealed class BuildingService(
 
     private static Error? ValidateBuildingDecimalValues(IBuildingDetailsDto building)
     {
-        if (!DecimalValidation.HasValidScale(building.SurfaceArea, CommonConstraints.DecimalScale))
+        if (!DecimalValidation.HasValidScale(building.SurfaceArea, CommonConstraints.SurfaceDecimalPlaces))
         {
             return BuildingErrors.InvalidSurfaceAreaScale;
         }
@@ -288,7 +288,7 @@ public sealed class BuildingService(
             return BuildingErrors.InvalidSurfaceArea;
         }
 
-        if (!DecimalValidation.HasValidScale(building.InsuredValue, CommonConstraints.DecimalScale))
+        if (!DecimalValidation.HasValidScale(building.InsuredValue, CommonConstraints.PriceDecimalPlaces))
         {
             return BuildingErrors.InvalidInsuredValueScale;
         }
