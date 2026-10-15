@@ -1,6 +1,8 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Models.Persistence;
 using InsuranceApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
@@ -50,4 +52,23 @@ internal sealed class GeographyRepository(InsuranceDbContext dbContext) : IGeogr
     {
         return dbContext.Cities.AnyAsync(x => x.CityId == cityId, cancellationToken);
     }
+
+    public async Task<GeographyDetails?> GetGeographyDetailsByCityAsync(Guid cityId, CancellationToken cancellationToken)
+    {
+        IQueryable<GeographyDetails> query =
+            from city in dbContext.Cities.AsNoTracking()
+            join county in dbContext.Counties on city.CountyId equals county.CountyId
+            join country in dbContext.Countries on county.CountryId equals country.CountryId
+            where city.CityId == cityId
+            select new GeographyDetails(
+                country.CountryId,
+                county.CountyId,
+                city.CityId
+            );
+
+        var result = await query.SingleOrDefaultAsync(cancellationToken);
+
+        return result;
+    }
+
 }

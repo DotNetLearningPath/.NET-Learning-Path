@@ -1,4 +1,6 @@
-﻿using InsuranceApp.Infrastructure.Persistence;
+﻿using InsuranceApp.Domain.Entities;
+using InsuranceApp.Domain.Enums;
+using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.IntegrationTests.Common;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -72,6 +74,44 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await SeedAsync(TestData.Counties);
         await SeedAsync(TestData.Cities);
         await SeedAsync(TestData.BuildingTypes);
+    }
+
+    protected async Task<Policy> SeedPolicyAsync(PolicyStatus status = PolicyStatus.Draft)
+    {
+        await SeedPolicyReferencesAsync();
+
+        var policy = TestData.CreatePolicyForRead();
+        policy.Status = status;
+
+        await SeedAsync(policy);
+
+        return policy;
+    }
+
+    protected async Task SeedPolicyReferencesAsync()
+    {
+        await SeedBuildingDependenciesAsync();
+
+        await SeedAsync(TestData.BuildingClient);
+        await SeedAsync(TestData.BuildingForRead);
+        await SeedAsync(TestData.BrokerForCreate);
+        await SeedAsync(TestData.CurrencyForCreate);
+    }
+
+    protected async Task<List<Policy>> SeedPoliciesListAsync()
+    {
+        await SeedBuildingDependenciesAsync();
+
+        await SeedAsync(TestData.ClientsList);
+        await SeedAsync(TestData.BuildingsList);
+        await SeedAsync(TestData.BrokersList);
+        await SeedAsync(TestData.CurrencyForCreate);
+
+        var policies = TestData.PoliciesList;
+
+        await SeedAsync(policies);
+
+        return policies;
     }
 
 }

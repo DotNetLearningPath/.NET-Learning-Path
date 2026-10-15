@@ -39,6 +39,8 @@ public static class DependencyInjection
 
         services.AddScoped<IBrokerRepository, BrokerRepository>();
 
+        services.AddScoped<IPolicyRepository, PolicyRepository>();
+
         return services;
     }
 }

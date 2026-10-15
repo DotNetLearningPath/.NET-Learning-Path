@@ -192,9 +192,9 @@ public sealed class ClientEndpointsTests(InsuranceAppWebApplicationFactory facto
     public async Task SearchClients_ByPartialName_ReturnsMatchingClients()
     {
         // Arrange
-        await SeedAsync(TestData.ClientsForSearch);
+        await SeedAsync(TestData.ClientsList);
 
-        var expectedClients = TestData.ClientsForSearch.Where(x => x.Name.Contains("John", StringComparison.OrdinalIgnoreCase)).ToList();
+        var expectedClients = TestData.ClientsList.Where(x => x.Name.Contains("John", StringComparison.OrdinalIgnoreCase)).ToList();
         var searchName = "John";
 
         // Act
@@ -215,9 +215,9 @@ public sealed class ClientEndpointsTests(InsuranceAppWebApplicationFactory facto
     public async Task SearchClients_ByExactIdentifier_ReturnsMatchingClient()
     {
         // Arrange
-        await SeedAsync(TestData.ClientsForSearch);
+        await SeedAsync(TestData.ClientsList);
 
-        var expectedClient = TestData.ClientsForSearch[0];
+        var expectedClient = TestData.ClientsList[0];
 
         // Act
         var response = await HttpClient.GetAsync($"/api/brokers/clients?identifier={expectedClient.IdentificationNumber}&pageNumber=1&pageSize=50");
@@ -236,7 +236,7 @@ public sealed class ClientEndpointsTests(InsuranceAppWebApplicationFactory facto
     public async Task SearchClients_Pagination_ReturnsRequestedPage()
     {
         // Arrange
-        await SeedAsync(TestData.ClientsForSearch);
+        await SeedAsync(TestData.ClientsList);
 
         const int pageNumber = 1;
         const int pageSize = 2;
@@ -251,7 +251,7 @@ public sealed class ClientEndpointsTests(InsuranceAppWebApplicationFactory facto
 
         Assert.NotNull(result);
         Assert.Equal(pageSize, result.Items.Count);
-        Assert.Equal(TestData.ClientsForSearch.Count, result.TotalCount);
+        Assert.Equal(TestData.ClientsList.Count, result.TotalCount);
         Assert.Equal(pageNumber, result.PageNumber);
         Assert.Equal(pageSize, result.PageSize);
     }

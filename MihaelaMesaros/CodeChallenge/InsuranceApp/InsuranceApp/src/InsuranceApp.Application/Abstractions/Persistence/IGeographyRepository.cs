@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Domain.Entities;
+﻿using InsuranceApp.Application.Models.Persistence;
+using InsuranceApp.Domain.Entities;
 
 namespace InsuranceApp.Application.Abstractions.Persistence;
 
@@ -15,4 +16,6 @@ public interface IGeographyRepository
     Task<bool> CountyExistsAsync(Guid countyId, CancellationToken cancellationToken);
 
     Task<bool> CityExistsAsync(Guid cityId, CancellationToken cancellationToken);
+
+    Task<GeographyDetails?> GetGeographyDetailsByCityAsync(Guid cityId, CancellationToken cancellationToken);
 }
