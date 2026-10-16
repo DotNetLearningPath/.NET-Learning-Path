@@ -1,0 +1,33 @@
+info:
+  name: Get buildings by client
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/brokers/clients/{{clientId}}/buildings?pageNumber=1&pageSize=10"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains paged items', function () { expect(body.items).to.be.an('array'); });\r
+
+        test('Page number is 1', function () { expect(body.pageNumber).to.eql(1); });\r
+
+        test('Page size is 10', function () { expect(body.pageSize).to.eql(10); });\r
+
+        test('Total count is numeric', function () { expect(body.totalCount).to.be.a('number'); });\r
+
+        test('Total pages is numeric', function () { expect(body.totalPages).to.be.a('number'); });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

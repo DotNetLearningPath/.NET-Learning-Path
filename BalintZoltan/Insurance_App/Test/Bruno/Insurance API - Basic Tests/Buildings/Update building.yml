@@ -1,0 +1,22 @@
+info:
+  name: Update building
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: '{"cityId":"{{cityId}}","street":"Updated Postman Street","number":"11","constructionYear":2001,"type":5,"numberOfFloors":2,"surfaceArea":125.5,"insuredValue":155000,"isFloodRiskZone":false,"isEarthquakeRiskZone":false}'
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

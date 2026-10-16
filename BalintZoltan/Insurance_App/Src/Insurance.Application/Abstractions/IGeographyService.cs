@@ -4,13 +4,13 @@ namespace Insurance.Application.Abstractions;
 
 public interface IGeographyService
 {
-    Task<IReadOnlyCollection<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken);
+    Task<List<CountryDto>> GetCountriesAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<CountyDto>> GetCountiesByCountryIdAsync(
+    Task<List<CountyDto>> GetCountiesByCountryIdAsync(
         Guid countryId,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<CityDto>> GetCitiesByCountyIdAsync(
+    Task<List<CityDto>> GetCitiesByCountyIdAsync(
         Guid countyId,
         CancellationToken cancellationToken);
 }

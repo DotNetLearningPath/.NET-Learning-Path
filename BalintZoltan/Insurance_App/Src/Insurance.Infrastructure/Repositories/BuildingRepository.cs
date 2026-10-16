@@ -1,30 +1,24 @@
-using Insurance.Domain.Entities;
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public sealed class BuildingRepository : IBuildingRepository
+public sealed class BuildingRepository(
+    InsuranceDbContext dbContext) : IBuildingRepository
 {
-    private readonly InsuranceDbContext _dbContext;
-
-    public BuildingRepository(InsuranceDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task AddBuildingAsync(Building building, CancellationToken cancellationToken)
     {
-        await _dbContext.Buildings.AddAsync(building, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Buildings.AddAsync(building, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Building?> GetBuildingByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _dbContext.Buildings
+        return await dbContext.Buildings
             .AsNoTracking()
             .FirstOrDefaultAsync(building => building.Id == id, cancellationToken);
     }
@@ -34,7 +28,7 @@ public sealed class BuildingRepository : IBuildingRepository
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Buildings
+        var query = dbContext.Buildings
             .AsNoTracking()
             .Where(building => building.ClientId == clientId);
 
@@ -47,7 +41,7 @@ public sealed class BuildingRepository : IBuildingRepository
 
     public async Task UpdateBuildingAsync(Building building, CancellationToken cancellationToken)
     {
-        _dbContext.Buildings.Update(building);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        dbContext.Buildings.Update(building);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

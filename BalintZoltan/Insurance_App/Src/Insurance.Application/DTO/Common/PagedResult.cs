@@ -2,7 +2,7 @@
 
 public sealed class PagedResult<T>
 {
-    public IReadOnlyCollection<T> Items { get; init; } = [];
+    public List<T> Items { get; init; } = [];
 
     public int PageNumber { get; init; }
 

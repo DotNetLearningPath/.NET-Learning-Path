@@ -1,8 +1,8 @@
 using Insurance.Application.DTO.Brokers;
-using Insurance.Domain.Enums;
 using Insurance.Application.Exceptions;
 using Insurance.Application.Services;
 using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Insurance.UnitTest.Application.Fakes;
 
 namespace Insurance.UnitTest.Application.Services;

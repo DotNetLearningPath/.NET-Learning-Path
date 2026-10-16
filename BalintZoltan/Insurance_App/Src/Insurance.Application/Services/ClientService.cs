@@ -1,36 +1,27 @@
-﻿using Insurance.Application.Exceptions;
-using Insurance.Domain.Entities;
-using Insurance.Domain.Enums;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Clients;
 using Insurance.Application.DTO.Common;
-using System.ComponentModel.DataAnnotations;
+using Insurance.Application.Exceptions;
+using Insurance.Application.Validation;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using System.Text.RegularExpressions;
 
 namespace Insurance.Application.Services;
 
-public class ClientService : IClientService
+public class ClientService(
+    IClientRepository clientRepository
+    ) : IClientService
 {
-    private readonly IClientRepository _clientRepository;
-    public ClientService(IClientRepository clientRepository)
-    {
-        _clientRepository = clientRepository;
-    }
-    private async Task CheckClientIdentificationNumberExistAsync(string identificationNumber, CancellationToken cancellationToken)
-    {
-        var exists = await _clientRepository
-            .ExistsClientByIdentificationNumberAsync(identificationNumber, cancellationToken: cancellationToken);
+    private const int IndividualIdentificationNumberLength = 13;
+    private const int CompanyIdentificationNumberType1Length = 2;
+    private const int CompanyIdentificationNumberType2Length = 10;
 
-        if (exists)
-        {
-            throw new InvalidOperationException(
-                "A client with this identification number already exists.");
-        }
-    }
     public async Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         ValidateIdentificationNumber(request.ClientType, request.IdentificationNumber);
-        ValidateEmail(request.Email);
+        ValidateOptionalEmail(request.Email);
         await CheckClientIdentificationNumberExistAsync(request.IdentificationNumber, cancellationToken);
 
         var client = new Client(
@@ -41,22 +32,13 @@ public class ClientService : IClientService
             request.Phone,
             request.Address);
 
-        await _clientRepository.AddClientAsync(client, cancellationToken);
+        await clientRepository.AddClientAsync(client, cancellationToken);
 
-        return new ClientDto
-        {
-            Id = client.Id,
-            ClientType = client.Type,
-            Name = client.Name,
-            IdentificationNumber = client.IdentificationNumber,
-            Email = client.Email,
-            Phone = client.Phone,
-            Address = client.Address
-        };
+        return MapToClientDto(client);
     }
     public async Task<ClientDto?> GetClientByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
+        var client = await clientRepository.GetClientByIdAsync(id, cancellationToken);
 
         if (client is null)
         {
@@ -71,7 +53,7 @@ public class ClientService : IClientService
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var result = await _clientRepository.SearchClientAsync(
+        var result = await clientRepository.SearchClientAsync(
             name,
             identifier,
             pagination,
@@ -79,9 +61,7 @@ public class ClientService : IClientService
 
         return new PagedResult<ClientDto>
         {
-            Items = result.Items
-                .Select(MapToClientDto)
-                .ToList(),
+            Items = [.. result.Items.Select(MapToClientDto)],
 
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
@@ -94,13 +74,10 @@ public class ClientService : IClientService
            UpdateClientRequest request,
            CancellationToken cancellationToken)
     {
-        var client = await _clientRepository.GetClientByIdAsync(id, cancellationToken);
-
-        if (client is null)
-        {
-            throw new NotFoundException("Client was not found.");
-        }
-
+        ArgumentNullException.ThrowIfNull(request);
+        var client = await clientRepository.GetClientByIdAsync(id, cancellationToken)
+                     ??
+                     throw new NotFoundException("Client was not found.");
         if (client.IdentificationNumber != request.IdentificationNumber)
         {
             throw new InvalidOperationException(
@@ -109,7 +86,7 @@ public class ClientService : IClientService
 
         if (request.Email != null)
         {
-            ValidateEmail(request.Email);
+            ValidateOptionalEmail(request.Email);
         }
 
         client.ChangeType(request.ClientType);
@@ -119,10 +96,23 @@ public class ClientService : IClientService
             request.Phone,
             request.Address);
 
-        await _clientRepository.UpdateClientAsync(client, cancellationToken);
+        await clientRepository.UpdateClientAsync(client, cancellationToken);
 
         return MapToClientDto(client);
     }
+
+    private async Task CheckClientIdentificationNumberExistAsync(string identificationNumber, CancellationToken cancellationToken)
+    {
+        var exists = await clientRepository
+            .ExistsClientByIdentificationNumberAsync(identificationNumber, cancellationToken: cancellationToken);
+
+        if (exists)
+        {
+            throw new InvalidOperationException(
+                "A client with this identification number already exists.");
+        }
+    }
+
     private static void ValidateIdentificationNumber(
             ClientType clientType,
             string identificationNumber)
@@ -133,42 +123,33 @@ public class ClientService : IClientService
         }
 
         if (clientType == ClientType.Individual &&
-            !Regex.IsMatch(identificationNumber, @"^\d{13}$"))
+            !Regex.IsMatch(
+                identificationNumber,
+                $@"^\d{{{IndividualIdentificationNumberLength}}}$"))
         {
-            throw new ArgumentException("CNP must contain exactly 13 digits.");
+            throw new ArgumentException(
+                $"CNP must contain exactly {IndividualIdentificationNumberLength} digits.");
         }
 
         if (clientType == ClientType.Company &&
-            !Regex.IsMatch(identificationNumber, @"^(RO)?\d{2,10}$",
+            !Regex.IsMatch(
+                identificationNumber,
+                $@"^(RO)?\d{{{CompanyIdentificationNumberType1Length},{CompanyIdentificationNumberType2Length}}}$",
                 RegexOptions.IgnoreCase))
         {
             throw new ArgumentException(
-                "CUI must contain 2-10 digits, optionally prefixed with RO.");
+                $"CUI must contain {CompanyIdentificationNumberType1Length}-" +
+                $"{CompanyIdentificationNumberType2Length} digits, optionally prefixed with RO.");
         }
     }
 
-    private static void ValidateEmail(string email)
+    private static void ValidateOptionalEmail(string? email)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
             return;
         }
-
-        var emailTrim = email.Trim();
-
-        if (emailTrim.Length > 254)
-        {
-            throw new ArgumentException(
-                "Email cannot be longer than 254 characters.");
-        }
-
-        var emailAttribute = new EmailAddressAttribute();
-
-        if (!emailAttribute.IsValid(emailTrim))
-        {
-            throw new ArgumentException(
-                "Invalid email address format.");
-        }
+        EmailValidator.ValidateFormatAndLength(email);
     }
 
     private static ClientDto MapToClientDto(Client client)

@@ -125,7 +125,7 @@ namespace Insurance.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_CountyId_Name_PostalCode",
                 table: "Cities",
-                columns: new[] { "CountyId", "Name", "PostalCode" },
+                columns: ["CountyId", "Name", "PostalCode"],
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -137,7 +137,7 @@ namespace Insurance.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Counties_CountryId_Name",
                 table: "Counties",
-                columns: new[] { "CountryId", "Name" },
+                columns: ["CountryId", "Name"],
                 unique: true);
 
             migrationBuilder.CreateIndex(

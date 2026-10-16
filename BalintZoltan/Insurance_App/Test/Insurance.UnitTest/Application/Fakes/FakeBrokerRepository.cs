@@ -6,7 +6,7 @@ namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeBrokerRepository : IBrokerRepository
 {
-    public Dictionary<Guid, Broker> Storage { get; } = new();
+    public Dictionary<Guid, Broker> Storage { get; } = [];
 
     public Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
@@ -31,7 +31,7 @@ public sealed class FakeBrokerRepository : IBrokerRepository
 
         return Task.FromResult(new PagedResult<Broker>
         {
-            Items = brokers.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
+            Items = [.. brokers.Skip((pageNumber - 1) * pageSize).Take(pageSize)],
             PageNumber = pageNumber,
             PageSize = pageSize,
             TotalCount = brokers.Count
@@ -40,8 +40,7 @@ public sealed class FakeBrokerRepository : IBrokerRepository
 
     public Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
-        Store(broker);
-        return Task.CompletedTask;
+        return AddBrokerAsync(broker, cancellationToken);
     }
 
     private void Store(Broker broker)
