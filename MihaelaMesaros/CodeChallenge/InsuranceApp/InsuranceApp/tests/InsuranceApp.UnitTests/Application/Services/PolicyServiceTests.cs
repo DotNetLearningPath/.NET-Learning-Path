@@ -18,7 +18,7 @@ public sealed class PolicyServiceTests
 {
     private readonly Mock<IPolicyRepository> _repositoryMock;
     private readonly Mock<IPolicyReferenceService> _referenceServiceMock;
-    private readonly Mock<IPolicyNumberGenerator> _numberGeneratorMock;
+    private readonly Mock<IPolicyNumberGeneratorService> _numberGeneratorMock;
     private readonly Mock<IPolicyCalculationService> _calculationServiceMock;
     private readonly Mock<ILogger<PolicyService>> _loggerMock;
     private readonly PolicyService _service;
@@ -27,7 +27,7 @@ public sealed class PolicyServiceTests
     {
         _repositoryMock = new Mock<IPolicyRepository>();
         _referenceServiceMock = new Mock<IPolicyReferenceService>();
-        _numberGeneratorMock = new Mock<IPolicyNumberGenerator>();
+        _numberGeneratorMock = new Mock<IPolicyNumberGeneratorService>();
         _calculationServiceMock = new Mock<IPolicyCalculationService>();
         _loggerMock = new Mock<ILogger<PolicyService>>();
 
@@ -437,13 +437,13 @@ public sealed class PolicyServiceTests
     [Theory]
     [InlineData(100.123)]
     [InlineData(500.999)]
-    public async Task CreatePolicyAsync_InvalidBasePremiumScale_ReturnsValidationError(decimal basePremium)
+    public async Task CreatePolicyAsync_InvalidBasePremiumDecimalPlaces_ReturnsValidationError(decimal basePremium)
     {
         // Arrange
         var policyDto = TestData.CreatePolicyDto() with { BasePremium = basePremium };
 
         // Act & Assert
-        await AssertInvalidCreatePolicyAsync(policyDto, PolicyErrors.InvalidBasePremiumScale);
+        await AssertInvalidCreatePolicyAsync(policyDto, PolicyErrors.InvalidBasePremiumDecimalPlaces);
     }
     #endregion
 

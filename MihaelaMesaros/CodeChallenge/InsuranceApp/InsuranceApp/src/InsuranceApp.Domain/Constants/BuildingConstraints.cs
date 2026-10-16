@@ -13,6 +13,7 @@ public static class BuildingConstraints
 
     public const decimal MinSurfaceArea = 0.01m;
     public const decimal MaxSurfaceArea = 999_999_999.99m;
+    public const int SurfaceDecimalPlaces = 2;
 
     public const decimal MinInsuredValue = 0.01m;
     public const decimal MaxInsuredValue = 999_999_999_999.99m;
