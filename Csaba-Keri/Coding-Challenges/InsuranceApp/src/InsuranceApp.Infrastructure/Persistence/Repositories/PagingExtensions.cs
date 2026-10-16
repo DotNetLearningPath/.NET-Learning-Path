@@ -5,13 +5,13 @@ namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
 internal static class PagingExtensions
 {
-    public static async Task<PagedResult<TDomain>> ToDomainPageAsync<TEntity, TDomain>(
-        this IOrderedQueryable<TEntity> query,
+    public static async Task<PagedResult<TResult>> ToPageAsync<TSource, TResult>(
+        this IOrderedQueryable<TSource> query,
         int pageNumber,
         int pageSize,
-        Func<TEntity, TDomain> toDomain,
+        Func<TSource, TResult> mapItem,
         CancellationToken cancellationToken = default
-    ) where TEntity : class
+    ) where TSource : class
     {
         var totalCount = await query.LongCountAsync(cancellationToken);
         var offset = ((long)pageNumber - 1) * pageSize;
@@ -21,11 +21,16 @@ internal static class PagingExtensions
             return new([], pageNumber, pageSize, totalCount);
         }
 
-        var entities = await query
+        var items = await query
             .Skip((int)offset)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new(entities.Select(toDomain), pageNumber, pageSize, totalCount);
+        return new(
+            items: items.Select(mapItem),
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            totalCount: totalCount
+        );
     }
 }

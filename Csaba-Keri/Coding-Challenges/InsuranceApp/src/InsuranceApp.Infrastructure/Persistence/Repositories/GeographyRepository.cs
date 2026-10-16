@@ -40,7 +40,7 @@ public class GeographyRepository : IGeographyRepository
             .AsNoTracking()
             .OrderBy(country => country.Name)
             .ThenBy(country => country.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public Task<PagedResult<County>> GetCountiesByCountryIdAsync(Guid countryId, PageQuery query, CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public class GeographyRepository : IGeographyRepository
             .Where(county => county.CountryId == countryId)
             .OrderBy(county => county.Name)
             .ThenBy(county => county.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public Task<PagedResult<City>> GetCitiesByCountyIdAsync(Guid countyId, PageQuery query, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ public class GeographyRepository : IGeographyRepository
             .Where(city => city.CountyId == countyId)
             .OrderBy(city => city.Name)
             .ThenBy(city => city.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public Task<CityGeographyResult?> GetCityGeographyAsync(Guid cityId, CancellationToken cancellationToken)

@@ -98,7 +98,7 @@ public class ClientRepository : IClientRepository
         return clients
             .OrderBy(client => client.Name)
             .ThenBy(client => client.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     private static string EscapeLike(string value)
