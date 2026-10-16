@@ -16,6 +16,18 @@ public sealed class PolicyReportService(IPolicyReportRepository policyReportRepo
         CancellationToken cancellationToken
     )
     {
+        if (!Enum.IsDefined(groupType))
+        {
+            return Result<IReadOnlyList<PolicyReportDto>>.Failure(PolicyReportErrors.InvalidGroupType);
+        }
+
+        var configBaseCurrencyCode = configuration["CurrencySettings:BaseCurrencyCode"];
+        if (string.IsNullOrWhiteSpace(configBaseCurrencyCode))
+        {
+            return Result<IReadOnlyList<PolicyReportDto>>.Failure(PolicyReportErrors.BaseCurrencyCodeNotConfigured);
+        }
+
+
         var validationPolicyReportFilters = ValidatePolicyReportFilters(policyReportFiltersDto);
 
         if (validationPolicyReportFilters is not null)
@@ -25,20 +37,12 @@ public sealed class PolicyReportService(IPolicyReportRepository policyReportRepo
 
         var result = await policyReportRepository.GetReportPoliciesAsync(groupType, policyReportFiltersDto, cancellationToken);
 
-        var configBaseCurrencyCode = configuration["CurrencySettings:BaseCurrencyCode"];
-        if (string.IsNullOrWhiteSpace(configBaseCurrencyCode))
-        {
-            return Result<IReadOnlyList<PolicyReportDto>>.Failure(PolicyReportErrors.BaseCurrencyCodeNotConfigured);
-        }
-
         foreach(var item in result)
         {
             item.BaseCurrencyCode = configBaseCurrencyCode;
             item.TotalFinalPremium = decimal.Round(item.TotalFinalPremium, CommonConstraints.PriceDecimalPlaces, CommonConstraints.MidpointRoundingMode);
             item.TotalFinalPremiumInBaseCurrency = decimal.Round(item.TotalFinalPremiumInBaseCurrency, CommonConstraints.PriceDecimalPlaces, CommonConstraints.MidpointRoundingMode);
         }
-
-        result = result.Select(report => report with { BaseCurrencyCode = configBaseCurrencyCode }).ToList();
 
         return Result<IReadOnlyList<PolicyReportDto>>.Success(result);
     }

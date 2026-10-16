@@ -4,6 +4,7 @@ using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.Currency;
 using InsuranceApp.Application.DTOs.FeeConfig;
 using InsuranceApp.Application.DTOs.Policy;
+using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
 using InsuranceApp.Application.Models.Persistence;
 using InsuranceApp.Application.Models.Services;
@@ -16,6 +17,7 @@ internal static class TestData
 {
     public static readonly Guid NonExistingId = new("99999999-9999-9999-9999-999999999999");
     public const string EmailDomain = "@test.com";
+    public const string BaseCurrencyCode = "RON";
 
     public static readonly Guid CountryId = Guid.NewGuid();
     public static readonly Guid CountyId = Guid.NewGuid();
@@ -553,6 +555,35 @@ internal static class TestData
     public static CancelPolicyDto CreateCancelPolicyDto()
     {
         return new CancelPolicyDto(PolicyCancellationReason);
+    }
+    #endregion
+
+    #region Reports totals policies
+    public static List<PolicyReportDto> CreatePolicyReports(PolicyReportGroupType groupType)
+    {
+        return
+        [
+            new PolicyReportDto
+            {
+                GroupId = Guid.NewGuid(),
+                GroupType = groupType,
+                GroupName = "Group 1",
+                CurrencyCode = "RON",
+                PolicyCount = 2,
+                TotalFinalPremium = 1000.125m,
+                TotalFinalPremiumInBaseCurrency = 5100.555m
+            },
+            new PolicyReportDto
+            {
+                GroupId = Guid.NewGuid(),
+                GroupType = groupType,
+                GroupName = "Group 2",
+                CurrencyCode = "EUR",
+                PolicyCount = 3,
+                TotalFinalPremium = 5000m,
+                TotalFinalPremiumInBaseCurrency = 6000.25m
+            }
+        ];
     }
     #endregion
 }

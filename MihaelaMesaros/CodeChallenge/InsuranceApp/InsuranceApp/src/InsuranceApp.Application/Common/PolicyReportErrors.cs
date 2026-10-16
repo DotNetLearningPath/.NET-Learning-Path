@@ -2,6 +2,8 @@
 
 public static class PolicyReportErrors
 {
+    public static readonly Error InvalidGroupType = new("PolicyReport.InvalidGroupType", "Invalid group type.", ErrorType.Validation);
+
     public static readonly Error InvalidDateRange = new("PolicyReport.InvalidDateRange", "From date cannot be greater than To date.", ErrorType.Validation);
 
     public static readonly Error InvalidStatus = new("PolicyReport.InvalidStatus", "Invalid policy status.", ErrorType.Validation);
