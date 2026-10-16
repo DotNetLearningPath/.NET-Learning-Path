@@ -143,6 +143,11 @@ internal static class PersistenceMappings
             FinalPremium = entity.FinalPremium,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt,
+            ActivatedAt = entity.ActivatedAt,
+            CancelledAt = entity.CancelledAt,
+            CancellationEffectiveDate = entity.CancellationEffectiveDate,
+            CancellationReason = entity.CancellationReason,
+            ExpiredAt = entity.ExpiredAt,
 
             AppliedAdjustments = entity.AppliedAdjustments
                 .OrderBy(adjustment => adjustment.Source)
@@ -270,6 +275,11 @@ internal static class PersistenceMappings
             FinalPremium = policy.FinalPremium,
             CreatedAt = policy.CreatedAt,
             UpdatedAt = policy.UpdatedAt,
+            ActivatedAt = policy.ActivatedAt,
+            CancelledAt = policy.CancelledAt,
+            CancellationEffectiveDate = policy.CancellationEffectiveDate,
+            CancellationReason = policy.CancellationReason,
+            ExpiredAt = policy.ExpiredAt,
 
             AppliedAdjustments = [.. policy.AppliedAdjustments.Select(
                 adjustment => adjustment.ToEntity(policy.Id)

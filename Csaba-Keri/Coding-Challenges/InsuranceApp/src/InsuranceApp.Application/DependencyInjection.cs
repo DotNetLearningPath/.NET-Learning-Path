@@ -20,6 +20,7 @@ using InsuranceApp.Application.Geography;
 using InsuranceApp.Application.Policies;
 using InsuranceApp.Application.Policies.Commands;
 using InsuranceApp.Application.Policies.Pricing;
+using InsuranceApp.Application.Policies.Queries;
 using InsuranceApp.Application.Policies.Validation;
 using InsuranceApp.Application.RiskFactors;
 using InsuranceApp.Application.RiskFactors.Commands;
@@ -47,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<IPolicyPremiumCalculator, PolicyPremiumCalculator>();
         services.AddScoped<IPremiumAdjustmentProvider, FeeAdjustmentProvider>();
         services.AddScoped<IPremiumAdjustmentProvider, RiskFactorAdjustmentProvider>();
+        services.AddScoped<IPolicyQueryService, PolicyQueryService>();
 
         services.AddScoped<IValidator<CreateClientCommand>, CreateClientCommandValidator>();
         services.AddScoped<IValidator<UpdateClientCommand>, UpdateClientCommandValidator>();
@@ -64,6 +66,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<CreateRiskFactorCommand>, CreateRiskFactorCommandValidator>();
         services.AddScoped<IValidator<UpdateRiskFactorCommand>, UpdateRiskFactorCommandValidator>();
         services.AddScoped<IValidator<CreateDraftPolicyCommand>, CreateDraftPolicyCommandValidator>();
+        services.AddScoped<IValidator<CancelPolicyCommand>, CancelPolicyCommandValidator>();
+        services.AddScoped<IValidator<SearchPoliciesQuery>, SearchPoliciesQueryValidator>();
 
         return services;
     }

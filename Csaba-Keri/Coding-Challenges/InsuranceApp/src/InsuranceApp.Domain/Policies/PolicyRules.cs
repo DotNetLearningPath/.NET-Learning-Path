@@ -3,6 +3,7 @@
 public static class PolicyRules
 {
     public const int MaxPolicyNumberLength = 40;
+    public const int MaxCancellationReasonLength = 500;
     public const int MoneyPrecision = 14;
     public const int MoneyScale = 2;
     public const decimal MinFinalPremium = 0m;
@@ -12,6 +13,12 @@ public static class PolicyRules
     {
         return !string.IsNullOrWhiteSpace(policyNumber)
             && policyNumber.Trim().Length <= MaxPolicyNumberLength;
+    }
+
+    public static bool IsValidCancellationReason(string reason)
+    {
+        return !string.IsNullOrWhiteSpace(reason)
+            && reason.Trim().Length <= MaxCancellationReasonLength;
     }
 
     public static bool IsValidBasePremium(decimal amount)
