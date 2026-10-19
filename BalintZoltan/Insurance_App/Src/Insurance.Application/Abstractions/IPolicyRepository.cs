@@ -18,7 +18,11 @@ public interface IPolicyRepository
 
     Task<PagedResult<Policy>> SearchPoliciesAsync(
         string? policyNumber,
+        Guid? clientId,
+        Guid? brokerId,
         PolicyStatus? status,
+        DateTime? startDateFrom,
+        DateTime? startDateTo,
         PaginationRequest pagination,
         CancellationToken cancellationToken);
 

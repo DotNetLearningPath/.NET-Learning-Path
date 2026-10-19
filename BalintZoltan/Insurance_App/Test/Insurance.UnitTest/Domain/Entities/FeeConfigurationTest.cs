@@ -18,8 +18,10 @@ public sealed class FeeConfigurationTest
     [InlineData(FeeType.AdminFee)]
     public void Constructor_CreatesFeeConfigurationWithValidType(FeeType type)
     {
+        // Arrange & Act
         var fee = CreateFee(type);
 
+        // Assert
         Assert.NotEqual(Guid.Empty, fee.Id);
         Assert.Equal("Standard fee", fee.Name);
         Assert.Equal(type, fee.Type);
@@ -34,12 +36,14 @@ public sealed class FeeConfigurationTest
     [InlineData(100)]
     public void Constructor_AcceptsPercentageAtValidBounds(decimal percentage)
     {
+        // Arrange & Act
         var fee = new FeeConfiguration(
             "Valid fee",
             FeeType.AdminFee,
             percentage,
             _effectiveFrom);
 
+        // Assert
         Assert.Equal(percentage, fee.Percentage);
     }
 
@@ -48,6 +52,7 @@ public sealed class FeeConfigurationTest
     [InlineData(100.01)]
     public void Constructor_ThrowsWhenPercentageIsOutsideValidRange(decimal percentage)
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             new FeeConfiguration(
                 "Invalid fee",
@@ -62,6 +67,7 @@ public sealed class FeeConfigurationTest
     [InlineData("   ")]
     public void Constructor_ThrowsWhenNameIsMissing(string? name)
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() =>
             new FeeConfiguration(
                 name!,
@@ -73,8 +79,10 @@ public sealed class FeeConfigurationTest
     [Fact]
     public void Constructor_ThrowsWhenTypeIsUndefined()
     {
+        // Arrange
         var invalidType = (FeeType)999;
 
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
             new FeeConfiguration(
                 "Invalid fee",
@@ -86,8 +94,10 @@ public sealed class FeeConfigurationTest
     [Fact]
     public void Constructor_ThrowsWhenEffectiveEndPrecedesEffectiveStart()
     {
+        // Arrange
         var effectiveTo = _effectiveFrom.AddDays(-1);
 
+        // Act & Assert
         Assert.Throws<ArgumentException>(() =>
             new FeeConfiguration(
                 "Invalid period",
@@ -100,9 +110,11 @@ public sealed class FeeConfigurationTest
     [Fact]
     public void Update_ChangesConfigurationFields()
     {
+        // Arrange
         var fee = CreateFee(FeeType.BrokerCommission);
         var effectiveTo = _effectiveFrom.AddYears(1);
 
+        // Act
         fee.Update(
             "Updated fee",
             FeeType.RiskAdjustment,
@@ -110,6 +122,7 @@ public sealed class FeeConfigurationTest
             _effectiveFrom.AddDays(1),
             effectiveTo);
 
+        // Assert
         Assert.Equal("Updated fee", fee.Name);
         Assert.Equal(FeeType.RiskAdjustment, fee.Type);
         Assert.Equal(12.25m, fee.Percentage);
@@ -120,10 +133,12 @@ public sealed class FeeConfigurationTest
     [Fact]
     public void Update_ThrowsWhenEffectiveEndPrecedesEffectiveStart()
     {
+        // Arrange
         var fee = CreateFee(FeeType.BrokerCommission);
         var invalidEffectiveFrom = _effectiveFrom.AddDays(1);
         var invalidEffectiveTo = _effectiveFrom;
 
+        // Act
         var exception = Assert.Throws<ArgumentException>(() =>
             fee.Update(
                 "Updated fee",
@@ -132,6 +147,7 @@ public sealed class FeeConfigurationTest
                 invalidEffectiveFrom,
                 invalidEffectiveTo));
 
+        // Assert
         Assert.Equal("effectiveTo", exception.ParamName);
         Assert.Equal("Standard fee", fee.Name);
         Assert.Equal(FeeType.BrokerCommission, fee.Type);
@@ -145,8 +161,10 @@ public sealed class FeeConfigurationTest
     [InlineData(101)]
     public void Update_ThrowsWhenPercentageIsOutsideValidRange(decimal percentage)
     {
+        // Arrange
         var fee = CreateFee(FeeType.BrokerCommission);
 
+        // Act
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             fee.Update(
                 "Updated fee",
@@ -155,6 +173,7 @@ public sealed class FeeConfigurationTest
                 _effectiveFrom,
                 null));
 
+        // Assert
         Assert.Equal(5.5m, fee.Percentage);
         Assert.Equal(FeeType.BrokerCommission, fee.Type);
     }
@@ -162,14 +181,19 @@ public sealed class FeeConfigurationTest
     [Fact]
     public void DeactivateAndActivate_ChangeActiveState()
     {
+        // Arrange
         var fee = CreateFee(FeeType.AdminFee);
 
+        // Act
         fee.Deactivate();
 
+        // Assert
         Assert.False(fee.IsActive);
 
+        // Act
         fee.Activate();
 
+        // Assert
         Assert.True(fee.IsActive);
     }
 

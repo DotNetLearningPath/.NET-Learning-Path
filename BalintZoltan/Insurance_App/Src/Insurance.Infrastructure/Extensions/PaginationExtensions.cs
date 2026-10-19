@@ -12,6 +12,8 @@ public static class PaginationExtensions
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(query);
+        ArgumentNullException.ThrowIfNull(pagination);
         var pageNumber = Math.Max(pagination.PageNumber, 1);
         var pageSize = Math.Min(Math.Max(pagination.PageSize, 1), DefaultMaxPageSize);
         var totalCount = await query.CountAsync(cancellationToken);

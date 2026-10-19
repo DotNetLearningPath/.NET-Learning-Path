@@ -20,11 +20,6 @@ public class Policy
     public DateTime? CancellationDate { get; private set; }
     public string? CancellationReason { get; private set; }
 
-    private Policy()
-    {
-        PolicyNumber = null!;
-    }
-
     public Policy(string policyNumber, Guid clientId, Guid buildingId, Guid brokerId,
         Guid currencyId, DateTime startDate, DateTime endDate, decimal basePremium,
         decimal finalPremium, PolicyStatus status = PolicyStatus.Draft)
@@ -88,6 +83,19 @@ public class Policy
         Status = PolicyStatus.Cancelled;
         CancellationDate = cancellationDate;
         CancellationReason = reason;
+        UpdatedAt = DateTime.UtcNow;
+    }
+    public void Activate(DateTime nowUtc)
+    {
+        if (Status != PolicyStatus.Draft)
+        {
+            throw new InvalidOperationException("Only draft policies can be activated.");
+        }
+        if (StartDate < nowUtc.Date)
+        {
+            throw new InvalidOperationException("A policy cannot be activated when its start date is in the past.");
+        }
+        Status = PolicyStatus.Active;
         UpdatedAt = DateTime.UtcNow;
     }
 }
