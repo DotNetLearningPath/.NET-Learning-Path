@@ -29,7 +29,7 @@ public class RiskFactorRepository(InsuranceDbContext context) : IRiskFactorRepos
         return _context.RiskFactorConfigurations
             .AsNoTracking()
             .OrderBy(riskFactor => riskFactor.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public async Task<IReadOnlyList<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(Guid cityId, BuildingType buildingType, CancellationToken cancellationToken)

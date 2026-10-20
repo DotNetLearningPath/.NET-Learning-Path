@@ -3,6 +3,8 @@ using InsuranceApp.Application.Brokers.Exceptions;
 using InsuranceApp.Application.Clients.Exceptions;
 using InsuranceApp.Application.Common.Exceptions;
 using InsuranceApp.Application.Currencies.Exceptions;
+using InsuranceApp.Application.Policies.Exceptions;
+using InsuranceApp.Domain.Policies.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace InsuranceApp.WebApi.Errors;
@@ -63,6 +65,12 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             DuplicateCurrencyCodeException =>
                 (StatusCodes.Status409Conflict, "Currency already exists."),
+
+            PolicyStateConflictException =>
+                (StatusCodes.Status409Conflict, "Policy state conflict."),
+
+            PolicyConcurrencyException =>
+                (StatusCodes.Status409Conflict, "Policy was modified concurrently."),
 
             _ =>
                 (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")

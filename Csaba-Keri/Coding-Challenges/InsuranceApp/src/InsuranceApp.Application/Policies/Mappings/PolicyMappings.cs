@@ -23,7 +23,12 @@ internal static class PolicyMappings
             FinalPremium: policy.FinalPremium,
             AppliedAdjustments: policy.AppliedAdjustments,
             CreatedAt: policy.CreatedAt,
-            UpdatedAt: policy.UpdatedAt
+            UpdatedAt: policy.UpdatedAt,
+            ActivatedAt: policy.ActivatedAt,
+            CancelledAt: policy.CancelledAt,
+            CancellationEffectiveDate: policy.CancellationEffectiveDate,
+            CancellationReason: policy.CancellationReason,
+            ExpiredAt: policy.ExpiredAt
         );
     }
 }

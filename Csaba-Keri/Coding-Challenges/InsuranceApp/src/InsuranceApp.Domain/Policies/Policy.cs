@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Domain.Currencies;
+using InsuranceApp.Domain.Policies.Exceptions;
 
 namespace InsuranceApp.Domain.Policies;
 
@@ -19,6 +20,11 @@ public class Policy
     public IReadOnlyList<AppliedAdjustment> AppliedAdjustments { get; }
     public DateTimeOffset CreatedAt { get; }
     public DateTimeOffset UpdatedAt { get; private set; }
+    public DateTimeOffset? ActivatedAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
+    public DateOnly? CancellationEffectiveDate { get; private set; }
+    public string? CancellationReason { get; private set; }
+    public DateTimeOffset? ExpiredAt { get; private set; }
 
     public Policy(PolicyData data)
     {
@@ -35,6 +41,7 @@ public class Policy
         ValidateCurrencyExchangeRate(data.CurrencyExchangeRateToBase);
         ValidatePolicyPeriod(data.StartDate, data.EndDate);
         ValidateTimestamps(data.CreatedAt, data.UpdatedAt);
+        ValidateLifecycleData(data);
 
         ValidateBasePremium(data.BasePremium);
         ValidateFinalPremium(data.FinalPremium);
@@ -58,6 +65,11 @@ public class Policy
 
         CreatedAt = data.CreatedAt;
         UpdatedAt = data.UpdatedAt;
+        ActivatedAt = data.ActivatedAt;
+        CancelledAt = data.CancelledAt;
+        CancellationEffectiveDate = data.CancellationEffectiveDate;
+        CancellationReason = data.CancellationReason;
+        ExpiredAt = data.ExpiredAt;
 
         BasePremium = data.BasePremium;
         FinalPremium = data.FinalPremium;
@@ -91,6 +103,50 @@ public class Policy
             CreatedAt = now,
             UpdatedAt = now
         });
+    }
+
+    public void Activate(DateTimeOffset now)
+    {
+        EnsureStatus(PolicyStatus.Draft);
+        ValidateTransitionTime(now);
+
+        if (StartDate < DateOnly.FromDateTime(now.UtcDateTime))
+        {
+            throw new PolicyStateConflictException("A policy with a past start date cannot be activated.");
+        }
+
+        Status = PolicyStatus.Active;
+        ActivatedAt = now;
+        UpdatedAt = now;
+    }
+
+    public void Cancel(string reason, DateOnly effectiveDate, DateTimeOffset now)
+    {
+        EnsureStatus(PolicyStatus.Active);
+        ValidateTransitionTime(now);
+        
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
+
+        if (EndDate < today)
+        {
+            throw new PolicyStateConflictException("An elapsed policy cannot be cancelled.");
+        }
+
+        if (!PolicyRules.IsValidCancellationReason(reason))
+        {
+            throw new ArgumentException("A valid cancellation reason is required.", nameof(reason));
+        }
+
+        if (effectiveDate != today)
+        {
+            throw new ArgumentException("Cancellation must take effect today (UTC).", nameof(effectiveDate));
+        }
+
+        Status = PolicyStatus.Cancelled;
+        CancellationReason = reason.Trim();
+        CancellationEffectiveDate = effectiveDate;
+        CancelledAt = now;
+        UpdatedAt = now;
     }
 
     private static void ValidateIdentifier(Guid id, string parameterName)
@@ -228,5 +284,89 @@ public class Policy
         }
 
         return Array.AsReadOnly(adjustments);
+    }
+
+    private static void ValidateLifecycleData(PolicyData data)
+    {
+        ValidateAuditTimestamp(data.ActivatedAt, data);
+        ValidateAuditTimestamp(data.CancelledAt, data);
+        ValidateAuditTimestamp(data.ExpiredAt, data);
+
+        if (data.Status == PolicyStatus.Draft && data.ActivatedAt is not null)
+        {
+            throw new ArgumentException(
+                "A draft policy cannot have an activation timestamp.",
+                nameof(data)
+            );
+        }
+
+        ValidateCancellationData(data);
+
+        if (data.ExpiredAt is { } expiredAt
+            && (data.Status != PolicyStatus.Expired
+                || data.EndDate >= DateOnly.FromDateTime(expiredAt.UtcDateTime)
+                || (data.ActivatedAt is { } activatedAt && expiredAt < activatedAt)))
+        {
+            throw new ArgumentException(
+                "Expiry audit data is inconsistent.",
+                nameof(data)
+            );
+        }
+    }
+
+    private static void ValidateAuditTimestamp(DateTimeOffset? timestamp, PolicyData data)
+    {
+        if (timestamp is { } value
+            && (value.Offset != TimeSpan.Zero || value < data.CreatedAt || value > data.UpdatedAt))
+        {
+            throw new ArgumentException(
+                "Lifecycle timestamps must be UTC and between creation and last update.",
+                nameof(data)
+            );
+        }
+    }
+
+    private static void ValidateCancellationData(PolicyData data)
+    {
+        if (data.CancelledAt is null && data.CancellationEffectiveDate is null && data.CancellationReason is null)
+        {
+            return;
+        }
+
+        if (data.Status != PolicyStatus.Cancelled
+            || data.CancelledAt is not { } cancelledAt
+            || data.CancellationEffectiveDate is not { } effectiveDate
+            || data.CancellationReason is not { } reason
+            || !PolicyRules.IsValidCancellationReason(reason)
+            || effectiveDate != DateOnly.FromDateTime(cancelledAt.UtcDateTime)
+            || effectiveDate > data.EndDate
+            || (data.ActivatedAt is { } activatedAt && cancelledAt < activatedAt))
+        {
+            throw new ArgumentException(
+                "Cancellation audit data is inconsistent.",
+                nameof(data)
+            );
+        }
+    }
+
+    private void EnsureStatus(PolicyStatus expectedStatus)
+    {
+        if (Status != expectedStatus)
+        {
+            throw new PolicyStateConflictException(
+                $"This operation requires {expectedStatus} policy; current status is {Status}."
+            );
+        }
+    }
+
+    private void ValidateTransitionTime(DateTimeOffset now)
+    {
+        if (now == default || now.Offset != TimeSpan.Zero || now < UpdatedAt)
+        {
+            throw new ArgumentException(
+                "Transition time must be UTC and not precede the last update.",
+                nameof(now)
+            );
+        }
     }
 }

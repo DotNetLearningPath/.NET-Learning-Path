@@ -5,6 +5,7 @@ namespace InsuranceApp.UnitTests.TestData.Policies;
 internal static class PolicyTestData
 {
     public const string DefaultPolicyNumber = "POL-TEST-001";
+    public const string DefaultCancellationReason = "Client requested cancellation.";
     public const PolicyStatus DefaultStatus = PolicyStatus.Draft;
     public const decimal DefaultCurrencyExchangeRateToBase = 5m;
     public const decimal DefaultBasePremium = 100m;
@@ -17,8 +18,10 @@ internal static class PolicyTestData
     public static readonly DateOnly DefaultStartDate = new(2030, 1, 1);
     public static readonly DateOnly DefaultEndDate = new(2030, 12, 31);
     public static readonly IReadOnlyList<AppliedAdjustment> DefaultAppliedAdjustments = [];
-    public static readonly DateTimeOffset DefaultCreatedAt = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset DefaultNow = new(2030, 1, 1, 12, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset DefaultCreatedAt = DefaultNow;
     public static readonly DateTimeOffset DefaultUpdatedAt = DefaultCreatedAt;
+    public static readonly DateOnly DefaultToday = DateOnly.FromDateTime(DefaultNow.UtcDateTime);
 
     public static readonly DraftPolicyData DefaultDraftPolicyData = new()
     {
@@ -57,5 +60,13 @@ internal static class PolicyTestData
     public static Policy Create(PolicyData? data = null)
     {
         return new(data: data ?? DefaultPolicyData);
+    }
+
+    public static Policy CreateAndActive(PolicyData? data = null)
+    {
+        var policy = Create(data);
+        policy.Activate(DefaultNow);
+
+        return policy;
     }
 }

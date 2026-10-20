@@ -21,7 +21,7 @@ public class PoliciesController(IPolicyService policyService) : ControllerBase
     )
     {
         var result = await _policyService.GetPolicyByIdAsync(policyId, cancellationToken);
-        
+
         return Ok(result.ToResponse());
     }
 
@@ -33,7 +33,36 @@ public class PoliciesController(IPolicyService policyService) : ControllerBase
     )
     {
         var result = await _policyService.CreateDraftPolicyAsync(request.ToCommand(), cancellationToken);
-        
+
         return CreatedAtAction(nameof(GetPolicyById), new { policyId = result.Id }, result.ToResponse());
+    }
+
+    [HttpPost("{policyId}/activate")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<PolicyResponse>> ActivatePolicy(
+        [FromRoute] Guid policyId,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await _policyService.ActivatePolicyAsync(policyId, cancellationToken);
+        
+        return Ok(result.ToResponse());
+    }
+
+    [HttpPost("{policyId}/cancel")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<PolicyResponse>> CancelPolicy(
+        [FromRoute] Guid policyId,
+        [FromBody] CancelPolicyRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await _policyService.CancelPolicyAsync(request.ToCommand(policyId), cancellationToken);
+        
+        return Ok(result.ToResponse());
     }
 }
