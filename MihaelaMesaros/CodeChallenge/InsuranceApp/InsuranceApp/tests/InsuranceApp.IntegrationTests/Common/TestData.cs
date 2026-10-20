@@ -2,6 +2,7 @@
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.FeeConfig;
 using InsuranceApp.Application.DTOs.Policy;
+using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
@@ -11,7 +12,7 @@ namespace InsuranceApp.IntegrationTests.Common;
 internal static class TestData
 {
     public static readonly Guid NonExistingId = new("99999999-9999-9999-9999-999999999999");
-
+    public const string BaseCurrencyCode = "RON";
 
     #region Geography
     private static readonly Guid RomaniaId = Guid.NewGuid();
@@ -244,6 +245,21 @@ internal static class TestData
             InsuredValue = 90_000.00m,
             RiskIndicators = "",
             CreatedAt = DateTime.UtcNow
+        },
+        new Building
+        {
+            BuildingId = Guid.NewGuid(),
+            ClientId = ClientsList[1].ClientId,
+            CityId = Cities[1].CityId,
+            BuildingTypeId = BuildingTypes[2].BuildingTypeId,
+            AddressStreet = "Baladei",
+            AddressStreetNumber = "10",
+            ConstructionYear = 1950,
+            NumberOfFloors = 1,
+            SurfaceArea = 100m,
+            InsuredValue = 100_000.00m,
+            RiskIndicators = "",
+            CreatedAt = DateTime.UtcNow
         }
     ];
 
@@ -256,7 +272,7 @@ internal static class TestData
         CurrencyId = Guid.NewGuid(),
         Code = "EUR",
         Name = "Euro",
-        ExchangeRateToBase = 5.11m,
+        ExchangeRateToBase = 5.22m,
         IsActive = true,
         CreatedAt = DateTime.UtcNow
     };
@@ -454,33 +470,66 @@ internal static class TestData
         {
             PolicyId = Guid.NewGuid(),
             PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
-            ClientId = BuildingsList[0].ClientId,
-            BuildingId = BuildingsList[0].BuildingId,
-            BrokerId = BrokersList[0].BrokerId,
-            CurrencyId = CurrencyForCreate.CurrencyId,
+            ClientId = BuildingsList[0].ClientId, // First Client
+            BuildingId = BuildingsList[0].BuildingId, // Residential, Cluj
+            BrokerId = BrokersList[0].BrokerId, // First Broker
+            CurrencyId = CurrenciesList[1].CurrencyId, // EUR
             Status = PolicyStatus.Draft,
-            StartDate = DateTime.UtcNow.Date.AddDays(1),
-            EndDate = DateTime.UtcNow.Date.AddMonths(6),
+            StartDate = new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2027, 10, 1, 0, 0, 0, DateTimeKind.Utc),
             BasePremium = 1000m,
-            FinalPremium = 1050m,
+            FinalPremium = 1050m, //TotalFinalPremiumInBaseCurrency = 1050 * 5.22 = 5481
             CreatedAt = DateTime.UtcNow
         },
         new Policy
         {
             PolicyId = Guid.NewGuid(),
             PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
-            ClientId = BuildingsList[1].ClientId,
-            BuildingId = BuildingsList[1].BuildingId,
-            BrokerId = BrokersList[1].BrokerId,
-            CurrencyId = CurrencyForCreate.CurrencyId,
+            ClientId = BuildingsList[0].ClientId, // First Client
+            BuildingId = BuildingsList[0].BuildingId, // Residential, Cluj
+            BrokerId = BrokersList[0].BrokerId, // First Broker
+            CurrencyId = CurrenciesList[1].CurrencyId, // EUR
+            Status = PolicyStatus.Draft,
+            StartDate = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2027, 12, 1, 0, 0, 0, DateTimeKind.Utc),
+            BasePremium = 500m,
+            FinalPremium = 550m, //TotalFinalPremiumInBaseCurrency = 550 * 5.22 = 2871
+            CreatedAt = DateTime.UtcNow
+        },
+        //TotalFinalPremium = 1050 + 550 = 1600 EUR = 8352 RON
+        new Policy
+        {
+            PolicyId = Guid.NewGuid(),
+            PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
+            ClientId = BuildingsList[1].ClientId, // Second Client
+            BuildingId = BuildingsList[1].BuildingId, // Office, Brasov
+            BrokerId = BrokersList[1].BrokerId, // Second Broker
+            CurrencyId = CurrenciesList[0].CurrencyId, // RON
             Status = PolicyStatus.Active,
-            StartDate = DateTime.UtcNow.Date.AddMonths(7),
-            EndDate = DateTime.UtcNow.Date.AddYears(1),
+            StartDate = new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2027, 11, 1, 0, 0, 0, DateTimeKind.Utc),
             BasePremium = 2000m,
             FinalPremium = 2200m,
             ActivationDate = DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow
+        },
+        new Policy
+        {
+            PolicyId = Guid.NewGuid(),
+            PolicyNumber = $"{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..10].ToUpperInvariant()}",
+            ClientId = BuildingsList[1].ClientId, // Second Client
+            BuildingId = BuildingsList[2].BuildingId, // Industrial, Brasov
+            BrokerId = BrokersList[1].BrokerId, // Second Broker
+            CurrencyId = CurrenciesList[0].CurrencyId, // RON
+            Status = PolicyStatus.Active,
+            StartDate = new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2028, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            BasePremium = 1500m,
+            FinalPremium = 1650m,
+            ActivationDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         }
+        //TotalFinalPremium = 2200 + 1650 = 3850 RON = TotalFinalPremiumInBaseCurrency
     ];
 
     public static Policy CreatePolicyForRead()
@@ -507,11 +556,12 @@ internal static class TestData
         BuildingForRead.BuildingId,
         BrokerForCreate.BrokerId,
         CurrencyForCreate.CurrencyId,
-        DateTime.UtcNow.Date.AddDays(1),
-        DateTime.UtcNow.Date.AddYears(1),
+        new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+        new DateTime(2027, 10, 1, 0, 0, 0, DateTimeKind.Utc),
         1000m);
 
     public static CancelPolicyDto PolicyDtoForCancel => new("This policy is being cancelled because it is no longer needed.");
 
     #endregion
+
 }

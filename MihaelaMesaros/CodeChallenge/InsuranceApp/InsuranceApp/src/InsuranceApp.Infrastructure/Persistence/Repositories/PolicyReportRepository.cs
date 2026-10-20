@@ -61,7 +61,7 @@ public sealed class PolicyReportRepository(InsuranceDbContext dbContext) : IPoli
                 INNER JOIN dbo.BuildingTypes bt ON bt.BuildingTypeId = b.BuildingTypeId
             WHERE
                 (@From IS NULL OR p.StartDate >= @From)
-                AND (@To IS NULL OR p.StartDate <= @To)
+                AND (@To IS NULL OR p.StartDate < DATEADD(DAY, 1, @To))
                 AND (@Status IS NULL OR p.Status = @Status)
                 AND (
                     @Currency IS NULL

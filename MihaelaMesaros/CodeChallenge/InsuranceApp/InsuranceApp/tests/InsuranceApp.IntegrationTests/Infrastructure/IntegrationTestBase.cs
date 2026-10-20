@@ -2,6 +2,7 @@
 using InsuranceApp.Domain.Enums;
 using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.IntegrationTests.Common;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
@@ -14,8 +15,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     protected InsuranceDbContext DbContext { get; }
 
-    protected IntegrationTestBase(
-        InsuranceAppWebApplicationFactory factory)
+    protected IntegrationTestBase(WebApplicationFactory<Program> factory)
     {
         HttpClient = factory.CreateClient();
 
@@ -24,10 +24,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         DbContext = _scope.ServiceProvider.GetRequiredService<InsuranceDbContext>();
     }
 
-    public async Task InitializeAsync()
-    {
-        await ResetDatabaseAsync();
-    }
+    public abstract Task InitializeAsync();
 
     public Task DisposeAsync()
     {
@@ -37,6 +34,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return Task.CompletedTask;
     }
 
+
+    #region Reset database
     protected async Task ResetDatabaseAsync()
     {
         DbContext.Policies.RemoveRange(DbContext.Policies);
@@ -53,7 +52,10 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         await DbContext.SaveChangesAsync();
     }
+    #endregion
 
+
+    #region Seed general methods
     protected async Task SeedAsync<TEntity>(TEntity entity) where TEntity : class
     {
         DbContext.Set<TEntity>().Add(entity);
@@ -67,7 +69,10 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         await DbContext.SaveChangesAsync();
     }
+    #endregion
 
+
+    #region Seed buildings
     protected async Task SeedBuildingDependenciesAsync()
     {
         await SeedAsync(TestData.Countries);
@@ -75,7 +80,10 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await SeedAsync(TestData.Cities);
         await SeedAsync(TestData.BuildingTypes);
     }
+    #endregion
 
+
+    #region Seed policies
     protected async Task<Policy> SeedPolicyAsync(PolicyStatus status = PolicyStatus.Draft)
     {
         await SeedPolicyReferencesAsync();
@@ -105,7 +113,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await SeedAsync(TestData.ClientsList);
         await SeedAsync(TestData.BuildingsList);
         await SeedAsync(TestData.BrokersList);
-        await SeedAsync(TestData.CurrencyForCreate);
+        await SeedAsync(TestData.CurrenciesList);
 
         var policies = TestData.PoliciesList;
 
@@ -113,5 +121,5 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         return policies;
     }
-
+    #endregion
 }
