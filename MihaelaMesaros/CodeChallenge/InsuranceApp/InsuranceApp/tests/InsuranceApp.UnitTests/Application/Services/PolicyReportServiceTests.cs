@@ -193,7 +193,6 @@ public sealed class PolicyReportServiceTests
         _repositoryMock.Verify(x => x.GetReportPoliciesAsync(It.IsAny<PolicyReportGroupType>(), It.IsAny<PolicyReportFiltersDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -216,5 +215,4 @@ public sealed class PolicyReportServiceTests
     }
 
     #endregion
-
 }

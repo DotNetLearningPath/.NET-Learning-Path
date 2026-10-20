@@ -194,6 +194,4 @@ public sealed class ReportsEndpointsTests(WebApplicationFactorySqlServer factory
     }
 
     #endregion
-
-
 }
