@@ -36,7 +36,7 @@ public class BuildingRepository : IBuildingRepository
             .AsNoTracking()
             .Where(building => building.ClientId == clientId)
             .OrderBy(building => building.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public async Task AddBuildingAsync(Building building, CancellationToken cancellationToken)

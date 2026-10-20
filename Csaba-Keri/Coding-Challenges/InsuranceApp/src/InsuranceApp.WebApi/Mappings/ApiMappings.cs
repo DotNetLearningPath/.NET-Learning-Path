@@ -13,6 +13,7 @@ using InsuranceApp.Application.Fees.Commands;
 using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
 using InsuranceApp.Application.Policies.Commands;
+using InsuranceApp.Application.Policies.Queries;
 using InsuranceApp.Application.Policies.Results;
 using InsuranceApp.Application.RiskFactors.Commands;
 using InsuranceApp.Application.RiskFactors.Results;
@@ -94,6 +95,19 @@ internal static class ApiMappings
             RiskFactorLevelDto.BuildingType => RiskFactorLevel.BuildingType,
             
             _ => throw new ValidationException("Risk factor level is invalid.")
+        };
+    }
+
+    public static PolicyStatus ToDomain(this PolicyStatusDto status)
+    {
+        return status switch
+        {
+            PolicyStatusDto.Draft => PolicyStatus.Draft,
+            PolicyStatusDto.Active => PolicyStatus.Active,
+            PolicyStatusDto.Expired => PolicyStatus.Expired,
+            PolicyStatusDto.Cancelled => PolicyStatus.Cancelled,
+            
+            _ => throw new ValidationException("Policy status is invalid.")
         };
     }
 
@@ -349,6 +363,19 @@ internal static class ApiMappings
         );
     }
 
+    public static SearchPoliciesQuery ToQuery(this SearchPoliciesRequest request)
+    {
+        return new(
+            ClientId: request.ClientId,
+            BrokerId: request.BrokerId,
+            Status: request.Status?.ToDomain(),
+            StartDate: request.StartDate,
+            EndDate: request.EndDate,
+            PageNumber: request.PageNumber,
+            PageSize: request.PageSize
+        );
+    }
+
     public static ClientResponse ToResponse(this ClientResult result)
     {
         return new(
@@ -532,6 +559,36 @@ internal static class ApiMappings
             Source: adjustment.Source.ToDto(),
             ConfigurationId: adjustment.ConfigurationId,
             Percentage: adjustment.Percentage
+        );
+    }
+
+    public static PolicyListItemResponse ToResponse(this PolicyListItemResult result)
+    {
+        return new(
+            Id: result.Id,
+            PolicyNumber: result.PolicyNumber,
+            Status: result.Status.ToDto(),
+            ClientId: result.ClientId,
+            BuildingId: result.BuildingId,
+            BrokerId: result.BrokerId,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            StartDate: result.StartDate,
+            EndDate: result.EndDate,
+            BasePremium: result.BasePremium,
+            FinalPremium: result.FinalPremium,
+            CreatedAt: result.CreatedAt,
+            UpdatedAt: result.UpdatedAt
+        );
+    }
+
+    public static PolicyDetailsResponse ToResponse(this PolicyDetailsResult result)
+    {
+        return new(
+            Policy: result.Policy.ToResponse(),
+            Client: result.Client.ToResponse(),
+            Building: result.Building.ToResponse(),
+            Broker: result.Broker.ToResponse()
         );
     }
 
