@@ -19,6 +19,11 @@ public class PolicyEntity
     public ICollection<PolicyAdjustmentEntity> AppliedAdjustments { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
+    public DateTimeOffset? ActivatedAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
+    public DateOnly? CancellationEffectiveDate { get; private set; }
+    public string? CancellationReason { get; private set; }
+    public DateTimeOffset? ExpiredAt { get; private set; }
 
     private PolicyEntity()
     {
@@ -46,5 +51,10 @@ public class PolicyEntity
         AppliedAdjustments = data.AppliedAdjustments;
         CreatedAt = data.CreatedAt;
         UpdatedAt = data.UpdatedAt;
+        ActivatedAt = data.ActivatedAt;
+        CancelledAt = data.CancelledAt;
+        CancellationEffectiveDate = data.CancellationEffectiveDate;
+        CancellationReason = data.CancellationReason;
+        ExpiredAt = data.ExpiredAt;
     }
 }

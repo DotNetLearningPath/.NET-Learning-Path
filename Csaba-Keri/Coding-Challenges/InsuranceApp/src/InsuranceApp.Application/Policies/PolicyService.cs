@@ -12,6 +12,7 @@ using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Currencies;
 using InsuranceApp.Domain.Policies;
+using InsuranceApp.Domain.Policies.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace InsuranceApp.Application.Policies;
@@ -22,6 +23,7 @@ public class PolicyService(
     IBrokerRepository brokerRepository,
     ICurrencyRepository currencyRepository,
     IValidator<CreateDraftPolicyCommand> createValidator,
+    IValidator<CancelPolicyCommand> cancelValidator,
     IPolicyPremiumCalculator premiumCalculator,
     TimeProvider timeProvider,
     ILogger<PolicyService> logger
@@ -32,6 +34,7 @@ public class PolicyService(
     private readonly IBrokerRepository _brokerRepository = brokerRepository;
     private readonly ICurrencyRepository _currencyRepository = currencyRepository;
     private readonly IValidator<CreateDraftPolicyCommand> _createValidator = createValidator;
+    private readonly IValidator<CancelPolicyCommand> _cancelValidator = cancelValidator;
     private readonly IPolicyPremiumCalculator _premiumCalculator = premiumCalculator;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly ILogger<PolicyService> _logger = logger;
@@ -42,8 +45,7 @@ public class PolicyService(
 
         var policy = await GetPolicyByIdOrThrowAsync(policyId, cancellationToken);
 
-        var currency = await _currencyRepository.GetCurrencyByIdAsync(policy.CurrencyId, cancellationToken)
-            ?? throw new InvalidOperationException("The policy references a currency that does not exist.");
+        var currency = await GetPolicyCurrencyByIdOrThrowAsync(policy.CurrencyId, cancellationToken);
 
         return policy.ToResult(currency.Code);
     }
@@ -104,8 +106,72 @@ public class PolicyService(
             "Draft policy {PolicyId} created with final premium {FinalPremium} {CurrencyCode}.",
             policy.Id, policy.FinalPremium, currency.Code
         );
-        
+
         return policy.ToResult(currency.Code);
+    }
+
+    public async Task<PolicyResult> ActivatePolicyAsync(Guid policyId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var policy = await GetPolicyByIdOrThrowAsync(policyId, cancellationToken);
+        var oldStatus = policy.Status;
+
+        policy.Activate(_timeProvider.GetUtcNow());
+
+        var broker = await GetPolicyBrokerByIdOrThrowAsync(policy.BrokerId, cancellationToken);
+        EnsureBrokerAllowsActivation(broker);
+
+        var currency = await GetPolicyCurrencyByIdOrThrowAsync(policy.CurrencyId, cancellationToken);
+        EnsureCurrencyAllowsActivation(currency);
+
+        await _policyRepository.UpdatePolicyLifecycleAsync(policy, oldStatus, cancellationToken);
+        _logger.LogInformation("Policy {PolicyId} activated.", policy.Id);
+
+        return policy.ToResult(currency.Code);
+    }
+
+    public async Task<PolicyResult> CancelPolicyAsync(CancelPolicyCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        cancellationToken.ThrowIfCancellationRequested();
+        await _cancelValidator.ValidateAndThrowAsync(command, cancellationToken);
+
+        var now = _timeProvider.GetUtcNow();
+        
+        if (command.EffectiveDate != DateOnly.FromDateTime(now.UtcDateTime))
+        {
+            throw ValidationExceptionFactory.Create(
+                nameof(command.EffectiveDate),
+                "Cancellation must take effect today (UTC)."
+            );
+        }
+
+        var policy = await GetPolicyByIdOrThrowAsync(command.PolicyId, cancellationToken);
+        var oldStatus = policy.Status;
+
+        policy.Cancel(
+            reason: command.Reason,
+            effectiveDate: command.EffectiveDate,
+            now: now
+        );
+
+        var currency = await GetPolicyCurrencyByIdOrThrowAsync(policy.CurrencyId, cancellationToken);
+
+        await _policyRepository.UpdatePolicyLifecycleAsync(policy, oldStatus, cancellationToken);
+        _logger.LogInformation("Policy {PolicyId} cancelled.", policy.Id);
+
+        return policy.ToResult(currency.Code);
+    }
+
+    public async Task<ExpirePoliciesResult> ExpirePoliciesAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var expiredPoliciesCount = await _policyRepository.ExpirePoliciesAsync(_timeProvider.GetUtcNow(), cancellationToken);
+        _logger.LogInformation("Expired {ExpiredCount} policies.", expiredPoliciesCount);
+
+        return new(expiredPoliciesCount);
     }
 
     private async Task<Policy> GetPolicyByIdOrThrowAsync(Guid policyId, CancellationToken cancellationToken)
@@ -119,6 +185,18 @@ public class PolicyService(
             ?? throw new EntityNotFoundException(nameof(Policy), policyId);
     }
 
+    private async Task<Currency> GetPolicyCurrencyByIdOrThrowAsync(Guid currencyId, CancellationToken cancellationToken)
+    {
+        return await _currencyRepository.GetCurrencyByIdAsync(currencyId, cancellationToken)
+            ?? throw new InvalidOperationException("The policy references a currency that does not exist.");
+    }
+
+    private async Task<Broker> GetPolicyBrokerByIdOrThrowAsync(Guid brokerId, CancellationToken cancellationToken)
+    {
+        return await _brokerRepository.GetBrokerByIdAsync(brokerId, cancellationToken)
+            ?? throw new InvalidOperationException("The policy references a broker that does not exist.");
+    }
+
     private static void ValidateBuildingOwnership(Building building, Guid clientId)
     {
         if (building.ClientId != clientId)
@@ -130,13 +208,28 @@ public class PolicyService(
         }
     }
 
+    private static bool IsBrokerActive(Broker broker)
+    {
+        return broker.Status == BrokerStatus.Active;
+    }
+
     private static void ValidateBrokerIsActive(Broker broker)
     {
-        if (broker.Status != BrokerStatus.Active)
+        if (!IsBrokerActive(broker))
         {
             throw ValidationExceptionFactory.Create(
                 nameof(CreateDraftPolicyCommand.BrokerId),
-                "Inactive brokers cannot create policies."
+                "The selected broker must be active."
+            );
+        }
+    }
+
+    private static void EnsureBrokerAllowsActivation(Broker broker)
+    {
+        if (!IsBrokerActive(broker))
+        {
+            throw new PolicyStateConflictException(
+                "The policy cannot be activated because its broker is inactive."
             );
         }
     }
@@ -147,7 +240,17 @@ public class PolicyService(
         {
             throw ValidationExceptionFactory.Create(
                 nameof(CreateDraftPolicyCommand.CurrencyId),
-                "Inactive currencies cannot be used for new policies."
+                "The selected currency must be active."
+            );
+        }
+    }
+
+    private static void EnsureCurrencyAllowsActivation(Currency currency)
+    {
+        if (!currency.IsActive)
+        {
+            throw new PolicyStateConflictException(
+                "The policy cannot be activated because its currency is inactive."
             );
         }
     }

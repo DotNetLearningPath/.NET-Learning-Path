@@ -267,6 +267,15 @@ internal static class ApiMappings
         );
     }
 
+    public static CancelPolicyCommand ToCommand(this CancelPolicyRequest request, Guid policyId)
+    {
+        return new(
+            PolicyId: policyId,
+            Reason: request.Reason,
+            EffectiveDate: request.EffectiveDate!.Value
+        );
+    }
+
     public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
     {
         return new(
@@ -546,7 +555,12 @@ internal static class ApiMappings
             FinalPremium: result.FinalPremium,
             CreatedAt: result.CreatedAt,
             UpdatedAt: result.UpdatedAt,
-            
+            ActivatedAt: result.ActivatedAt,
+            CancelledAt: result.CancelledAt,
+            CancellationEffectiveDate: result.CancellationEffectiveDate,
+            CancellationReason: result.CancellationReason,
+            ExpiredAt: result.ExpiredAt,
+
             AppliedAdjustments: [.. result.AppliedAdjustments.Select(
                 adjustment => adjustment.ToResponse()
             )]
@@ -590,6 +604,11 @@ internal static class ApiMappings
             Building: result.Building.ToResponse(),
             Broker: result.Broker.ToResponse()
         );
+    }
+
+    public static ExpirePoliciesResponse ToResponse(this ExpirePoliciesResult result)
+    {
+        return new(ExpiredCount: result.ExpiredCount);
     }
 
     public static PagedResponse<TResponse> ToResponse<TResult, TResponse>(
