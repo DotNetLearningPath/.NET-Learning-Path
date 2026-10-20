@@ -1,0 +1,46 @@
+info:
+  name: Create currency
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/currencies"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "code": "{{currencyCode}}",
+        "name": "{{currencyName}}",
+        "exchangeRateToBase": 1.234567,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const now = Date.now();
+        const letter = (value) => String.fromCharCode(65 + (value % 26));
+        bru.setCollectionVar('currencyCode', 'X' + letter(now) + letter(Math.floor(now / 26)));
+        bru.setCollectionVar('currencyName', 'Bruno Currency ' + now.toString().slice(-6));
+    - type: after-response
+      code: |-
+        test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });
+        const body = res.getBody();
+        test('Response contains currency id', function () { expect(body.id).to.be.a('string').and.not.empty; });
+        test('Currency code is correct', function () { expect(body.code).to.eql(bru.getCollectionVar('currencyCode')); });
+        test('Currency name is correct', function () { expect(body.name).to.eql(bru.getCollectionVar('currencyName')); });
+        test('Currency is active', function () { expect(body.isActive).to.eql(true); });
+        bru.setCollectionVar('currencyId', body.id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

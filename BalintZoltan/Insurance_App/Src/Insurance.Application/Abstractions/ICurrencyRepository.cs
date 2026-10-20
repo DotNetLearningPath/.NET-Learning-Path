@@ -15,7 +15,16 @@ public interface ICurrencyRepository
         string code,
         CancellationToken cancellationToken);
 
+    Task<bool> ExistsCurrencyByCodeAsync(
+        string code,
+        Guid? excludedCurrencyId,
+        CancellationToken cancellationToken);
+
     Task<PagedResult<Currency>> ListCurrenciesAsync(
         PaginationRequest pagination,
+        CancellationToken cancellationToken);
+
+    Task UpdateCurrencyAsync(
+        Currency currency,
         CancellationToken cancellationToken);
 }

@@ -10,9 +10,9 @@ public sealed class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasConversion<string>();
-        builder.Property(x => x.Code).HasMaxLength(3).IsRequired();
+        builder.Property(x => x.Code).HasMaxLength(Currency.CodeLength).IsRequired();
         builder.HasIndex(x => x.Code).IsUnique();
-        builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(Currency.NameMaxLength).IsRequired();
         builder.Property(x => x.ExchangeRateToBase).HasPrecision(18, 6).IsRequired();
     }
 }
