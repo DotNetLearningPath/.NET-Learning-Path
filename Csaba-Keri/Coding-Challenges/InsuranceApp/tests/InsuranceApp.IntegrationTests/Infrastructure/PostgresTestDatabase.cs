@@ -33,11 +33,10 @@ internal sealed class PostgresTestDatabase : IAsyncDisposable
             );
         }
 
-        // Do not retain idle connections after disposing the shared test host.
-        builder.Pooling = false;
+        builder.Pooling = true;
         builder.Timeout = 10;
-
         _adminConnectionString = builder.ConnectionString;
+        
         builder.Database = _databaseName;
         ConnectionString = builder.ConnectionString;
     }
@@ -75,6 +74,12 @@ internal sealed class PostgresTestDatabase : IAsyncDisposable
         if (!_created)
         {
             return;
+        }
+
+        // Close idle pooled connections before dropping the test database.
+        await using (var poolConnection = new NpgsqlConnection(ConnectionString))
+        {
+            NpgsqlConnection.ClearPool(poolConnection);
         }
 
         await using var connection = new NpgsqlConnection(_adminConnectionString);
