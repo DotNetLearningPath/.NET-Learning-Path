@@ -1,0 +1,243 @@
+1.	Reguli de denumire
+Folosește PascalCase pentru clase, metode, proprietăți și enum-uri:
+public class UserService{
+public string FirstName { get; set; }
+
+public void CreateUser()
+ {
+ }
+
+Folosește camelCase pentru variabile locale și parametri:
+public void CreateUser(string firstName, string lastName)
+{
+    var fullName = firstName + " " + lastName;
+}
+Pentru câmpurile private, o convenție foarte folosită este _camelCase:
+private readonly IUserRepository _userRepository;
+Numele trebuie să fie descriptive. Evită:
+var x = GetUsers();
+var tmp = Calculate();
+var a = user.Name;
+Preferă:
+var activeUsers = GetActiveUsers();
+var totalPrice = CalculateTotalPrice();
+var userName = user.Name;
+2. Clasele și metodele trebuie să aibă o singură responsabilitate
+O metodă nu ar trebui să facă foarte multe lucruri diferite.
+Mai puțin recomandat:
+public void ProcessOrder()
+{
+    // validate order// calculate price// save to database// send email// generate invoice}
+Mai bine:
+public void ProcessOrder(Order order)
+{
+    ValidateOrder(order);
+    CalculatePrice(order);
+    SaveOrder(order);
+    SendConfirmationEmail(order);
+}
+Această regulă vine din principiul Single Responsibility Principle (SRP).
+3. Metodele trebuie să fie scurte și ușor de înțeles
+Dacă o metodă devine foarte mare, încearcă să extragi părți din ea în metode separate.
+De exemplu:
+public bool CanPlaceOrder(User user, Order order)
+{
+    if (!user.IsActive)
+        return false;
+
+    if (order.Items.Count == 0)
+        return false;
+
+    if (!HasValidPaymentMethod(user))
+        return false;
+
+    return true;
+}
+Este mai ușor de urmărit decât multe niveluri de if.
+4. Evită codul duplicat
+Dacă aceeași logică apare în mai multe locuri, extrage-o într-o metodă sau într-un serviciu comun.
+În loc de:
+var total1 = price1 * quantity1 * 1.19m;var total2 = price2 * quantity2 * 1.19m;
+poți avea:
+private decimal CalculatePriceWithVat(decimal price, int quantity)
+{
+    return price * quantity * 1.19m;
+}
+Principiul este cunoscut ca DRY — Don't Repeat Yourself.
+5. Folosește var doar când tipul este evident
+Este OK:
+var user = new User();var users = GetUsers();
+Dar dacă tipul nu este evident, un tip explicit poate face codul mai clar:
+Dictionary<int, User> usersById = GetUsersById();
+Important este să existe o regulă consistentă în proiect.
+6. Folosește async / await pentru operații asincrone
+Pentru acces la baza de date, HTTP, fișiere etc.:
+public async Task<User?> GetUserAsync(int userId)
+{
+    return await _userRepository.GetByIdAsync(userId);
+}
+Metodele asincrone ar trebui, în general, să aibă sufixul Async:
+GetUserAsync()SaveOrderAsync()SendEmailAsync()
+7. Evită async void
+În general:
+public async void SaveUser()
+nu este recomandat.
+Preferă:
+public async Task SaveUserAsync()
+async void ar trebui folosit în principal pentru event handlers.
+8. Validează parametrii la începutul metodei
+De exemplu:
+public void CreateUser(User user)
+{
+    ArgumentNullException.ThrowIfNull(user);
+
+    // rest of logic}
+Sau:
+if (string.IsNullOrWhiteSpace(user.Email))
+{
+    throw new ArgumentException("Email is required.");
+}
+Astfel, erorile sunt detectate cât mai devreme.
+9. Evită „magic numbers” și „magic strings”
+Nu este recomandat:
+if (user.Role == "ADMIN")
+{
+}
+if (order.Total > 5000)
+{
+}
+Mai bine:
+private const decimal MaximumOrderValue = 5000m;
+iar pentru valori fixe poți folosi enum-uri:
+public enum UserRole{
+    User,
+    Admin,
+    Manager}
+Apoi:
+if (user.Role == UserRole.Admin)
+{
+}
+10. Folosește acolade consistent
+Chiar dacă C# permite:
+if (user == null)
+    return;
+pentru proiectele de echipă poate fi mai sigur și mai consistent:
+if (user == null)
+{
+    return;
+}
+Reduce riscul de erori când ulterior se adaugă alte instrucțiuni.
+11. Evită nivelurile prea multe de if
+În loc de:
+if (user != null)
+{
+    if (user.IsActive)
+    {
+        if (user.HasPermission)
+        {
+            ProcessUser(user);
+        }
+    }
+}
+folosește guard clauses:
+if (user == null)
+{
+    return;
+}
+if (!user.IsActive)
+{
+    return;
+}
+if (!user.HasPermission)
+{
+    return;
+}
+ProcessUser(user);
+Codul devine mult mai ușor de urmărit.
+12. Folosește Dependency Injection
+În .NET, evită crearea directă a dependențelor în interiorul serviciilor:
+public class UserService{
+    private readonly IUserRepository _userRepository;
+
+    public UserService(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+}
+În loc de:
+public class UserService{
+    private readonly UserRepository _repository = new UserRepository();
+}
+Dependency Injection face codul mai ușor de testat și întreținut.
+13. Tratează excepțiile doar când poți face ceva util cu ele
+Evită:
+try{
+    SaveUser();
+}catch (Exception)
+{
+}
+Nu trebuie ignorate excepțiile.
+Mai bine:
+try{
+    SaveUser();
+}catch (DatabaseException ex)
+{
+    _logger.LogError(ex, "Failed to save user.");
+    throw;
+}
+14. Comentariile trebuie să explice „de ce”, nu „ce”
+Comentariu inutil:
+// Increment counter counter++;
+Comentariu mai util:
+// Retry count starts at 1 because the initial request is not considered a retry. retryCount++;
+Ideal, codul ar trebui să fie suficient de clar încât să nu necesite multe comentarii.
+15. Respectă formatarea standard C#
+Folosește indentare consistentă și un singur statement pe linie:
+public void CreateUser(User user)
+{
+    ValidateUser(user);
+
+    _userRepository.Add(user);
+
+    _logger.LogInformation(
+        "User {UserId} created.",
+        user.Id);
+}
+16. Folosește nullable reference types
+În proiectele .NET moderne este recomandat să ai:
+<Nullable>enable</Nullable>
+Astfel poți diferenția:
+string name;
+de:
+string? name;
+și compilatorul te ajută să eviți multe NullReferenceException.
+17. Scrie cod testabil
+Logica de business importantă ar trebui să poată fi testată prin unit tests.
+De exemplu:
+public decimal CalculateDiscount(decimal price, CustomerType customerType)
+{
+    return customerType switch    {
+        CustomerType.Standard => price,
+        CustomerType.Premium => price * 0.9m,
+        _ => price    };
+}
+Această metodă poate fi testată foarte ușor
+18: Program.cs este în principal locul în care configurezi și pornești aplicația, nu locul în care pui logica aplicației.
+19: Clean Arhitecture: How To Approach Clean Architecture Folder Structure (depinde de proiect)
+20.  Unit Tests: 
+Folosește AAA: Arrange, Act, Assert în fiecare test, ca să fie clar ce pregătești, ce execuți și ce verifici. 
+ Un test ar trebui să verifice un singur comportament/scenariu, nu 5 lucruri diferite deodată. 
+ Numele testului să spună clar ce testezi, de exemplu:
+GetUser_ShouldReturnUser_WhenUserExists 
+Evită duplicarea. Dacă repeți aceleași obiecte, mock-uri sau date în multe teste, extrage-le într-un helper, fixture, builder sau metodă comună.
+Nu pune business logic în teste. Testele trebuie să verifice logica din production code, nu să o recreeze. 
+Testele trebuie să fie independente: un test nu trebuie să depindă de faptul că alt test a rulat înainte. 
+Testele trebuie să fie deterministe: aceeași intrare trebuie să dea același rezultat de fiecare dată. 
+Evită accesul real la DB, API, filesystem etc. în UT. Pentru asta folosești mock-uri/fakes. Accesul real intră mai degrabă în integration tests. 
+Mock-uiește doar dependențele externe sau colaboratorii relevanți, nu orice lucru mic. 
+Nu testa metode private direct. Testează comportamentul public care le folosește. 
+Nu verifica implementation details inutil. Verifică rezultatul/comportamentul observabil. 
+Un test trebuie să fie scurt și ușor de citit. Dacă devine foarte mare, probabil ai nevoie de helperi sau production code-ul are prea multe responsabilități. 
+Nu pune multe Assert fără legătură. Mai multe assert-uri sunt ok dacă verifică același rezultat/scenariu. 
+Folosește date de test clare, nu valori magice greu de înțeles. 
+Nu folosi Thread.Sleep() în UT dacă poți evita; face testele lente și fragile.

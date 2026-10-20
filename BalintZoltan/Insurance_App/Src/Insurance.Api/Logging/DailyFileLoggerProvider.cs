@@ -18,22 +18,11 @@ public sealed class DailyFileLoggerProvider : ILoggerProvider
     {
     }
 
-    private sealed class DailyFileLogger : ILogger
-    {
-        private readonly string _categoryName;
-        private readonly string _logDirectory;
-        private readonly object _syncRoot;
-
-        public DailyFileLogger(
-            string categoryName,
+    private sealed class DailyFileLogger(
+        string categoryName,
             string logDirectory,
-            object syncRoot)
-        {
-            _categoryName = categoryName;
-            _logDirectory = logDirectory;
-            _syncRoot = syncRoot;
-        }
-
+            object syncRoot) : ILogger
+    {
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull =>
             NullScope.Instance;
 
@@ -53,7 +42,7 @@ public sealed class DailyFileLoggerProvider : ILoggerProvider
 
             var now = DateTime.UtcNow;
             var fileName = $"{now:yyyy}_{now:MM}_{now:dd}.log";
-            var filePath = Path.Combine(_logDirectory, fileName);
+            var filePath = Path.Combine(logDirectory, fileName);
             var message = formatter(state, exception);
             var exceptionText = exception is null
                 ? string.Empty
@@ -61,13 +50,13 @@ public sealed class DailyFileLoggerProvider : ILoggerProvider
 
             var line =
                 $"{now:yyyy-MM-dd HH:mm:ss.fff zzz} [{logLevel}] " +
-                $"[{_categoryName}] {message}{exceptionText}{Environment.NewLine}";
+                $"[{categoryName}] {message}{exceptionText}{Environment.NewLine}";
 
             try
             {
-                lock (_syncRoot)
+                lock (syncRoot)
                 {
-                    Directory.CreateDirectory(_logDirectory);
+                    Directory.CreateDirectory(logDirectory);
                     File.AppendAllText(filePath, line);
                 }
             }

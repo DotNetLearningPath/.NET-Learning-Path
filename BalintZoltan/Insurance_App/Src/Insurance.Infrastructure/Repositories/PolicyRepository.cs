@@ -8,48 +8,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Repositories;
 
-public sealed class PolicyRepository : IPolicyRepository
+public sealed class PolicyRepository(
+    InsuranceDbContext dbContext) : IPolicyRepository
 {
-    private readonly InsuranceDbContext _dbContext;
-
-    public PolicyRepository(InsuranceDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task AddPolicyAsync(
         Policy policy,
         CancellationToken cancellationToken)
     {
-        var brokerStatus = await _dbContext.Brokers
+        var brokerStatus = await dbContext.Brokers
             .Where(broker => broker.Id == policy.BrokerId)
             .Select(broker => (BrokerStatus?)broker.Status)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (brokerStatus is null)
-        {
+            .FirstOrDefaultAsync(cancellationToken)
+            ??
             throw new InvalidOperationException("The selected broker was not found.");
-        }
+
         if (brokerStatus != BrokerStatus.Active)
         {
             throw new InvalidOperationException("Inactive brokers cannot create policies.");
         }
 
-        await _dbContext.Policies.AddAsync(policy, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Policies.AddAsync(policy, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public Task<Policy?> GetPolicyByIdAsync(
         Guid id,
         CancellationToken cancellationToken) =>
-        _dbContext.Policies
+        dbContext.Policies
             .AsNoTracking()
             .FirstOrDefaultAsync(policy => policy.Id == id, cancellationToken);
 
     public Task<Policy?> GetPolicyByNumberAsync(
         string policyNumber,
         CancellationToken cancellationToken) =>
-        _dbContext.Policies
+        dbContext.Policies
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 policy => policy.PolicyNumber == policyNumber,
@@ -61,7 +53,7 @@ public sealed class PolicyRepository : IPolicyRepository
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.Policies.AsNoTracking().AsQueryable();
+        var query = dbContext.Policies.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(policyNumber))
         {
@@ -85,7 +77,7 @@ public sealed class PolicyRepository : IPolicyRepository
         Policy policy,
         CancellationToken cancellationToken)
     {
-        _dbContext.Policies.Update(policy);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        dbContext.Policies.Update(policy);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

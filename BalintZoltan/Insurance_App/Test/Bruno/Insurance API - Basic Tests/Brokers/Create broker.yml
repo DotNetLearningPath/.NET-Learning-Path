@@ -1,0 +1,46 @@
+info:
+  name: Create broker
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/brokers"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "brokerCode": "{{brokerCode}}",
+        "name": "Postman Broker",
+        "email": "postman.broker@example.com",
+        "phone": "+40712345000",
+        "commissionPercentage": 10
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setCollectionVar('brokerCode', 'PM-' + Date.now().toString().slice(-8));
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains broker id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        test('Broker code is correct', function () { expect(body.brokerCode).to.eql(bru.getCollectionVar('brokerCode')); });\r
+
+        test('Broker is active', function () { expect(body.status).to.eql(1); });\r
+
+        bru.setCollectionVar('brokerId', body.id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

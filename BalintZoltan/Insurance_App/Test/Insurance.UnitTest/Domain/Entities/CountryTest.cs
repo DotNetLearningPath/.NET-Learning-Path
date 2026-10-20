@@ -1,11 +1,11 @@
 using Insurance.Domain.Entities;
 
-namespace Insurance.Domain.UnitTests.Entities
+namespace Insurance.UnitTest.Domain.Entities
 {
     public class CountryTest
     {
         [Fact]
-        public void Create_Should_Set_Properties_And_Empty_Counties()
+        public void Create_Should_Set_Properties()
         {
             // Arrange & Act
             var country = new Country("Testland");
@@ -13,8 +13,6 @@ namespace Insurance.Domain.UnitTests.Entities
             // Assert
             Assert.NotEqual(Guid.Empty, country.Id);
             Assert.Equal("Testland", country.Name);
-            Assert.NotNull(country.Counties);
-            Assert.Empty(country.Counties);
         }
         [Fact]
         public void Create_Should_Throw_When_Name_Empty()

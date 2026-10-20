@@ -2,9 +2,9 @@ using Insurance.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configurations;
+namespace Insurance.Infrastructure.Persistence.Configurations;
 
-public sealed class RiskFactorConfigurationConfiguration : IEntityTypeConfiguration<RiskFactorConfiguration>
+public sealed class RiskFactorConfigurationMapping : IEntityTypeConfiguration<RiskFactorConfiguration>
 {
     public void Configure(EntityTypeBuilder<RiskFactorConfiguration> builder)
     {

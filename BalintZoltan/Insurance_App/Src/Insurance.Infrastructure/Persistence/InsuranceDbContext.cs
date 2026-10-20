@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Insurance.Infrastructure.Persistence;
 
-public sealed class InsuranceDbContext : DbContext
+public sealed class InsuranceDbContext(
+    DbContextOptions<InsuranceDbContext> options) : DbContext(options)
 {
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Building> Buildings => Set<Building>();
@@ -15,11 +16,6 @@ public sealed class InsuranceDbContext : DbContext
     public DbSet<Currency> Currencies => Set<Currency>();
     public DbSet<FeeConfiguration> FeeConfigurations => Set<FeeConfiguration>();
     public DbSet<RiskFactorConfiguration> RiskFactorConfigurations => Set<RiskFactorConfiguration>();
-
-    public InsuranceDbContext(DbContextOptions<InsuranceDbContext> options)
-        : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

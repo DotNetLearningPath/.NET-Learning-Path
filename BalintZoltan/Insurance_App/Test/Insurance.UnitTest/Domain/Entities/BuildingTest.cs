@@ -1,7 +1,7 @@
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
 
-namespace Insurance.Domain.UnitTests.Entities
+namespace Insurance.UnitTest.Domain.Entities
 {
     public class BuildingTest
     {
@@ -48,16 +48,27 @@ namespace Insurance.Domain.UnitTests.Entities
         [InlineData("SurfaceArea")]
         public void Constructor_Should_Throw_When_Required_Data_Is_Invalid(string invalidField)
         {
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                invalidField switch
-                {
-                    "ClientId" => new Building(Guid.Empty, Guid.NewGuid(), "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m),
-                    "CityId" => new Building(Guid.NewGuid(), Guid.Empty, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m),
-                    "Street" => new Building(Guid.NewGuid(), Guid.NewGuid(), "", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m),
-                    "SurfaceArea" => new Building(Guid.NewGuid(), Guid.NewGuid(), "St", "1", 1990, BuildingType.Administrative, 1, 0m, 1000m),
-                    _ => throw new ArgumentOutOfRangeException(nameof(invalidField))
-                });
+            // Arrange
+            var clientId = invalidField == "ClientId" ? Guid.Empty : Guid.NewGuid();
+            var cityId = invalidField == "CityId" ? Guid.Empty : Guid.NewGuid();
+            var street = invalidField == "Street" ? "" : "St";
+            var surfaceArea = invalidField == "SurfaceArea" ? 0m : 50m;
+
+            // Act
+            var exception = Record.Exception(() =>
+                new Building(
+                    clientId,
+                    cityId,
+                    street,
+                    "1",
+                    1990,
+                    BuildingType.Administrative,
+                    1,
+                    surfaceArea,
+                    1000m));
+
+            // Assert
+            Assert.IsType<ArgumentException>(exception);
         }
 
         [Fact]
@@ -78,34 +89,39 @@ namespace Insurance.Domain.UnitTests.Entities
         }
 
         [Theory]
-        [InlineData("CityId")]
-        [InlineData("Street")]
-        [InlineData("Number")]
-        public void UpdateAddress_Should_Throw_When_Data_Is_Invalid(string invalidField)
+        [InlineData(true, "New St", "2")]
+        [InlineData(false, "", "2")]
+        [InlineData(false, "New St", "")]
+        public void UpdateAddress_Should_Throw_When_Data_Is_Invalid(
+            bool useEmptyCityId,
+            string street,
+            string number)
         {
             // Arrange
             var clientId = Guid.NewGuid();
             var cityId = Guid.NewGuid();
-            var building = new Building(clientId, cityId, "St", "1", 1990, BuildingType.Administrative, 1, 50m, 1000m);
 
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-            {
-                switch (invalidField)
-                {
-                    case "CityId":
-                        building.UpdateAddress(Guid.Empty, "New St", "2");
-                        break;
-                    case "Street":
-                        building.UpdateAddress(cityId, "", "2");
-                        break;
-                    case "Number":
-                        building.UpdateAddress(cityId, "New St", "");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(invalidField));
-                }
-            });
+            var building = new Building(
+                clientId,
+                cityId,
+                "St",
+                "1",
+                1990,
+                BuildingType.Administrative,
+                1,
+                50m,
+                1000m);
+
+            var updatedCityId = useEmptyCityId
+                ? Guid.Empty
+                : cityId;
+
+            // Act
+            var exception = Record.Exception(() =>
+                building.UpdateAddress(updatedCityId, street, number));
+
+            // Assert
+            Assert.IsType<ArgumentException>(exception);
         }
 
         [Fact]

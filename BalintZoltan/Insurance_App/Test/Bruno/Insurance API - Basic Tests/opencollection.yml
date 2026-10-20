@@ -1,0 +1,50 @@
+opencollection: 1.0.0
+
+info:
+  name: Insurance API - Basic Tests
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: baseUrl
+      value: http://localhost:8000
+    - name: clientId
+      value: a6b47d0a-c8e6-4c58-83ad-495cee05ce79
+    - name: buildingId
+      value: 88108608-ce9d-4486-baba-4e08dad43dcd
+    - name: countryId
+      value: fc1005f1-7931-41c7-8968-fc8a075cb2f3
+    - name: countyId
+      value: 59a726f9-f074-4e7c-98c0-1ba800ae7df2
+    - name: cityId
+      value: c483cb89-93cb-4640-a648-44d6b1665b79
+    - name: identificationNumber
+      value: "1791210963990"
+    - name: feeId
+      value: 89f0084c-aede-4652-8cc4-5bee83c30e65
+    - name: brokerId
+      value: 54b4f2cd-5185-461e-9fb9-c783b8b0c78a
+    - name: brokerCode
+      value: PM-10967048
+    - name: feeName
+      value: Postman Fee 10966500
+
+docs:
+  content: Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

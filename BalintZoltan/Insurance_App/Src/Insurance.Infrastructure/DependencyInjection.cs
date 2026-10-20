@@ -1,5 +1,4 @@
-﻿using Infrastructure.Seed;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Infrastructure.Persistence;
 using Insurance.Infrastructure.Repositories;
 using Insurance.Infrastructure.Seed;

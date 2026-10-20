@@ -1,0 +1,38 @@
+info:
+  name: Update broker
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/brokers/{{brokerId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "brokerCode": "{{brokerCode}}",
+        "name": "Postman Broker Updated",
+        "email": "postman.broker.updated@example.com",
+        "phone": "+40712345001",
+        "commissionPercentage": 12.5
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });\r
+
+        test('Broker name was updated', function () { expect(res.getBody().name).to.eql('Postman Broker Updated'); });\r
+
+        test('Commission was updated', function () { expect(res.getBody().commissionPercentage).to.eql(12.5); });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
