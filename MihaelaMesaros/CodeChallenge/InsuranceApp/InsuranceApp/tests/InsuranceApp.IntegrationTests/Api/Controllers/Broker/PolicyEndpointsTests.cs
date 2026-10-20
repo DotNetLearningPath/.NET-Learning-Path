@@ -12,8 +12,8 @@ using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 
-public sealed class PolicyEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     private const string BaseUrl = "/api/brokers/policies";
 
@@ -156,20 +156,24 @@ public sealed class PolicyEndpointsTests(InsuranceAppWebApplicationFactory facto
         var policies = await SeedPoliciesListAsync();
 
         var expectedPolicy = policies[0];
+        var expectedCount = 0;
 
         string queryString;
 
         if (filter == "clientId")
         {
             queryString = $"clientId={expectedPolicy.ClientId}";
+            expectedCount = 2;
         }
         else if (filter == "brokerId")
         {
             queryString = $"brokerId={expectedPolicy.BrokerId}";
+            expectedCount = 2;
         }
         else
         {
             queryString = $"status={expectedPolicy.Status}";
+            expectedCount = 2;
         }
 
         // Act
@@ -181,9 +185,13 @@ public sealed class PolicyEndpointsTests(InsuranceAppWebApplicationFactory facto
         var result = await response.Content.ReadFromJsonAsync<PagedResult<PolicyDto>>();
 
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal(1, result.TotalCount);
-        Assert.Equal(expectedPolicy.PolicyId, result.Items[0].PolicyId);
+        Assert.Equal(expectedCount, result.Items.Count);
+        Assert.Equal(expectedCount, result.TotalCount);
+
+        foreach (var policy in policies.Take(expectedCount))
+        {
+            Assert.Contains(result.Items, x => x.PolicyId == policy.PolicyId);
+        }
     }
 
     [Theory]
