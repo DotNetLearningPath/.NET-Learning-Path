@@ -8,7 +8,8 @@ using System.Text.Json.Nodes;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class CurrenciesEndpointsTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Theory]
     [InlineData(true)]

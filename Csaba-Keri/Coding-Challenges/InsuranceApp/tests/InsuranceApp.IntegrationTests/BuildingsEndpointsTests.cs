@@ -7,7 +7,8 @@ using System.Text.Json.Nodes;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class BuildingsEndpointsTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public async Task CreateBuilding_ValidRequest_PersistsFieldsAndReturnsGeography()

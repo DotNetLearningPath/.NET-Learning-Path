@@ -7,7 +7,8 @@ using System.Text.Json.Nodes;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class BrokersEndpointsTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class BrokersEndpointsTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Theory]
     [InlineData("Active", BrokerStatus.Active)]
