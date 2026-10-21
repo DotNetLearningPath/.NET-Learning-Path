@@ -26,7 +26,7 @@ public class FeeRepository(InsuranceDbContext context) : IFeeRepository
             .AsNoTracking()
             .OrderBy(fee => fee.Name)
             .ThenBy(fee => fee.Id)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public async Task<IReadOnlyList<FeeConfiguration>> GetApplicableFeesAsync(DateOnly date, CancellationToken cancellationToken)

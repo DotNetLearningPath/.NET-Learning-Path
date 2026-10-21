@@ -16,5 +16,10 @@ public record PolicyResponse(
     decimal FinalPremium,
     IReadOnlyList<AppliedAdjustmentResponse> AppliedAdjustments,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? ActivatedAt,
+    DateTimeOffset? CancelledAt,
+    DateOnly? CancellationEffectiveDate,
+    string? CancellationReason,
+    DateTimeOffset? ExpiredAt
 );
