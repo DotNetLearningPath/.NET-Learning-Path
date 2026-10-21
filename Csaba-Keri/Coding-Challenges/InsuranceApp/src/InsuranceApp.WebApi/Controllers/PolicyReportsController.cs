@@ -35,4 +35,16 @@ public class PolicyReportsController(IPolicyReportService policyReportService) :
 
         return Ok(result.Select(row => row.ToResponse()));
     }
+
+    [HttpGet("policies-by-city")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PolicyReportRowResponse>>> GetPoliciesByCity(
+        [FromQuery] PolicyReportRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await _policyReportService.GetReportAsync(PolicyReportGrouping.City, request.ToQuery(), cancellationToken);
+
+        return Ok(result.Select(row => row.ToResponse()));
+    }
 }
