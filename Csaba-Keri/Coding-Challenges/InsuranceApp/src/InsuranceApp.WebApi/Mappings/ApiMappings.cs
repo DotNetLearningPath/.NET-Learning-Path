@@ -15,6 +15,8 @@ using InsuranceApp.Application.Geography.Results;
 using InsuranceApp.Application.Policies.Commands;
 using InsuranceApp.Application.Policies.Queries;
 using InsuranceApp.Application.Policies.Results;
+using InsuranceApp.Application.Reports.Queries;
+using InsuranceApp.Application.Reports.Results;
 using InsuranceApp.Application.RiskFactors.Commands;
 using InsuranceApp.Application.RiskFactors.Results;
 using InsuranceApp.Domain.Brokers;
@@ -32,6 +34,7 @@ using InsuranceApp.WebApi.Models.Currencies;
 using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
 using InsuranceApp.WebApi.Models.Policies;
+using InsuranceApp.WebApi.Models.Reports;
 using InsuranceApp.WebApi.Models.RiskFactors;
 using InsuranceApp.WebApi.Models.RiskFactors.Targets;
 
@@ -385,6 +388,17 @@ internal static class ApiMappings
         );
     }
 
+    public static PolicyReportQuery ToQuery(this PolicyReportRequest request)
+    {
+        return new(
+            From: request.From!.Value,
+            To: request.To!.Value,
+            Status: request.Status?.ToDomain(),
+            CurrencyId: request.CurrencyId,
+            BuildingType: request.BuildingType?.ToDomain()
+        );
+    }
+
     public static ClientResponse ToResponse(this ClientResult result)
     {
         return new(
@@ -609,6 +623,19 @@ internal static class ApiMappings
     public static ExpirePoliciesResponse ToResponse(this ExpirePoliciesResult result)
     {
         return new(ExpiredCount: result.ExpiredCount);
+    }
+
+    public static PolicyReportRowResponse ToResponse(this PolicyReportRowResult result)
+    {
+        return new(
+            GroupId: result.GroupId,
+            GroupName: result.GroupName,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            PolicyCount: result.PolicyCount,
+            TotalFinalPremium: result.TotalFinalPremium,
+            TotalFinalPremiumInBaseCurrency: result.TotalFinalPremiumInBaseCurrency
+        );
     }
 
     public static PagedResponse<TResponse> ToResponse<TResult, TResponse>(
