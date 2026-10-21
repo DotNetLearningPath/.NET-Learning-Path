@@ -16,6 +16,7 @@ public class ClientService(
     private const int IndividualIdentificationNumberLength = 13;
     private const int CompanyIdentificationNumberType1Length = 2;
     private const int CompanyIdentificationNumberType2Length = 10;
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(100);
 
     public async Task<ClientDto> CreateClientAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
@@ -125,7 +126,9 @@ public class ClientService(
         if (clientType == ClientType.Individual &&
             !Regex.IsMatch(
                 identificationNumber,
-                $@"^\d{{{IndividualIdentificationNumberLength}}}$"))
+                $@"^\d{{{IndividualIdentificationNumberLength}}}$",
+                RegexOptions.None,
+                RegexTimeout))
         {
             throw new ArgumentException(
                 $"CNP must contain exactly {IndividualIdentificationNumberLength} digits.");
@@ -135,7 +138,8 @@ public class ClientService(
             !Regex.IsMatch(
                 identificationNumber,
                 $@"^(RO)?\d{{{CompanyIdentificationNumberType1Length},{CompanyIdentificationNumberType2Length}}}$",
-                RegexOptions.IgnoreCase))
+                RegexOptions.IgnoreCase,
+                RegexTimeout))
         {
             throw new ArgumentException(
                 $"CUI must contain {CompanyIdentificationNumberType1Length}-" +

@@ -1,0 +1,35 @@
+info:
+  name: Cancel policy
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/brokers/policies/{{policyId}}/cancel"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "reason": "Customer request",
+        "cancellationDate": "2027-06-15T00:00:00Z"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });\r
+
+        test('Policy is cancelled', function () { expect(res.getBody().status).to.eql(2); });\r
+
+        test('Cancellation reason is stored', function () { expect(res.getBody().cancellationReason).to.eql('Customer request'); });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
