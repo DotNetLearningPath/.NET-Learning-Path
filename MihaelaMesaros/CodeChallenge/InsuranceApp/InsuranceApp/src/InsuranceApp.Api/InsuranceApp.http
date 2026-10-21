@@ -775,3 +775,23 @@ GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-broker
 Accept: application/json
 
 ###
+
+# ============================================================
+# Login
+# ============================================================
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "admin",
+  "password": "#QwErTy#"
+}
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "broker",
+  "password": "$AsDfGh$"
+}

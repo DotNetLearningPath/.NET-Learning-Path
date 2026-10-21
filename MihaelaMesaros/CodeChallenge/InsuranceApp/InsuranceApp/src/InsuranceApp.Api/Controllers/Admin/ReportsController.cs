@@ -1,9 +1,7 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
-using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Domain.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Admin;
