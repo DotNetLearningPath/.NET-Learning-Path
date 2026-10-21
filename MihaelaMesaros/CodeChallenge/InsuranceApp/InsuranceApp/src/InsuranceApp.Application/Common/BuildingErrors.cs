@@ -60,7 +60,7 @@ public static class BuildingErrors
         ErrorType.Validation);
     public static readonly Error InvalidSurfaceAreaScale = new(
         "Building.InvalidSurfaceAreaScale",
-        $"Surface area must have a maximum of {CommonConstraints.DecimalScale} decimal places.",
+        $"Surface area must have a maximum of {BuildingConstraints.SurfaceDecimalPlaces} decimal places.",
         ErrorType.Validation);
 
     public static readonly Error InvalidInsuredValue = new(
@@ -69,7 +69,7 @@ public static class BuildingErrors
         ErrorType.Validation);
     public static readonly Error InvalidInsuredValueScale = new(
         "Building.InvalidInsuredValueScale",
-        $"Insured value must have a maximum of {CommonConstraints.DecimalScale} decimal places.",
+        $"Insured value must have a maximum of {CommonConstraints.PriceDecimalPlaces} decimal places.",
         ErrorType.Validation);
 
     public static readonly Error InvalidRiskIndicatorsLength = new(

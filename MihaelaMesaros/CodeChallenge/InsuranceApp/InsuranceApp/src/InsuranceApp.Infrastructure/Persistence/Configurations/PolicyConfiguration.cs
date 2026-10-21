@@ -30,11 +30,11 @@ internal sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .IsRequired();
 
         builder.Property(x => x.BasePremium)
-            .HasPrecision(18, CommonConstraints.DecimalScale)
+            .HasPrecision(18, CommonConstraints.PriceDecimalPlaces)
             .IsRequired();
 
         builder.Property(x => x.FinalPremium)
-            .HasPrecision(18, CommonConstraints.DecimalScale)
+            .HasPrecision(18, CommonConstraints.PriceDecimalPlaces)
             .IsRequired();
 
         builder.Property(x => x.CancellationReason)

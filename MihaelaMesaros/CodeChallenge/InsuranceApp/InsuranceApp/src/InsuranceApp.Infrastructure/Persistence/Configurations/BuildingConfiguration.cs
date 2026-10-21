@@ -20,8 +20,8 @@ internal sealed class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.Property(x => x.AddressStreetNumber).HasMaxLength(BuildingConstraints.AddressStreetNumberMaxLength).IsRequired();
         builder.Property(x => x.ConstructionYear).IsRequired();
         builder.Property(x => x.NumberOfFloors).IsRequired();
-        builder.Property(x => x.SurfaceArea).HasPrecision(18, CommonConstraints.DecimalScale).IsRequired();
-        builder.Property(x => x.InsuredValue).HasPrecision(18, CommonConstraints.DecimalScale).IsRequired();
+        builder.Property(x => x.SurfaceArea).HasPrecision(18, BuildingConstraints.SurfaceDecimalPlaces).IsRequired();
+        builder.Property(x => x.InsuredValue).HasPrecision(18, CommonConstraints.PriceDecimalPlaces).IsRequired();
         builder.Property(x => x.RiskIndicators).HasMaxLength(BuildingConstraints.RiskIndicatorsMaxLength);
 
         builder.Property(x => x.CreatedAt).IsRequired();

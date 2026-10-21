@@ -1,0 +1,38 @@
+info:
+  name: Create policy - inactive broker
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/brokers/policies"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clientId": "{{clientId}}",
+        "buildingId": "{{buildingId}}",
+        "brokerId": "{{brokerId}}",
+        "currencyId": "{{currencyId}}",
+        "startDate": "2027-01-01T00:00:00Z",
+        "endDate": "2028-01-01T00:00:00Z",
+        "basePremium": 1000
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 400 or 403', function () { expect([400, 403]).to.include(res.getStatus()); });\r
+
+        test('Response contains conflict details', function () { expect(res.getBody().detail).to.be.a('string').and.not.empty; });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

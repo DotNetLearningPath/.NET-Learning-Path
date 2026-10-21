@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Admin;
 
-public sealed class RiskFactorConfigEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class RiskFactorConfigEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     private const string BaseUrl = "/api/admin/risk-factors";
 

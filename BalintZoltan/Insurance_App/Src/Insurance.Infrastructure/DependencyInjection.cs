@@ -55,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrencyRepository, CurrencyRepository>();
         services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
         services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
+        services.AddScoped<IPolicyRepository, PolicyRepository>();
 
         return services;
     }
