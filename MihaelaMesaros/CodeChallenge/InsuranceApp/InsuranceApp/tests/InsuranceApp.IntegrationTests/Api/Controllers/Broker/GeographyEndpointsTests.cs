@@ -9,8 +9,8 @@ using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 
-public sealed class GeographyEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class GeographyEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     #region Countries
 

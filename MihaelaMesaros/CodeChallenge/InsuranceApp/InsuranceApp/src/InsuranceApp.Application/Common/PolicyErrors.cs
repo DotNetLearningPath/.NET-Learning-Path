@@ -26,7 +26,7 @@ public static class PolicyErrors
 
     public static readonly Error InvalidBasePremium = new("Policy.InvalidBasePremium", "Base premium must be greater than zero.", ErrorType.Validation);
 
-    public static readonly Error InvalidBasePremiumScale = new("Policy.InvalidBasePremiumScale", $"Base premium must have a maximum of {PolicyConstraints.PremiumScale} decimal places.", ErrorType.Validation);
+    public static readonly Error InvalidBasePremiumDecimalPlaces = new("Policy.InvalidBasePremiumDecimalPlaces", $"Base premium must have a maximum of {CommonConstraints.PriceDecimalPlaces} decimal places.", ErrorType.Validation);
     public static readonly Error FinalPremiumCalculationFailed = new("Policy.FinalPremiumCalculationFailed", "Could not calculate final premium.", ErrorType.Validation);
 
     public static readonly Error ClientNotFound = new("Policy.ClientNotFound", "Client was not found.", ErrorType.NotFound);

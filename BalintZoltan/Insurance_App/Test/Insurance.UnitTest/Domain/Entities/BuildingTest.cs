@@ -169,7 +169,7 @@ namespace Insurance.UnitTest.Domain.Entities
                         building.UpdateDetails(1991, BuildingType.Residential, -1, 50m, 1100m);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(invalidField));
+                        throw new ArgumentOutOfRangeException(invalidField);
                 }
             });
         }

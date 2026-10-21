@@ -4,11 +4,11 @@ namespace InsuranceApp.UnitTests.Application.Services;
 
 public sealed class PolicyNumberGeneratorTests
 {
-    private readonly PolicyNumberGenerator _service;
+    private readonly PolicyNumberGeneratorService _service;
 
     public PolicyNumberGeneratorTests() 
     {
-        _service = new PolicyNumberGenerator();
+        _service = new PolicyNumberGeneratorService();
     }
     
     [Fact]

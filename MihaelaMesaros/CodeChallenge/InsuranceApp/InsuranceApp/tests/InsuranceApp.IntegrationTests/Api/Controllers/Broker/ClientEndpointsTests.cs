@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 
-public sealed class ClientEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class ClientEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     #region Create Client Tests
 
