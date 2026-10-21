@@ -19,9 +19,9 @@ request:
     - name: baseUrl
       value: http://localhost:8000
     - name: clientId
-      value: a6b47d0a-c8e6-4c58-83ad-495cee05ce79
+      value: 9365a353-ff9d-4fe1-b0f2-72b640943b61
     - name: buildingId
-      value: 88108608-ce9d-4486-baba-4e08dad43dcd
+      value: 99d120e7-e72a-4019-a2c5-6fda97820fb8
     - name: countryId
       value: fc1005f1-7931-41c7-8968-fc8a075cb2f3
     - name: countyId
@@ -29,15 +29,19 @@ request:
     - name: cityId
       value: c483cb89-93cb-4640-a648-44d6b1665b79
     - name: identificationNumber
-      value: "1791210963990"
+      value: "1792574854801"
     - name: feeId
-      value: 89f0084c-aede-4652-8cc4-5bee83c30e65
+      value: 86eaa806-0c42-4e32-95bb-995fd2798d80
     - name: brokerId
-      value: 54b4f2cd-5185-461e-9fb9-c783b8b0c78a
+      value: ecd68e61-9c38-4eff-8157-53fa541e76a3
     - name: brokerCode
-      value: PM-10967048
+      value: PM-74856650
     - name: feeName
-      value: Postman Fee 10966500
+      value: Postman Fee 74856232
+    - name: riskFactorReference
+      value: 01d24366-b436-454a-8c13-02be3855500a
+    - name: riskFactorId
+      value: 2e45c79d-83ba-43a5-8f13-b7209e9b6257
 
 docs:
   content: Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.
