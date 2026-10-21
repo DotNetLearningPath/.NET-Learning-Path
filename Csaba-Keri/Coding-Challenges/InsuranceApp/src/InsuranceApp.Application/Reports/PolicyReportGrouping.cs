@@ -2,5 +2,6 @@
 
 public enum PolicyReportGrouping
 {
-    Country
+    Country,
+    County
 }
