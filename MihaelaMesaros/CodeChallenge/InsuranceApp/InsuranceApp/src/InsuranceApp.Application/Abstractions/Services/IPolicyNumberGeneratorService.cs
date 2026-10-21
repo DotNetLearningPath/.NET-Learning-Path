@@ -1,6 +1,6 @@
 ﻿namespace InsuranceApp.Application.Abstractions.Services;
 
-public interface IPolicyNumberGenerator
+public interface IPolicyNumberGeneratorService
 {
     string GeneratePolicyNumber();
 }

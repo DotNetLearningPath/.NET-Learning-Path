@@ -11,8 +11,8 @@ using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Admin;
 
-public sealed class FeeConfigEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class FeeConfigEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     #region Create Fee Config Tests
 

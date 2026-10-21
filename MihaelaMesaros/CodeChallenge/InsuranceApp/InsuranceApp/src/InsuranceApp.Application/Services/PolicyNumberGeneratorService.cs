@@ -3,7 +3,7 @@ using System.Text;
 
 namespace InsuranceApp.Application.Services;
 
-public sealed class PolicyNumberGenerator : IPolicyNumberGenerator
+public sealed class PolicyNumberGeneratorService : IPolicyNumberGeneratorService
 {
     public string GeneratePolicyNumber()
     {

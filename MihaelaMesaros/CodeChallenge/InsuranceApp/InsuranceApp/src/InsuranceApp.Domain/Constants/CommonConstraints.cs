@@ -8,5 +8,7 @@ public static class CommonConstraints
     public const int MinPageSize = 1;
     public const int MaxPageSize = 100;
 
-    public const int DecimalScale = 2;
+    public const int PriceDecimalPlaces = 2;
+
+    public const MidpointRounding MidpointRoundingMode = MidpointRounding.AwayFromZero;
 }

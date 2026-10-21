@@ -7,8 +7,8 @@ using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 
-public sealed class BuildingEndpointsTests(InsuranceAppWebApplicationFactory factory)
-    : IntegrationTestBase(factory), IClassFixture<InsuranceAppWebApplicationFactory>
+public sealed class BuildingEndpointsTests(WebApplicationFactorySqlite factory)
+    : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
     #region Get Building By Id Tests
 

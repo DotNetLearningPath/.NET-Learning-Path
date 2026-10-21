@@ -13,7 +13,7 @@ namespace InsuranceApp.Application.Services;
 public sealed class PolicyService(
     IPolicyRepository policyRepository,
     IPolicyReferenceService policyReferenceService,
-    IPolicyNumberGenerator policyNumberGenerator,
+    IPolicyNumberGeneratorService policyNumberGenerator,
     IPolicyCalculationService policyCalculationService,
     ILogger<PolicyService> logger
     ) : IPolicyService
@@ -244,7 +244,7 @@ public sealed class PolicyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Policy {PolicyId} activated.", policyId);
+            logger.LogInformation("Policy {PolicyId} has been activated.", policyId);
         }
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
@@ -350,9 +350,9 @@ public sealed class PolicyService(
             return PolicyErrors.InvalidCurrencyId;
         }
 
-        if (!DecimalValidation.HasValidScale(dto.BasePremium, PolicyConstraints.PremiumScale))
+        if (!DecimalValidation.HasValidScale(dto.BasePremium, CommonConstraints.PriceDecimalPlaces))
         {
-            return PolicyErrors.InvalidBasePremiumScale;
+            return PolicyErrors.InvalidBasePremiumDecimalPlaces;
         }
 
         if (dto.BasePremium < PolicyConstraints.MinBasePremium)
