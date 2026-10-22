@@ -26,6 +26,7 @@ builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 builder.Services.AddScoped<IPremiumCalculationService, PremiumCalculationService>();
 builder.Services.AddScoped<IBrokerService, BrokerService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 var app = builder.Build();

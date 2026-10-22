@@ -5,7 +5,7 @@ cd /d "%~dp0"
 
 REM SonarQube configuration
 set "SONAR_URL=http://localhost:9000"
-set "PROJECT_KEY=Insurance_App"
+set "PROJECT_KEY=Insurance-app"
 
 REM Validate SonarQube token
 if not defined SONAR_TOKEN (

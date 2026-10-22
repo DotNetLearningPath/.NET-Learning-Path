@@ -312,7 +312,7 @@ public sealed class PolicyServiceTest
         _clients.Seed(client);
         _buildings.Storage.Add(building);
         _brokers.Storage[broker.Id] = broker;
-        _currencies.Item = currency;
+        _currencies.Storage.Add(currency);
 
         return (client, building, broker, currency);
     }

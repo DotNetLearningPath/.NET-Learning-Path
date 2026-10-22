@@ -1,0 +1,26 @@
+info:
+  name: Get currency by id
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/admin/currencies/{{currencyId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });
+        const body = res.getBody();
+        test('Currency id is correct', function () { expect(body.id).to.eql(bru.getCollectionVar('currencyId')); });
+        test('Currency code is present', function () { expect(body.code).to.be.a('string').and.have.length(3); });
+        test('Currency name is present', function () { expect(body.name).to.be.a('string').and.not.empty; });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
