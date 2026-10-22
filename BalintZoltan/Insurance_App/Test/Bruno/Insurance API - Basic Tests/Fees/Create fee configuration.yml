@@ -27,15 +27,25 @@ runtime:
     - type: before-request
       code: bru.setCollectionVar('feeName', 'Postman Fee ' + Date.now().toString().slice(-8));
     - type: after-response
-      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+      code: |
+        test('Status is 201 Created', function () {
+          expect(res.getStatus()).to.equal(201);
+        });
 
-        const body = res.getBody();\r
+        const body = res.getBody();
+        test('Response contains fee id', function () {
+          expect(body.id).to.be.a('string').and.not.empty;
+        });
+        test('Fee name is correct', function () {
+          expect(body.name).to.eql(bru.getCollectionVar('feeName'));
+        });
 
-        test('Response contains fee id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+        const location = res.getHeader('location');
+        test('Location header points to the created fee route', function () {
+          expect(location).to.be.a('string').and.include('/api/admin/fees/' + body.id);
+        });
 
-        test('Fee name is correct', function () { expect(body.name).to.eql(bru.getCollectionVar('feeName')); });\r
-
-        bru.setCollectionVar('feeId', body.id);"
+        bru.setCollectionVar('feeId', body.id);
 
 settings:
   encodeUrl: true
