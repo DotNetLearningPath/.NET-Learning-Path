@@ -16,6 +16,7 @@ public class PolicyReportRepository(InsuranceDbContext context) : IPolicyReportR
         var reportRows = grouping switch
         {
             PolicyReportGrouping.Country => SelectCountryReportRows(filteredPolicies),
+            PolicyReportGrouping.County => SelectCountyReportRows(filteredPolicies),
 
             _ => throw new ArgumentOutOfRangeException(
                 nameof(grouping),
@@ -98,6 +99,24 @@ public class PolicyReportRepository(InsuranceDbContext context) : IPolicyReportR
             {
                 GroupId = country.Id,
                 GroupName = country.Name,
+                CurrencyId = policy.CurrencyId,
+                CurrencyCode = policy.CurrencyCode,
+                FinalPremium = policy.FinalPremium,
+                ExchangeRateToBase = policy.ExchangeRateToBase
+            }
+        );
+    }
+
+    private IQueryable<PolicyReportGroupingData> SelectCountyReportRows(IQueryable<PolicyReportData> policies)
+    {
+        return (
+            from policy in policies
+            join city in _context.Cities on policy.CityId equals city.Id
+            join county in _context.Counties on city.CountyId equals county.Id
+            select new PolicyReportGroupingData
+            {
+                GroupId = county.Id,
+                GroupName = county.Name,
                 CurrencyId = policy.CurrencyId,
                 CurrencyCode = policy.CurrencyCode,
                 FinalPremium = policy.FinalPremium,
