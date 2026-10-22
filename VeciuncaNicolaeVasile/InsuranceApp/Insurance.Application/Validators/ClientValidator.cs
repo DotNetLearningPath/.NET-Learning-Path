@@ -42,7 +42,6 @@ namespace Insurance.Application.Validators
             {
                 throw new ArgumentException("Phone number is required", nameof(client));
             }
-
         }
     }
 }
