@@ -1,0 +1,33 @@
+info:
+  name: Update risk factor - invalid reference
+  type: http
+  seq: 22
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/risk-factors/{{riskFactorId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "level": 2,
+        "reference": "not-a-geography-guid",
+        "adjustmentPercentage": 3,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: test('Status is 400 Bad Request', function () { expect(res.getStatus()).to.equal(400); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

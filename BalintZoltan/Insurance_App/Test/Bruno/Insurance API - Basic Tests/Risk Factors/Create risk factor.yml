@@ -1,0 +1,45 @@
+info:
+  name: Create risk factor
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/risk-factors"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "level": 2,
+        "reference": "{{riskFactorReference}}",
+        "adjustmentPercentage": -2.5,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: "bru.setCollectionVar('riskFactorReference', bru.interpolate('{{$guid}}'));"
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains risk factor id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        test('Risk factor level is City', function () { expect(body.level).to.eql(2); });\r
+
+        test('Negative adjustment is preserved', function () { expect(body.adjustmentPercentage).to.eql(-2.5); });\r
+
+        bru.setCollectionVar('riskFactorId', body.id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

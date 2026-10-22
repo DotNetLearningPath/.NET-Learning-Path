@@ -1,0 +1,21 @@
+info:
+  name: Deactivate risk factor - not found
+  type: http
+  seq: 24
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/risk-factors/00000000-0000-0000-0000-000000000000/deactivate"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

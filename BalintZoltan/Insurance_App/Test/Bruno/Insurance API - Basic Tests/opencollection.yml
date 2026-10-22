@@ -36,10 +36,8 @@ request:
       value: cb6476a6-f570-43c3-8968-fe69235ed1cf
     - name: brokerCode
       value: PM-93918553
-    - name: currencyId
-      value: cd5fa7e3-9b43-4937-b069-3437c101ce7e
     - name: feeName
-      value: Postman Fee 93917262
+       value: Postman Fee 93917262
     - name: currencyCode
       value: XUL
     - name: currencyName
@@ -48,6 +46,10 @@ request:
       value: YKC
     - name: policyId
       value: 3c936a83-fd7a-408c-a3e7-44aa97c3b415
+    - name: riskFactorReference
+      value: 01d24366-b436-454a-8c13-02be3855500a
+    - name: riskFactorId
+      value: 2e45c79d-83ba-43a5-8f13-b7209e9b6257
 
 docs:
   content: Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.

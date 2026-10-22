@@ -8,16 +8,19 @@ namespace Insurance.UnitTest.Application.Fakes;
 public sealed class FakeRiskFactorRepository : IRiskFactorRepository
 {
     public readonly List<RiskFactorConfiguration> Storage = [];
+    public int AddCallCount { get; private set; }
+    public int UpdateCallCount { get; private set; }
 
     public Task AddRiskFactorAsync(
         RiskFactorConfiguration configuration,
         CancellationToken cancellationToken)
     {
         Storage.Add(configuration);
+        AddCallCount++;
         return Task.CompletedTask;
     }
 
-    public Task<RiskFactorConfiguration?> GetByLevelAndReferenceAsync(
+    public Task<RiskFactorConfiguration?> GetRiskFactorByLevelAndReferenceAsync(
         RiskFactorLevel level,
         string reference,
         CancellationToken cancellationToken)
@@ -29,7 +32,7 @@ public sealed class FakeRiskFactorRepository : IRiskFactorRepository
         return Task.FromResult(match);
     }
 
-    public Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
+    public Task<RiskFactorConfiguration?> GetRiskFactorByBuildingTypeAsync(
         BuildingType buildingType,
         CancellationToken cancellationToken)
     {
@@ -38,6 +41,19 @@ public sealed class FakeRiskFactorRepository : IRiskFactorRepository
             && configuration.Level == RiskFactorLevel.BuildingType
             && configuration.Reference == buildingType.ToString());
         return Task.FromResult(match);
+    }
+
+    public Task<RiskFactorConfiguration?> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken) =>
+        Task.FromResult(Storage.FirstOrDefault(configuration => configuration.Id == id));
+
+    public Task UpdateRiskFactorAsync(
+        RiskFactorConfiguration configuration,
+        CancellationToken cancellationToken)
+    {
+        UpdateCallCount++;
+        return Task.CompletedTask;
     }
 
     public Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
