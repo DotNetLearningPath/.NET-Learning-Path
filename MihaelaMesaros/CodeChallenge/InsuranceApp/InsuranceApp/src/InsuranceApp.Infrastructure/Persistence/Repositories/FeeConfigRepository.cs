@@ -15,6 +15,19 @@ internal sealed class FeeConfigRepository(InsuranceDbContext dbContext) : IFeeCo
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<FeeConfig>> GetActiveFeeConfigsAsync(DateTime startDate, DateTime? endDate, CancellationToken cancellationToken)
+    {
+        var effectiveEndDate = endDate ?? startDate;
+
+        return await dbContext.FeeConfigs
+            .AsNoTracking()
+            .Where(x =>
+                x.IsActive 
+                && x.EffectiveFrom <= effectiveEndDate
+                && (!x.EffectiveTo.HasValue || x.EffectiveTo.Value >= startDate))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<FeeConfig?> GetFeeConfigByIdAsync(Guid feeConfigId, CancellationToken cancellationToken)
     {
         return dbContext.FeeConfigs.AsNoTracking().FirstOrDefaultAsync(x => x.FeeConfigId == feeConfigId, cancellationToken);

@@ -1,0 +1,48 @@
+info:
+  name: Create policy
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/brokers/policies"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clientId": "{{clientId}}",
+        "buildingId": "{{buildingId}}",
+        "brokerId": "{{brokerId}}",
+        "currencyId": "{{currencyId}}",
+        "startDate": "2027-01-01T00:00:00Z",
+        "endDate": "2028-01-01T00:00:00Z",
+        "basePremium": 1000
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 201 Created', function () { expect(res.getStatus()).to.equal(201); });\r
+
+        const body = res.getBody();\r
+
+        test('Response contains policy id', function () { expect(body.id).to.be.a('string').and.not.empty; });\r
+
+        test('Policy is draft', function () { expect(body.status).to.eql(0); });\r
+
+        test('Creation date exists', function () { expect(body.createdAt).to.be.a('string').and.not.empty; });\r
+
+        test('Last update date exists', function () { expect(body.updatedAt).to.be.a('string').and.not.empty; });\r
+
+        bru.setCollectionVar('policyId', body.id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

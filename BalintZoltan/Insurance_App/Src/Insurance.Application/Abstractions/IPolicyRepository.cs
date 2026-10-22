@@ -1,6 +1,6 @@
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Insurance.Application.DTO.Common;
 
 namespace Insurance.Application.Abstractions;
 
@@ -18,7 +18,11 @@ public interface IPolicyRepository
 
     Task<PagedResult<Policy>> SearchPoliciesAsync(
         string? policyNumber,
+        Guid? clientId,
+        Guid? brokerId,
         PolicyStatus? status,
+        DateTime? startDateFrom,
+        DateTime? startDateTo,
         PaginationRequest pagination,
         CancellationToken cancellationToken);
 

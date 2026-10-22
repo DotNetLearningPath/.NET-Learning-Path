@@ -27,7 +27,7 @@ public class CurrencyRepository(InsuranceDbContext context) : ICurrencyRepositor
         return _context.Currencies
             .AsNoTracking()
             .OrderBy(currency => currency.Code)
-            .ToDomainPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
+            .ToPageAsync(query.PageNumber, query.PageSize, entity => entity.ToDomain(), cancellationToken);
     }
 
     public Task<bool> CurrencyExistsByCodeAsync(string code, CancellationToken cancellationToken)

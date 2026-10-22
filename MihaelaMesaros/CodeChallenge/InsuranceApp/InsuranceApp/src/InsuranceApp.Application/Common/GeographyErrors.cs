@@ -21,4 +21,9 @@ public static class GeographyErrors
         "Geography.CountyNotFound",
         $"County with ID {countyId} was not found.",
         ErrorType.NotFound);
+
+    public static Error CityNotFound(Guid cityId) => new(
+        "Geography.CityNotFound",
+        $"City with ID {cityId} was not found.",
+        ErrorType.NotFound);
 }

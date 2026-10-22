@@ -1,5 +1,4 @@
-﻿using Infrastructure.Seed;
-using Insurance.Application.Abstractions;
+﻿using Insurance.Application.Abstractions;
 using Insurance.Infrastructure.Persistence;
 using Insurance.Infrastructure.Repositories;
 using Insurance.Infrastructure.Seed;
@@ -52,11 +51,11 @@ public static class DependencyInjection
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IBuildingRepository, BuildingRepository>();
         services.AddScoped<IGeographyRepository, GeographyRepository>();
-        services.AddScoped<IPolicyRepository, PolicyRepository>();
         services.AddScoped<IBrokerRepository, BrokerRepository>();
         services.AddScoped<ICurrencyRepository, CurrencyRepository>();
         services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
         services.AddScoped<IRiskFactorRepository, RiskFactorRepository>();
+        services.AddScoped<IPolicyRepository, PolicyRepository>();
 
         return services;
     }

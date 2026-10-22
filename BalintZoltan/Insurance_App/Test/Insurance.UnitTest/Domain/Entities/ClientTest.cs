@@ -1,7 +1,7 @@
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
 
-namespace Insurance.Domain.UnitTests.Entities
+namespace Insurance.UnitTest.Domain.Entities
 {
     public class ClientTest
     {
@@ -22,18 +22,19 @@ namespace Insurance.Domain.UnitTests.Entities
         }
 
         [Theory]
-        [InlineData("Name")]
-        [InlineData("IdentificationNumber")]
-        public void Constructor_Should_Throw_When_Required_Data_Is_Empty(string invalidField)
+        [InlineData(ClientType.Individual, "", "ID123")]
+        [InlineData(ClientType.Individual, "John", "  ")]
+        public void Constructor_Should_Throw_When_Required_Data_Is_Empty(
+            ClientType clientType,
+            string name,
+            string identificationNumber)
         {
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                invalidField switch
-                {
-                    "Name" => new Client(ClientType.Individual, "", "ID123"),
-                    "IdentificationNumber" => new Client(ClientType.Individual, "John", "  "),
-                    _ => throw new ArgumentOutOfRangeException(nameof(invalidField))
-                });
+            // Act
+            var exception = Record.Exception(() =>
+                new Client(clientType, name, identificationNumber));
+
+            // Assert
+            Assert.IsType<ArgumentException>(exception);
         }
 
         [Fact]

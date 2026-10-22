@@ -3,6 +3,7 @@ using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.Exceptions;
 using InsuranceApp.Application.Services;
+using InsuranceApp.Domain.Constants;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
 using InsuranceApp.UnitTests.Common;
@@ -17,47 +18,12 @@ public sealed class ClientServiceTests
     private readonly Mock<ILogger<ClientService>> _loggerMock;
     private readonly ClientService _service;
 
-    private readonly Guid _clientId;
-    private readonly CreateClientDto _validCreateDto;
-    private readonly UpdateClientDto _validUpdateDto;
-    private readonly Client _existingClient;
-
     public ClientServiceTests()
     {
         _repositoryMock = new Mock<IClientRepository>();
         _loggerMock = new Mock<ILogger<ClientService>>();
 
-        _service = new ClientService(
-            _repositoryMock.Object,
-            _loggerMock.Object);
-
-        _clientId = Guid.NewGuid();
-
-        _validCreateDto = new CreateClientDto(
-            ClientType.Individual,
-            "John Doe",
-            "1980101223344",
-            "john@test.com",
-            "0712345678",
-            "Cluj-Napoca");
-
-        _validUpdateDto = new UpdateClientDto(
-            "John Updated",
-            "john.updated@test.com",
-            "0700123456",
-            "Bucharest");
-
-        _existingClient = new Client
-        {
-            ClientId = _clientId,
-            ClientType = ClientType.Individual,
-            Name = "John Doe",
-            IdentificationNumber = "1980101223344",
-            Email = "john@test.com",
-            Phone = "0712345678",
-            Address = "Cluj-Napoca",
-            CreatedAt = DateTime.UtcNow
-        };
+        _service = new ClientService(_repositoryMock.Object, _loggerMock.Object);
     }
 
     #region Read Client Tests
@@ -66,46 +32,35 @@ public sealed class ClientServiceTests
     public async Task GetClientByIdAsync_ExistingClient_ReturnsSuccess()
     {
         // Arrange
-        _repositoryMock
-            .Setup(x => x.GetClientByIdAsync(
-                _clientId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_existingClient);
+        var client = TestData.CreateClient1();
+
+        _repositoryMock.Setup(x => x.GetClientByIdAsync(client.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(client);
 
         // Act
-        var result = await _service.GetClientByIdAsync(
-            _clientId,
-            CancellationToken.None);
+        var result = await _service.GetClientByIdAsync(client.ClientId, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-
-        Assert.Equal(_clientId, result.Value.ClientId);
-        Assert.Equal(_existingClient.ClientType, result.Value.ClientType);
-        Assert.Equal(_existingClient.Name, result.Value.Name);
-        Assert.Equal(
-            _existingClient.IdentificationNumber,
-            result.Value.IdentificationNumber);
-        Assert.Equal(_existingClient.Email, result.Value.Email);
+        Assert.Equal(client.ClientId, result.Value.ClientId);
+        Assert.Equal(client.ClientType, result.Value.ClientType);
+        Assert.Equal(client.Name, result.Value.Name);
+        Assert.Equal(client.IdentificationNumber, result.Value.IdentificationNumber);
+        Assert.Equal(client.Email, result.Value.Email);
+        Assert.Equal(client.Phone, result.Value.Phone);
+        Assert.Equal(client.Address, result.Value.Address);
     }
 
     [Fact]
     public async Task GetClientByIdAsync_NonExistingClient_ReturnsNotFound()
     {
         // Arrange
-        var clientId = TestConstants.NonExistingId;
+        var clientId = TestData.NonExistingId;
 
-        _repositoryMock
-            .Setup(x => x.GetClientByIdAsync(
-                clientId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Client?)null);
+        _repositoryMock.Setup(x => x.GetClientByIdAsync(clientId, It.IsAny<CancellationToken>())).ReturnsAsync((Client?)null);
 
         // Act
-        var result = await _service.GetClientByIdAsync(
-            clientId,
-            CancellationToken.None);
+        var result = await _service.GetClientByIdAsync(clientId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -117,10 +72,11 @@ public sealed class ClientServiceTests
     [Fact]
     public async Task GetClientByIdAsync_EmptyClientId_ReturnsValidationError()
     {
+        // Arrange
+        var clientId = Guid.Empty;
+
         // Act
-        var result = await _service.GetClientByIdAsync(
-            Guid.Empty,
-            CancellationToken.None);
+        var result = await _service.GetClientByIdAsync(clientId, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -128,11 +84,7 @@ public sealed class ClientServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(ClientErrors.InvalidClientId.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.GetClientByIdAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.GetClientByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
@@ -143,157 +95,90 @@ public sealed class ClientServiceTests
     public async Task SearchClientsAsync_ValidSearch_ReturnsPagedResult()
     {
         // Arrange
-        var search = new ClientSearchDto(
-            "John",
-            null,
-            1,
-            20);
+        var client1 = TestData.CreateClient1();
+        var client2 = TestData.CreateClient2();
+        var clients = new List<Client> { client1, client2 };
+        var search = new ClientSearchDto("John", null, 1, 20);
 
-        var secondClient = new Client
-        {
-            ClientId = Guid.NewGuid(),
-            ClientType = ClientType.Individual,
-            Name = "John Smith",
-            IdentificationNumber = "2990101223344",
-            Email = "john.smith@test.com",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var clients = new List<Client>
-        {
-            _existingClient,
-            secondClient
-        };
-
-        _repositoryMock
-            .Setup(x => x.SearchClientAsync(
-                "John",
-                null,
-                1,
-                20,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((clients, 2));
+        _repositoryMock.Setup(x => x.SearchClientAsync("John", null, search.PageNumber, search.PageSize, It.IsAny<CancellationToken>())).ReturnsAsync((clients, clients.Count));
 
         // Act
-        var result = await _service.SearchClientsAsync(
-            search,
-            CancellationToken.None);
+        var result = await _service.SearchClientsAsync(search, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-
-        Assert.Equal(2, result.Value.Items.Count);
-        Assert.Equal(2, result.Value.TotalCount);
-        Assert.Equal(1, result.Value.PageNumber);
-        Assert.Equal(20, result.Value.PageSize);
-
-        Assert.Equal("John Doe", result.Value.Items[0].Name);
-        Assert.Equal("John Smith", result.Value.Items[1].Name);
+        Assert.Equal(clients.Count, result.Value.Items.Count);
+        Assert.Equal(clients.Count, result.Value.TotalCount);
+        Assert.Equal(search.PageNumber, result.Value.PageNumber);
+        Assert.Equal(search.PageSize, result.Value.PageSize);
+        Assert.Equal(client1.Name, result.Value.Items[0].Name);
+        Assert.Equal(client2.Name, result.Value.Items[1].Name);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public async Task SearchClientsAsync_InvalidPageNumber_ReturnsValidationError(
-        int pageNumber)
+    public async Task SearchClientsAsync_InvalidPageNumber_ReturnsValidationError(int pageNumber)
     {
         // Arrange
-        var search = new ClientSearchDto(
-            null,
-            null,
-            pageNumber,
-            20);
+        var search = new ClientSearchDto(null, null, pageNumber, 20);
 
         // Act
-        var result = await _service.SearchClientsAsync(
-            search,
-            CancellationToken.None);
+        var result = await _service.SearchClientsAsync(search, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(ClientErrors.InvalidPageNumber.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.SearchClientAsync(
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.SearchClientAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(1001)]
-    public async Task SearchClientsAsync_InvalidPageSize_ReturnsValidationError(
-        int pageSize)
+    public async Task SearchClientsAsync_InvalidPageSize_ReturnsValidationError(int pageSize)
     {
         // Arrange
-        var search = new ClientSearchDto(
-            null,
-            null,
-            1,
-            pageSize);
+        var search = new ClientSearchDto(null, null, 1, pageSize);
 
         // Act
-        var result = await _service.SearchClientsAsync(
-            search,
-            CancellationToken.None);
+        var result = await _service.SearchClientsAsync(search, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(ClientErrors.InvalidPageSize.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.SearchClientAsync(
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.SearchClientAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task SearchClientsAsync_TrimsSearchParameters()
     {
         // Arrange
+        var client = TestData.CreateClient1();
+        var searchName = client.Name.Split(' ')[0];
+
         var search = new ClientSearchDto(
-            "  John  ",
-            "  1980101223344  ",
+            $"  {searchName}  ",
+            $"  {client.IdentificationNumber}  ",
             1,
             20);
 
-        _repositoryMock
-            .Setup(x => x.SearchClientAsync(
-                "John",
-                "1980101223344",
-                1,
-                20,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new List<Client>(), 0));
+        _repositoryMock.Setup(x => x.SearchClientAsync(searchName, client.IdentificationNumber, search.PageNumber, search.PageSize, It.IsAny<CancellationToken>())).ReturnsAsync((new List<Client>(), 0));
 
         // Act
-        var result = await _service.SearchClientsAsync(
-            search,
-            CancellationToken.None);
+        var result = await _service.SearchClientsAsync(search, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
 
-        _repositoryMock.Verify(
-            x => x.SearchClientAsync(
-                "John",
-                "1980101223344",
-                1,
-                20,
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        _repositoryMock.Verify(x => x.SearchClientAsync(searchName, client.IdentificationNumber, search.PageNumber, search.PageSize, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     #endregion
@@ -304,342 +189,221 @@ public sealed class ClientServiceTests
     public async Task CreateClientAsync_ValidClient_ReturnsSuccess()
     {
         // Arrange
-        SetupIdentificationNumberDoesNotExist();
+        var clientDto = TestData.CreateClientDto();
+
+        SetupIdentificationNumberDoesNotExist(clientDto);
 
         // Act
-        var result = await _service.CreateClientAsync(
-            _validCreateDto,
-            CancellationToken.None);
+        var result = await _service.CreateClientAsync(clientDto, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
+        Assert.Equal(clientDto.ClientType, result.Value.ClientType);
+        Assert.Equal(clientDto.Name, result.Value.Name);
+        Assert.Equal(clientDto.IdentificationNumber, result.Value.IdentificationNumber);
+        Assert.Equal(clientDto.Email, result.Value.Email);
+        Assert.Equal(clientDto.Phone, result.Value.Phone);
+        Assert.Equal(clientDto.Address, result.Value.Address);
 
-        Assert.Equal(_validCreateDto.ClientType, result.Value.ClientType);
-        Assert.Equal(_validCreateDto.Name, result.Value.Name);
-        Assert.Equal(
-            _validCreateDto.IdentificationNumber,
-            result.Value.IdentificationNumber);
-        Assert.Equal(_validCreateDto.Email, result.Value.Email);
-        Assert.Equal(_validCreateDto.Phone, result.Value.Phone);
-        Assert.Equal(_validCreateDto.Address, result.Value.Address);
-
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.Is<Client>(client =>
-                    client.Name == _validCreateDto.Name &&
-                    client.IdentificationNumber ==
-                        _validCreateDto.IdentificationNumber &&
-                    client.ClientType == _validCreateDto.ClientType),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        _repositoryMock.Verify(x => x.AddClientAsync(
+            It.Is<Client>(client =>
+                client.Name == clientDto.Name &&
+                client.IdentificationNumber == clientDto.IdentificationNumber &&
+                client.ClientType == clientDto.ClientType),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task CreateClientAsync_MissingName_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Name = ""
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Name = "" };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-
-        VerifyAddClientNeverCalled();
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.NameRequired);
     }
 
     [Fact]
     public async Task CreateClientAsync_MissingIdentificationNumber_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            IdentificationNumber = ""
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { IdentificationNumber = "" };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-
-        VerifyAddClientNeverCalled();
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.IdentificationNumberRequired);
     }
 
     [Fact]
     public async Task CreateClientAsync_InvalidClientType_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            ClientType = (ClientType)999
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { ClientType = (ClientType)999 };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-
-        VerifyAddClientNeverCalled();
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidClientType);
     }
 
     [Fact]
     public async Task CreateClientAsync_InvalidEmail_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Email = "invalid-email"
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Email = "invalid-email" };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-
-        VerifyAddClientNeverCalled();
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidEmail);
     }
 
     [Fact]
     public async Task CreateClientAsync_DuplicateIdentificationNumber_ReturnsConflict()
     {
         // Arrange
-        _repositoryMock
-            .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                _validCreateDto.IdentificationNumber,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        var clientDto = TestData.CreateClientDto();
+
+        _repositoryMock.Setup(x => x.ClientIdentificationNumberExistsAsync(clientDto.IdentificationNumber, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         // Act
-        var result = await _service.CreateClientAsync(
-            _validCreateDto,
-            CancellationToken.None);
+        var result = await _service.CreateClientAsync(clientDto, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Conflict, result.Error.Type);
+        Assert.Equal(ClientErrors.DuplicateIdentificationNumber.Code, result.Error.Code);
 
-        VerifyAddClientNeverCalled();
+        _repositoryMock.Verify(x => x.AddClientAsync(It.IsAny<Client>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
     [InlineData("A")]
     [InlineData("AB")]
-    public async Task CreateClientAsync_NameTooShort_ReturnsValidationError(
-        string name)
+    public async Task CreateClientAsync_NameTooShort_ReturnsValidationError(string name)
     {
-        var dto = _validCreateDto with
-        {
-            Name = name
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Name = name };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.NotNull(result.Error);
-        Assert.Equal(ErrorType.Validation, result.Error.Type);
-        Assert.Equal(ClientErrors.InvalidNameLength.Code, result.Error.Code);
-
-        VerifyAddClientNeverCalled();
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidNameLength);
     }
 
     [Fact]
     public async Task CreateClientAsync_NameTooLong_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Name = new string('A', 201)
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Name = new string('A', ClientConstraints.NameMaxLength + 1) };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidNameLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidNameLength);
     }
 
     [Theory]
     [InlineData("1")]
     [InlineData("12")]
-    public async Task CreateClientAsync_IdentificationNumberTooShort_ReturnsValidationError(
-        string identificationNumber)
+    public async Task CreateClientAsync_IdentificationNumberTooShort_ReturnsValidationError(string identificationNumber)
     {
-        var dto = _validCreateDto with
-        {
-            IdentificationNumber = identificationNumber
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { IdentificationNumber = identificationNumber };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidIdentificationNumberLength);
 
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidIdentificationNumberLength.Code,
-            result.Error!.Code);
-
-        _repositoryMock.Verify(
-            x => x.ClientIdentificationNumberExistsAsync(
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.ClientIdentificationNumberExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task CreateClientAsync_IdentificationNumberTooLong_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            IdentificationNumber = new string('1', 51)
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { IdentificationNumber = new string('1', ClientConstraints.IdentificationNumberMaxLength + 1) };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidIdentificationNumberLength);
 
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidIdentificationNumberLength.Code,
-            result.Error!.Code);
+        _repositoryMock.Verify(x => x.ClientIdentificationNumberExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task CreateClientAsync_EmailTooLong_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Email = $"{new string('a', 195)}@test.com"
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto();
+        var email = $"{new string('a', ClientConstraints.EmailMaxLength - TestData.EmailDomain.Length + 1)}{TestData.EmailDomain}";
+        var invalidClientDto = clientDto with { Email = email };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidEmail.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(invalidClientDto, ClientErrors.InvalidEmail);
     }
 
     [Fact]
     public async Task CreateClientAsync_PhoneTooLong_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Phone = new string('1', 51)
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Phone = new string('1', ClientConstraints.PhoneMaxLength + 1) };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidPhoneLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidPhoneLength);
     }
 
     [Fact]
     public async Task CreateClientAsync_AddressTooLong_ReturnsValidationError()
     {
-        var dto = _validCreateDto with
-        {
-            Address = new string('A', 301)
-        };
+        // Arrange
+        var clientDto = TestData.CreateClientDto() with { Address = new string('A', ClientConstraints.AddressMaxLength + 1) };
 
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidAddressLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidCreateClientAsync(clientDto, ClientErrors.InvalidAddressLength);
     }
 
     [Fact]
     public async Task CreateClientAsync_ValidClient_TrimsInputValues()
     {
         // Arrange
-        var dto = _validCreateDto with
+        var clientDto = TestData.CreateClientDto();
+
+        var clientDtoWithSpaces = clientDto with
         {
-            Name = "  John Doe  ",
-            IdentificationNumber = "  1980101223344  ",
-            Email = "  john@test.com  ",
-            Phone = "  0712345678  ",
-            Address = "  Cluj-Napoca  "
+            Name = $"  {clientDto.Name}  ",
+            IdentificationNumber = $"  {clientDto.IdentificationNumber}  ",
+            Email = $"  {clientDto.Email}  ",
+            Phone = $"  {clientDto.Phone}  ",
+            Address = $"  {clientDto.Address}  "
         };
 
-        _repositoryMock
-            .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                "1980101223344",
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        SetupIdentificationNumberDoesNotExist(clientDto);
 
         // Act
-        var result = await _service.CreateClientAsync(
-            dto,
-            CancellationToken.None);
+        var result = await _service.CreateClientAsync(clientDtoWithSpaces, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal("John Doe", result.Value!.Name);
-        Assert.Equal(
-            "1980101223344",
-            result.Value.IdentificationNumber);
-        Assert.Equal("john@test.com", result.Value.Email);
-        Assert.Equal("0712345678", result.Value.Phone);
-        Assert.Equal("Cluj-Napoca", result.Value.Address);
+        Assert.NotNull(result.Value);
+        Assert.Equal(clientDto.Name, result.Value.Name);
+        Assert.Equal(clientDto.IdentificationNumber, result.Value.IdentificationNumber);
+        Assert.Equal(clientDto.Email, result.Value.Email);
+        Assert.Equal(clientDto.Phone, result.Value.Phone);
+        Assert.Equal(clientDto.Address, result.Value.Address);
     }
 
     [Fact]
     public async Task CreateClientAsync_DuplicateOnInsertConcurrency_ReturnsConflict()
     {
         // Arrange
-        SetupIdentificationNumberDoesNotExist();
+        var clientDto = TestData.CreateClientDto();
 
-        _repositoryMock
-            .Setup(x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(
-                new DuplicateEntityException(nameof(Client)));
+        SetupIdentificationNumberDoesNotExist(clientDto);
+
+        _repositoryMock.Setup(x => x.AddClientAsync(It.IsAny<Client>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DuplicateEntityException(nameof(Client)));
 
         // Act
-        var result = await _service.CreateClientAsync(
-            _validCreateDto,
-            CancellationToken.None);
+        var result = await _service.CreateClientAsync(clientDto, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Conflict, result.Error.Type);
-        Assert.Equal(
-            ClientErrors.DuplicateIdentificationNumber.Code,
-            result.Error.Code);
+        Assert.Equal(ClientErrors.DuplicateIdentificationNumber.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        _repositoryMock.Verify(x => x.AddClientAsync(It.IsAny<Client>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     #endregion
@@ -650,75 +414,58 @@ public sealed class ClientServiceTests
     public async Task UpdateClientAsync_ValidClient_ReturnsUpdatedClient()
     {
         // Arrange
-        var originalIdentificationNumber =
-            _existingClient.IdentificationNumber;
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto();
+        var originalIdentificationNumber = client.IdentificationNumber;
 
-        SetupExistingClientForUpdate();
+        SetupExistingClientForUpdate(client);
 
         // Act
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            _validUpdateDto,
-            CancellationToken.None);
+        var result = await _service.UpdateClientAsync(client.ClientId, clientDto, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
+        Assert.Equal(clientDto.Name, result.Value.Name);
+        Assert.Equal(clientDto.Email, result.Value.Email);
+        Assert.Equal(clientDto.Phone, result.Value.Phone);
+        Assert.Equal(clientDto.Address, result.Value.Address);
+        Assert.Equal(originalIdentificationNumber, result.Value.IdentificationNumber);
+        Assert.NotNull(client.ModifiedAt);
 
-        Assert.Equal(_validUpdateDto.Name, result.Value.Name);
-        Assert.Equal(_validUpdateDto.Email, result.Value.Email);
-        Assert.Equal(_validUpdateDto.Phone, result.Value.Phone);
-        Assert.Equal(_validUpdateDto.Address, result.Value.Address);
-
-        Assert.Equal(
-            originalIdentificationNumber,
-            result.Value.IdentificationNumber);
-
-        Assert.NotNull(_existingClient.ModifiedAt);
-
-        _repositoryMock.Verify(
-            x => x.SaveClientChangesAsync(
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        _repositoryMock.Verify(x => x.SaveClientChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdateClientAsync_NonExistingClient_ReturnsNotFound()
     {
         // Arrange
-        var clientId = TestConstants.NonExistingId;
+        var clientId = TestData.NonExistingId;
+        var clientDto = TestData.UpdateClientDto();
 
-        _repositoryMock
-            .Setup(x => x.GetClientForUpdateAsync(
-                clientId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Client?)null);
+        _repositoryMock.Setup(x => x.GetClientForUpdateAsync(clientId, It.IsAny<CancellationToken>())).ReturnsAsync((Client?)null);
 
         // Act
-        var result = await _service.UpdateClientAsync(
-            clientId,
-            _validUpdateDto,
-            CancellationToken.None);
+        var result = await _service.UpdateClientAsync(clientId, clientDto, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.NotFound, result.Error.Type);
+        Assert.Equal(ClientErrors.NotFound(clientId).Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.SaveClientChangesAsync(
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.SaveClientChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task UpdateClientAsync_EmptyClientId_ReturnsValidationError()
     {
+        // Arrange
+        var clientId = Guid.Empty;
+        var clientDto = TestData.UpdateClientDto();
+
         // Act
-        var result = await _service.UpdateClientAsync(
-            Guid.Empty,
-            _validUpdateDto,
-            CancellationToken.None);
+        var result = await _service.UpdateClientAsync(clientId, clientDto, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -726,187 +473,129 @@ public sealed class ClientServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(ClientErrors.InvalidClientId.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.GetClientForUpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.GetClientForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task UpdateClientAsync_MissingName_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Name = ""
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Name = "" };
 
-        await AssertInvalidUpdateAsync(dto);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.NameRequired);
     }
 
     [Fact]
     public async Task UpdateClientAsync_InvalidEmail_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Email = "invalid-email"
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Email = "invalid-email" };
 
-        await AssertInvalidUpdateAsync(dto);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidEmail);
     }
 
     [Theory]
     [InlineData("A")]
     [InlineData("AB")]
-    public async Task UpdateClientAsync_NameTooShort_ReturnsValidationError(
-        string name)
+    public async Task UpdateClientAsync_NameTooShort_ReturnsValidationError(string name)
     {
-        var dto = _validUpdateDto with
-        {
-            Name = name
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Name = name };
 
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidNameLength.Code,
-            result.Error!.Code);
-
-        _repositoryMock.Verify(
-            x => x.GetClientForUpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidNameLength);
     }
 
     [Fact]
     public async Task UpdateClientAsync_NameTooLong_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Name = new string('A', 201)
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Name = new string('A', ClientConstraints.NameMaxLength + 1) };
 
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidNameLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidNameLength);
     }
 
     [Fact]
     public async Task UpdateClientAsync_EmailTooLong_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Email = $"{new string('a', 195)}@test.com"
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var updateClientDto = TestData.UpdateClientDto();
+        var email = $"{new string('a', ClientConstraints.EmailMaxLength - TestData.EmailDomain.Length + 1)}{TestData.EmailDomain}";
+        var clientDto = updateClientDto with { Email = email };
 
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidEmail.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidEmail);
     }
 
     [Fact]
     public async Task UpdateClientAsync_PhoneTooLong_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Phone = new string('1', 51)
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Phone = new string('1', ClientConstraints.PhoneMaxLength + 1) };
 
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidPhoneLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidPhoneLength);
     }
 
     [Fact]
     public async Task UpdateClientAsync_AddressTooLong_ReturnsValidationError()
     {
-        var dto = _validUpdateDto with
-        {
-            Address = new string('A', 301)
-        };
+        // Arrange
+        var client = TestData.CreateClient1();
+        var clientDto = TestData.UpdateClientDto() with { Address = new string('A', ClientConstraints.AddressMaxLength + 1) };
 
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(
-            ClientErrors.InvalidAddressLength.Code,
-            result.Error!.Code);
+        // Act & Assert
+        await AssertInvalidUpdateClientAsync(client, clientDto, ClientErrors.InvalidAddressLength);
     }
 
     #endregion
 
+
     #region Helpers
 
-    private void SetupIdentificationNumberDoesNotExist()
+    private void SetupIdentificationNumberDoesNotExist(CreateClientDto clientDto)
     {
-        _repositoryMock
-            .Setup(x => x.ClientIdentificationNumberExistsAsync(
-                _validCreateDto.IdentificationNumber,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        _repositoryMock.Setup(x => x.ClientIdentificationNumberExistsAsync(clientDto.IdentificationNumber, It.IsAny<CancellationToken>())).ReturnsAsync(false);
     }
 
-    private void SetupExistingClientForUpdate()
+    private void SetupExistingClientForUpdate(Client client)
     {
-        _repositoryMock
-            .Setup(x => x.GetClientForUpdateAsync(
-                _clientId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_existingClient);
+        _repositoryMock.Setup(x => x.GetClientForUpdateAsync(client.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(client);
     }
 
-    private void VerifyAddClientNeverCalled()
+    private async Task AssertInvalidCreateClientAsync(CreateClientDto clientDto, Error expectedError)
     {
-        _repositoryMock.Verify(
-            x => x.AddClientAsync(
-                It.IsAny<Client>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    private async Task AssertInvalidUpdateAsync(
-        UpdateClientDto dto)
-    {
-        var result = await _service.UpdateClientAsync(
-            _clientId,
-            dto,
-            CancellationToken.None);
+        var result = await _service.CreateClientAsync(clientDto, CancellationToken.None);
 
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(expectedError.Code, result.Error.Code);
 
-        _repositoryMock.Verify(
-            x => x.GetClientForUpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _repositoryMock.Verify(x => x.ClientIdentificationNumberExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.AddClientAsync(It.IsAny<Client>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private async Task AssertInvalidUpdateClientAsync(Client client, UpdateClientDto clientDto, Error expectedError)
+    {
+        var result = await _service.UpdateClientAsync(client.ClientId, clientDto, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.NotNull(result.Error);
+        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(expectedError.Code, result.Error.Code);
+
+        _repositoryMock.Verify(x => x.GetClientForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SaveClientChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion

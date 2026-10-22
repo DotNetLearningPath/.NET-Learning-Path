@@ -1,17 +1,10 @@
 namespace Insurance.Api.Middleware;
 
-public sealed class RequestLoggingMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly ILogger<RequestLoggingMiddleware> _logger;
+public sealed class RequestLoggingMiddleware(
 
-    public RequestLoggingMiddleware(
         RequestDelegate next,
         ILogger<RequestLoggingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+{
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -27,14 +20,14 @@ public sealed class RequestLoggingMiddleware
 
         try
         {
-            await _next(context);
+            await next(context);
         }
         finally
         {
             if (context.Response.StatusCode is >= 200 and < 300
                 && TryGetBusinessAction(context, out var action))
             {
-                _logger.LogInformation(
+                logger.LogInformation(
                     "{Action}. CorrelationId: {CorrelationId}",
                     action,
                     correlationId);

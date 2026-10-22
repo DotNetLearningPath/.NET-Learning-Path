@@ -1,0 +1,62 @@
+opencollection: 1.0.0
+
+info:
+  name: Insurance API - Basic Tests
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: baseUrl
+      value: http://localhost:8000
+    - name: clientId
+      value: 56c829e9-7feb-42b0-9195-45195b139dcf
+    - name: buildingId
+      value: fc49b574-a4ef-4a57-94a3-387a5380b407
+    - name: countryId
+      value: fc1005f1-7931-41c7-8968-fc8a075cb2f3
+    - name: countyId
+      value: 59a726f9-f074-4e7c-98c0-1ba800ae7df2
+    - name: cityId
+      value: c483cb89-93cb-4640-a648-44d6b1665b79
+    - name: identificationNumber
+      value: "1792493915437"
+    - name: feeId
+      value: c4033716-f3f7-42a3-bd22-8ca52a4cd033
+    - name: brokerId
+      value: cb6476a6-f570-43c3-8968-fe69235ed1cf
+    - name: brokerCode
+      value: PM-93918553
+    - name: feeName
+       value: Postman Fee 93917262
+    - name: currencyCode
+      value: XUL
+    - name: currencyName
+      value: Bruno Currency 917702
+    - name: updatedCurrencyCode
+      value: YKC
+    - name: policyId
+      value: 3c936a83-fd7a-408c-a3e7-44aa97c3b415
+    - name: riskFactorReference
+      value: 01d24366-b436-454a-8c13-02be3855500a
+    - name: riskFactorId
+      value: 2e45c79d-83ba-43a5-8f13-b7209e9b6257
+
+docs:
+  content: Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

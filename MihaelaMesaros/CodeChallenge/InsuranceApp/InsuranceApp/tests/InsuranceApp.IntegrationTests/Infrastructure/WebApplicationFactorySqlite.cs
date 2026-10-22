@@ -8,12 +8,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
 
-public sealed class InsuranceAppWebApplicationFactory
-    : WebApplicationFactory<Program>
+public sealed class WebApplicationFactorySqlite : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection;
 
-    public InsuranceAppWebApplicationFactory()
+    public WebApplicationFactorySqlite()
     {
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
@@ -23,23 +22,19 @@ public sealed class InsuranceAppWebApplicationFactory
     {
         builder.UseEnvironment("Testing");
 
-        Environment.SetEnvironmentVariable(
-            "ASPNETCORE_ENVIRONMENT",
-            "Testing");
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
 
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<InsuranceDbContext>();
             services.RemoveAll<DbContextOptions<InsuranceDbContext>>();
 
-            services.AddDbContext<InsuranceDbContext>(options =>
-                options.UseSqlite(_connection));
+            services.AddDbContext<InsuranceDbContext>(options => options.UseSqlite(_connection));
 
             using var serviceProvider = services.BuildServiceProvider();
             using var scope = serviceProvider.CreateScope();
 
-            var dbContext = scope.ServiceProvider
-                .GetRequiredService<InsuranceDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<InsuranceDbContext>();
 
             dbContext.Database.EnsureCreated();
         });

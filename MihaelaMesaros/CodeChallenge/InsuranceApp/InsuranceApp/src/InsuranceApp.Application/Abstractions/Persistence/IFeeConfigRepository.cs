@@ -13,4 +13,6 @@ public interface IFeeConfigRepository
     Task AddFeeConfigAsync(FeeConfig feeConfig, CancellationToken cancellationToken);
 
     Task SaveFeeConfigChangesAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<FeeConfig>> GetActiveFeeConfigsAsync(DateTime startDate, DateTime? endDate, CancellationToken cancellationToken);
 }

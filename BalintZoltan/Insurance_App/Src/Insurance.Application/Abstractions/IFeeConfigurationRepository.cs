@@ -1,6 +1,6 @@
+using Insurance.Application.DTO.Common;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Insurance.Application.DTO.Common;
 
 namespace Insurance.Application.Abstractions;
 
@@ -15,7 +15,7 @@ public interface IFeeConfigurationRepository
         DateTime effectiveAt,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
+    Task<List<FeeConfiguration>> GetActiveFeeConfigurationsAsync(
         DateTime effectiveAt,
         CancellationToken cancellationToken);
 

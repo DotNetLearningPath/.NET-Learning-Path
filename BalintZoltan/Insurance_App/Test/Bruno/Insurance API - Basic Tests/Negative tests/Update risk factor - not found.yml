@@ -1,0 +1,35 @@
+info:
+  name: Update risk factor - not found
+  type: http
+  seq: 21
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/risk-factors/{{missingRiskFactorId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "level": 2,
+        "reference": "00000000-0000-0000-0000-000000000001",
+        "adjustmentPercentage": 3,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('missingRiskFactorId', '00000000-0000-0000-0000-000000000000');
+    - type: after-response
+      code: test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

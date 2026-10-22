@@ -1,0 +1,42 @@
+info:
+  name: Update currency
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/currencies/{{currencyId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "code": "{{updatedCurrencyCode}}",
+        "name": "Bruno Updated Currency",
+        "exchangeRateToBase": 2.345678
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const now = Date.now();
+        const letter = (value) => String.fromCharCode(65 + (value % 26));
+        bru.setCollectionVar('updatedCurrencyCode', 'Y' + letter(now) + letter(Math.floor(now / 26)));
+    - type: after-response
+      code: |-
+        test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });
+        const body = res.getBody();
+        test('Updated code is correct', function () { expect(body.code).to.eql(bru.getCollectionVar('updatedCurrencyCode')); });
+        test('Updated name is correct', function () { expect(body.name).to.eql('Bruno Updated Currency'); });
+        test('Updated exchange rate is correct', function () { expect(body.exchangeRateToBase).to.eql(2.345678); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

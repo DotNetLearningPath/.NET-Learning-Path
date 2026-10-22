@@ -1,11 +1,11 @@
 using Insurance.Domain.Entities;
 
-namespace Insurance.Domain.UnitTests.Entities
+namespace Insurance.UnitTest.Domain.Entities
 {
     public class CountyTest
     {
         [Fact]
-        public void Create_Should_Set_Properties_And_Empty_Cities()
+        public void Create_Should_Set_Properties()
         {
             // Arrange
             var countryId = Guid.NewGuid();
@@ -17,8 +17,6 @@ namespace Insurance.Domain.UnitTests.Entities
             Assert.NotEqual(Guid.Empty, county.Id);
             Assert.Equal(countryId, county.CountryId);
             Assert.Equal("Some County", county.Name);
-            Assert.NotNull(county.Cities);
-            Assert.Empty(county.Cities);
         }
         [Fact]
         public void Create_Should_Throw_When_PostalCode_Empty()

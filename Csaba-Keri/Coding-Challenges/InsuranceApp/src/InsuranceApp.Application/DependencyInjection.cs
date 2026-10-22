@@ -13,7 +13,18 @@ using InsuranceApp.Application.Common.Pagination;
 using InsuranceApp.Application.Currencies;
 using InsuranceApp.Application.Currencies.Commands;
 using InsuranceApp.Application.Currencies.Validation;
+using InsuranceApp.Application.Fees;
+using InsuranceApp.Application.Fees.Commands;
+using InsuranceApp.Application.Fees.Validation;
 using InsuranceApp.Application.Geography;
+using InsuranceApp.Application.Policies;
+using InsuranceApp.Application.Policies.Commands;
+using InsuranceApp.Application.Policies.Pricing;
+using InsuranceApp.Application.Policies.Queries;
+using InsuranceApp.Application.Policies.Validation;
+using InsuranceApp.Application.RiskFactors;
+using InsuranceApp.Application.RiskFactors.Commands;
+using InsuranceApp.Application.RiskFactors.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InsuranceApp.Application;
@@ -31,6 +42,13 @@ public static class DependencyInjection
         services.AddScoped<IBuildingService, BuildingService>();
         services.AddScoped<IBrokerService, BrokerService>();
         services.AddScoped<ICurrencyService, CurrencyService>();
+        services.AddScoped<IFeeService, FeeService>();
+        services.AddScoped<IRiskFactorService, RiskFactorService>();
+        services.AddScoped<IPolicyService, PolicyService>();
+        services.AddScoped<IPolicyPremiumCalculator, PolicyPremiumCalculator>();
+        services.AddScoped<IPremiumAdjustmentProvider, FeeAdjustmentProvider>();
+        services.AddScoped<IPremiumAdjustmentProvider, RiskFactorAdjustmentProvider>();
+        services.AddScoped<IPolicyQueryService, PolicyQueryService>();
 
         services.AddScoped<IValidator<CreateClientCommand>, CreateClientCommandValidator>();
         services.AddScoped<IValidator<UpdateClientCommand>, UpdateClientCommandValidator>();
@@ -43,6 +61,13 @@ public static class DependencyInjection
         services.AddScoped<IValidator<UpdateBrokerCommand>, UpdateBrokerCommandValidator>();
         services.AddScoped<IValidator<CreateCurrencyCommand>, CreateCurrencyCommandValidator>();
         services.AddScoped<IValidator<UpdateCurrencyCommand>, UpdateCurrencyCommandValidator>();
+        services.AddScoped<IValidator<CreateFeeCommand>, CreateFeeCommandValidator>();
+        services.AddScoped<IValidator<UpdateFeeCommand>, UpdateFeeCommandValidator>();
+        services.AddScoped<IValidator<CreateRiskFactorCommand>, CreateRiskFactorCommandValidator>();
+        services.AddScoped<IValidator<UpdateRiskFactorCommand>, UpdateRiskFactorCommandValidator>();
+        services.AddScoped<IValidator<CreateDraftPolicyCommand>, CreateDraftPolicyCommandValidator>();
+        services.AddScoped<IValidator<CancelPolicyCommand>, CancelPolicyCommandValidator>();
+        services.AddScoped<IValidator<SearchPoliciesQuery>, SearchPoliciesQueryValidator>();
 
         return services;
     }

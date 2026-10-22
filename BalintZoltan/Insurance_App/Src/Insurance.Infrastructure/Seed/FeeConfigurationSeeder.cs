@@ -1,40 +1,34 @@
-using System.Text.Json;
 using Insurance.Domain.Entities;
 using Insurance.Domain.Enums;
-using Infrastructure.Seed;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Insurance.Infrastructure.Seed;
 
-public sealed class FeeConfigurationSeeder
+public sealed class FeeConfigurationSeeder(IOptions<SeedDataOptions> options)
 {
-    private readonly SeedDataOptions _options;
-
-    public FeeConfigurationSeeder(IOptions<SeedDataOptions> options)
-    {
-        _options = options.Value;
-    }
-
     public async Task SeedAsync(
         InsuranceDbContext dbContext,
         string contentRootPath,
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(
-            SeedFilePath.Get(contentRootPath, _options.BasePath, _options.FeeConfigurationFile));
+            SeedFilePath.Get(contentRootPath, options.Value.BasePath, options.Value.FeeConfigurationFile));
 
+        JsonSerializerOptions jsonSerializerFeeConfig = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        JsonSerializerOptions feeConfig = jsonSerializerFeeConfig;
         var configurations = await JsonSerializer.DeserializeAsync<
             List<FeeConfigurationSeedData>>(
                 stream,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                },
+                feeConfig,
                 cancellationToken)
             ?? throw new InvalidOperationException(
-                $"The {_options.FeeConfigurationFile} file is empty or invalid.");
+                $"The {options.Value.FeeConfigurationFile} file is empty or invalid.");
 
         var existingConfigurations = await dbContext.FeeConfigurations
             .Select(configuration => new

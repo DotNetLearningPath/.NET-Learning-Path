@@ -21,6 +21,32 @@ public class RiskFactorConfiguration
         decimal adjustmentPercentage,
         bool isActive = true)
     {
+        Validate(level, reference);
+
+        Id = Guid.NewGuid();
+        Level = level;
+        Reference = reference;
+        AdjustmentPercentage = adjustmentPercentage;
+        IsActive = isActive;
+    }
+
+    public void Update(
+        RiskFactorLevel level,
+        string reference,
+        decimal adjustmentPercentage)
+    {
+        Validate(level, reference);
+        Level = level;
+        Reference = reference;
+        AdjustmentPercentage = adjustmentPercentage;
+    }
+
+    public void Activate() => IsActive = true;
+
+    public void Deactivate() => IsActive = false;
+
+    private static void Validate(RiskFactorLevel level, string reference)
+    {
         if (!Enum.IsDefined(level))
         {
             throw new ArgumentException("Risk factor level is not valid.", nameof(level));
@@ -29,11 +55,5 @@ public class RiskFactorConfiguration
         {
             throw new ArgumentException("Reference is required.", nameof(reference));
         }
-
-        Id = Guid.NewGuid();
-        Level = level;
-        Reference = reference;
-        AdjustmentPercentage = adjustmentPercentage;
-        IsActive = isActive;
     }
 }

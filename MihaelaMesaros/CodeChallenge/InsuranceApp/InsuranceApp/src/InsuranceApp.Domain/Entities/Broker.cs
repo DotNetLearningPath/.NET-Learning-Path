@@ -1,6 +1,4 @@
-﻿using InsuranceApp.Domain.Enums;
-
-namespace InsuranceApp.Domain.Entities;
+﻿namespace InsuranceApp.Domain.Entities;
 
 public sealed class Broker
 {
@@ -14,9 +12,9 @@ public sealed class Broker
 
     public string? Phone { get; set; }
 
-    public BrokerStatus Status { get; set; }
-
     public decimal? CommissionPercentage { get; set; }
+
+    public bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

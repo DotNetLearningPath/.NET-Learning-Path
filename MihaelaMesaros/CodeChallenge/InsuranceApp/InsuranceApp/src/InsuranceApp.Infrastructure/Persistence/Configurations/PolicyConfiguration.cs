@@ -14,7 +14,7 @@ internal sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder.HasKey(x => x.PolicyId);
 
         builder.Property(x => x.PolicyNumber)
-            .HasMaxLength(50)
+            .HasMaxLength(PolicyConstraints.PolicyNumberMaxLength)
             .IsRequired();
 
         builder.HasIndex(x => x.PolicyNumber)
@@ -30,15 +30,15 @@ internal sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .IsRequired();
 
         builder.Property(x => x.BasePremium)
-            .HasPrecision(18, CommonConstraints.DecimalScale)
+            .HasPrecision(18, CommonConstraints.PriceDecimalPlaces)
             .IsRequired();
 
         builder.Property(x => x.FinalPremium)
-            .HasPrecision(18, CommonConstraints.DecimalScale)
+            .HasPrecision(18, CommonConstraints.PriceDecimalPlaces)
             .IsRequired();
 
         builder.Property(x => x.CancellationReason)
-            .HasMaxLength(500);
+            .HasMaxLength(PolicyConstraints.CancellationReasonMaxLength);
 
         builder.Property(x => x.CreatedAt)
             .IsRequired();

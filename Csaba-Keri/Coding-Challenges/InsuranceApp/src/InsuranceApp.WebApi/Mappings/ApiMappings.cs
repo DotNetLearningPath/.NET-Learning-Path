@@ -9,16 +9,31 @@ using InsuranceApp.Application.Clients.Results;
 using InsuranceApp.Application.Common.Pagination;
 using InsuranceApp.Application.Currencies.Commands;
 using InsuranceApp.Application.Currencies.Results;
+using InsuranceApp.Application.Fees.Commands;
+using InsuranceApp.Application.Fees.Results;
 using InsuranceApp.Application.Geography.Results;
+using InsuranceApp.Application.Policies.Commands;
+using InsuranceApp.Application.Policies.Queries;
+using InsuranceApp.Application.Policies.Results;
+using InsuranceApp.Application.RiskFactors.Commands;
+using InsuranceApp.Application.RiskFactors.Results;
 using InsuranceApp.Domain.Brokers;
 using InsuranceApp.Domain.Buildings;
 using InsuranceApp.Domain.Clients;
+using InsuranceApp.Domain.Fees;
+using InsuranceApp.Domain.Policies;
+using InsuranceApp.Domain.RiskFactors;
+using InsuranceApp.Domain.RiskFactors.Targets;
 using InsuranceApp.WebApi.Models.Brokers;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Clients;
 using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Currencies;
+using InsuranceApp.WebApi.Models.Fees;
 using InsuranceApp.WebApi.Models.Geography;
+using InsuranceApp.WebApi.Models.Policies;
+using InsuranceApp.WebApi.Models.RiskFactors;
+using InsuranceApp.WebApi.Models.RiskFactors.Targets;
 
 namespace InsuranceApp.WebApi.Mappings;
 
@@ -58,6 +73,44 @@ internal static class ApiMappings
         };
     }
 
+    public static FeeType ToDomain(this FeeTypeDto type)
+    {
+        return type switch
+        {
+            FeeTypeDto.BrokerCommission => FeeType.BrokerCommission,
+            FeeTypeDto.RiskAdjustment => FeeType.RiskAdjustment,
+            FeeTypeDto.AdminFee => FeeType.AdminFee,
+            
+            _ => throw new ValidationException("Fee type is invalid.")
+        };
+    }
+
+    public static RiskFactorLevel ToDomain(this RiskFactorLevelDto level)
+    {
+        return level switch
+        {
+            RiskFactorLevelDto.Country => RiskFactorLevel.Country,
+            RiskFactorLevelDto.County => RiskFactorLevel.County,
+            RiskFactorLevelDto.City => RiskFactorLevel.City,
+            RiskFactorLevelDto.BuildingType => RiskFactorLevel.BuildingType,
+            
+            _ => throw new ValidationException("Risk factor level is invalid.")
+        };
+    }
+
+    public static PolicyStatus ToDomain(this PolicyStatusDto status)
+    {
+        return status switch
+        {
+            PolicyStatusDto.Draft => PolicyStatus.Draft,
+            PolicyStatusDto.Active => PolicyStatus.Active,
+            PolicyStatusDto.Expired => PolicyStatus.Expired,
+            PolicyStatusDto.Cancelled => PolicyStatus.Cancelled,
+            
+            _ => throw new ValidationException("Policy status is invalid.")
+        };
+    }
+
     public static ClientTypeDto ToDto(this ClientType type)
     {
         return type switch
@@ -92,6 +145,42 @@ internal static class ApiMappings
         };
     }
 
+    public static FeeTypeDto ToDto(this FeeType type)
+    {
+        return type switch
+        {
+            FeeType.BrokerCommission => FeeTypeDto.BrokerCommission,
+            FeeType.RiskAdjustment => FeeTypeDto.RiskAdjustment,
+            FeeType.AdminFee => FeeTypeDto.AdminFee,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    public static PolicyStatusDto ToDto(this PolicyStatus status)
+    {
+        return status switch
+        {
+            PolicyStatus.Draft => PolicyStatusDto.Draft,
+            PolicyStatus.Active => PolicyStatusDto.Active,
+            PolicyStatus.Expired => PolicyStatusDto.Expired,
+            PolicyStatus.Cancelled => PolicyStatusDto.Cancelled,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+    }
+
+    public static AdjustmentSourceDto ToDto(this AdjustmentSource source)
+    {
+        return source switch
+        {
+            AdjustmentSource.Fee => AdjustmentSourceDto.Fee,
+            AdjustmentSource.RiskFactor => AdjustmentSourceDto.RiskFactor,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+    }
+
     public static CreateClientCommand ToCommand(this CreateClientRequest request)
     {
         return new(
@@ -112,32 +201,6 @@ internal static class ApiMappings
             Email: request.Email,
             Phone: request.Phone,
             PrimaryAddress: request.PrimaryAddress
-        );
-    }
-
-    public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
-    {
-        return new(
-            ClientId: clientId,
-            Type: request.Type!.Value.ToDomain(),
-            Address: request.Address!.ToCommand(),
-            ConstructionYear: request.ConstructionYear!.Value,
-            NumberOfFloors: request.NumberOfFloors!.Value,
-            SurfaceArea: request.SurfaceArea!.Value,
-            InsuredValue: request.InsuredValue!.Value
-        );
-    }
-
-    public static UpdateBuildingCommand ToUpdateCommand(this SaveBuildingRequest request, Guid buildingId)
-    {
-        return new(
-            BuildingId: buildingId,
-            Type: request.Type!.Value.ToDomain(),
-            Address: request.Address!.ToCommand(),
-            ConstructionYear: request.ConstructionYear!.Value,
-            NumberOfFloors: request.NumberOfFloors!.Value,
-            SurfaceArea: request.SurfaceArea!.Value,
-            InsuredValue: request.InsuredValue!.Value
         );
     }
 
@@ -191,6 +254,106 @@ internal static class ApiMappings
         );
     }
 
+    public static CreateDraftPolicyCommand ToCommand(this CreateDraftPolicyRequest request)
+    {
+        return new(
+            ClientId: request.ClientId!.Value,
+            BuildingId: request.BuildingId!.Value,
+            BrokerId: request.BrokerId!.Value,
+            CurrencyId: request.CurrencyId!.Value,
+            StartDate: request.StartDate!.Value,
+            EndDate: request.EndDate!.Value,
+            BasePremium: request.BasePremium!.Value
+        );
+    }
+
+    public static CancelPolicyCommand ToCommand(this CancelPolicyRequest request, Guid policyId)
+    {
+        return new(
+            PolicyId: policyId,
+            Reason: request.Reason,
+            EffectiveDate: request.EffectiveDate!.Value
+        );
+    }
+
+    public static CreateBuildingCommand ToCreateCommand(this SaveBuildingRequest request, Guid clientId)
+    {
+        return new(
+            ClientId: clientId,
+            Type: request.Type!.Value.ToDomain(),
+            Address: request.Address!.ToCommand(),
+            ConstructionYear: request.ConstructionYear!.Value,
+            NumberOfFloors: request.NumberOfFloors!.Value,
+            SurfaceArea: request.SurfaceArea!.Value,
+            InsuredValue: request.InsuredValue!.Value
+        );
+    }
+
+    public static CreateFeeCommand ToCreateCommand(this SaveFeeRequest request)
+    {
+        return new(
+            Name: request.Name,
+            Type: request.Type!.Value.ToDomain(),
+            Percentage: request.Percentage!.Value,
+            EffectiveFrom: request.EffectiveFrom!.Value,
+            EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static CreateRiskFactorCommand ToCreateCommand(this SaveRiskFactorRequest request)
+    {
+        return new(
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateBuildingCommand ToUpdateCommand(this SaveBuildingRequest request, Guid buildingId)
+    {
+        return new(
+            BuildingId: buildingId,
+            Type: request.Type!.Value.ToDomain(),
+            Address: request.Address!.ToCommand(),
+            ConstructionYear: request.ConstructionYear!.Value,
+            NumberOfFloors: request.NumberOfFloors!.Value,
+            SurfaceArea: request.SurfaceArea!.Value,
+            InsuredValue: request.InsuredValue!.Value
+        );
+    }
+
+    public static UpdateFeeCommand ToUpdateCommand(this SaveFeeRequest request, Guid feeId)
+    {
+        return new(
+            FeeId: feeId,
+            Name: request.Name,
+            Type: request.Type!.Value.ToDomain(),
+            Percentage: request.Percentage!.Value,
+            EffectiveFrom: request.EffectiveFrom!.Value,
+            EffectiveTo: request.EffectiveTo,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
+    public static UpdateRiskFactorCommand ToUpdateCommand(this SaveRiskFactorRequest request, Guid riskFactorId)
+    {
+        return new(
+            RiskFactorId: riskFactorId,
+            Level: request.Level!.Value.ToDomain(),
+            CountryId: request.CountryId,
+            CountyId: request.CountyId,
+            CityId: request.CityId,
+            BuildingType: request.BuildingType?.ToDomain(),
+            AdjustmentPercentage: request.AdjustmentPercentage!.Value,
+            IsActive: request.IsActive!.Value
+        );
+    }
+
     public static PageQuery ToQuery(this PageRequest request)
     {
         return new(
@@ -204,6 +367,19 @@ internal static class ApiMappings
         return new(
             Name: request.Name,
             Identifier: request.Identifier,
+            PageNumber: request.PageNumber,
+            PageSize: request.PageSize
+        );
+    }
+
+    public static SearchPoliciesQuery ToQuery(this SearchPoliciesRequest request)
+    {
+        return new(
+            ClientId: request.ClientId,
+            BrokerId: request.BrokerId,
+            Status: request.Status?.ToDomain(),
+            StartDate: request.StartDate,
+            EndDate: request.EndDate,
             PageNumber: request.PageNumber,
             PageSize: request.PageSize
         );
@@ -314,6 +490,125 @@ internal static class ApiMappings
             ExchangeRateToBase: result.ExchangeRateToBase,
             IsActive: result.IsActive
         );
+    }
+
+    public static FeeResponse ToResponse(this FeeResult result)
+    {
+        return new(
+            Id: result.Id,
+            Name: result.Name,
+            Type: result.Type.ToDto(),
+            Percentage: result.Percentage,
+            EffectiveFrom: result.EffectiveFrom,
+            EffectiveTo: result.EffectiveTo,
+            IsActive: result.IsActive
+        );
+    }
+
+    public static RiskFactorResponse ToResponse(this RiskFactorResult result)
+    {
+        return new(
+            Id: result.Id,
+            Target: result.Target.ToResponse(),
+            AdjustmentPercentage: result.AdjustmentPercentage,
+            IsActive: result.IsActive
+        );
+    }
+
+    public static RiskTargetResponse ToResponse(this RiskTarget target)
+    {
+        return target switch
+        {
+            CountryTarget country =>
+                new CountryTargetResponse(CountryId: country.CountryId),
+            
+            CountyTarget county =>
+                new CountyTargetResponse(CountyId: county.CountyId),
+            
+            CityTarget city => 
+                new CityTargetResponse(CityId: city.CityId),
+            
+            BuildingTypeTarget buildingType =>
+                new BuildingTypeTargetResponse(BuildingType: buildingType.Type.ToDto()),
+
+            _ => throw new InvalidOperationException(
+                $"Unsupported risk target type: {target.GetType().Name}."
+            )
+        };
+    }
+
+    public static PolicyResponse ToResponse(this PolicyResult result)
+    {
+        return new(
+            Id: result.Id,
+            PolicyNumber: result.PolicyNumber,
+            Status: result.Status.ToDto(),
+            ClientId: result.ClientId,
+            BuildingId: result.BuildingId,
+            BrokerId: result.BrokerId,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            CurrencyExchangeRateToBase: result.CurrencyExchangeRateToBase,
+            StartDate: result.StartDate,
+            EndDate: result.EndDate,
+            BasePremium: result.BasePremium,
+            FinalPremium: result.FinalPremium,
+            CreatedAt: result.CreatedAt,
+            UpdatedAt: result.UpdatedAt,
+            ActivatedAt: result.ActivatedAt,
+            CancelledAt: result.CancelledAt,
+            CancellationEffectiveDate: result.CancellationEffectiveDate,
+            CancellationReason: result.CancellationReason,
+            ExpiredAt: result.ExpiredAt,
+
+            AppliedAdjustments: [.. result.AppliedAdjustments.Select(
+                adjustment => adjustment.ToResponse()
+            )]
+        );
+    }
+
+    public static AppliedAdjustmentResponse ToResponse(this AppliedAdjustment adjustment)
+    {
+        return new(
+            Source: adjustment.Source.ToDto(),
+            ConfigurationId: adjustment.ConfigurationId,
+            Percentage: adjustment.Percentage
+        );
+    }
+
+    public static PolicyListItemResponse ToResponse(this PolicyListItemResult result)
+    {
+        return new(
+            Id: result.Id,
+            PolicyNumber: result.PolicyNumber,
+            Status: result.Status.ToDto(),
+            ClientId: result.ClientId,
+            BuildingId: result.BuildingId,
+            BrokerId: result.BrokerId,
+            CurrencyId: result.CurrencyId,
+            CurrencyCode: result.CurrencyCode,
+            StartDate: result.StartDate,
+            EndDate: result.EndDate,
+            BasePremium: result.BasePremium,
+            FinalPremium: result.FinalPremium,
+            CreatedAt: result.CreatedAt,
+            UpdatedAt: result.UpdatedAt
+        );
+    }
+
+    public static PolicyDetailsResponse ToResponse(this PolicyDetailsResult result)
+    {
+        return new(
+            Policy: result.Policy.ToResponse(),
+            Client: result.Client.ToResponse(),
+            Building: result.Building.ToResponse(),
+            Broker: result.Broker.ToResponse()
+        );
+    }
+
+    public static ExpirePoliciesResponse ToResponse(this ExpirePoliciesResult result)
+    {
+        return new(ExpiredCount: result.ExpiredCount);
     }
 
     public static PagedResponse<TResponse> ToResponse<TResult, TResponse>(

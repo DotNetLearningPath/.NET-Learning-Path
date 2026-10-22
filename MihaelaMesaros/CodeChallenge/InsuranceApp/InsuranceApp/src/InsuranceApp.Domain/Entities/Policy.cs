@@ -26,6 +26,7 @@ public sealed class Policy
 
     public decimal FinalPremium { get; set; }
 
+    public DateTime? ActivationDate { get; set; }
     public DateTime? CancellationDate { get; set; }
 
     public string? CancellationReason { get; set; }

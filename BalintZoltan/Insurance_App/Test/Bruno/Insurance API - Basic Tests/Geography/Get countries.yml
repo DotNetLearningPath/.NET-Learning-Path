@@ -1,0 +1,29 @@
+info:
+  name: Get countries
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/brokers/countries"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });\r
+
+        test('Response is an array', function () { expect(res.getBody()).to.be.an('array'); });\r
+
+        const countries = res.getBody();\r
+
+        test('Countries are not empty', function () { expect(countries).to.have.length.greaterThan(0); });\r
+
+        if (countries.length > 0) bru.setCollectionVar('countryId', countries[0].id);"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

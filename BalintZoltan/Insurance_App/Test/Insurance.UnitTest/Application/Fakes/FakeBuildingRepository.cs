@@ -1,12 +1,12 @@
-using Insurance.Domain.Entities;
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
 
 namespace Insurance.UnitTest.Application.Fakes;
 
 public sealed class FakeBuildingRepository : IBuildingRepository
 {
-    public readonly List<Building> Storage = new();
+    public readonly List<Building> Storage = [];
     public Task AddBuildingAsync(Building building, CancellationToken cancellationToken)
     {
         Storage.Add(building);
@@ -34,7 +34,7 @@ public sealed class FakeBuildingRepository : IBuildingRepository
 
         return Task.FromResult(new PagedResult<Building>
         {
-            Items = all.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
+            Items = [.. all.Skip((pageNumber - 1) * pageSize).Take(pageSize)],
             PageNumber = pageNumber,
             PageSize = pageSize,
             TotalCount = all.Count

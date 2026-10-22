@@ -1,0 +1,45 @@
+info:
+  name: Update building - city not found
+  type: http
+  seq: 11
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/brokers/buildings/{{buildingId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "cityId": "{{missingCityId}}",
+        "street": "Invalid City Street",
+        "number": "1",
+        "constructionYear": 2000,
+        "type": 5,
+        "numberOfFloors": 1,
+        "surfaceArea": 50,
+        "insuredValue": 100000,
+        "isFloodRiskZone": false,
+        "isEarthquakeRiskZone": false
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.setVar('missingCityId', bru.interpolate('{{$guid}}'));
+    - type: after-response
+      code: "test('Status is 404 Not Found', function () { expect(res.getStatus()).to.equal(404); });\r
+
+        const body = res.getBody();\r
+
+        test('ProblemDetails identifies missing city', function () { expect(body.detail).to.eql('City was not found.'); });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,10 +1,10 @@
 using Insurance.Application.DTO.Buildings;
 using Insurance.Application.DTO.Common;
-using Insurance.UnitTest.Application.Helper;
-using Insurance.Domain.Entities;
-using Insurance.Domain.Enums;
 using Insurance.Application.Exceptions;
 using Insurance.Application.Services;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
+using Insurance.UnitTest.Application.Helper;
 
 namespace Insurance.UnitTest.Application.Services
 {
@@ -191,7 +191,7 @@ namespace Insurance.UnitTest.Application.Services
 
             // Assert
             Assert.NotNull(dto);
-            Assert.Equal(building.Id, dto!.Id);
+            Assert.Equal(building.Id, dto.Id);
             Assert.Equal(building.Street, dto.Street);
         }
 
