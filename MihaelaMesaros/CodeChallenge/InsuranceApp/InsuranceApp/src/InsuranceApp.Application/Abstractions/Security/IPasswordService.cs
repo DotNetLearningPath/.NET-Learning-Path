@@ -1,6 +1,6 @@
 ﻿using InsuranceApp.Domain.Entities;
 
-namespace InsuranceApp.Application.Abstractions.Services;
+namespace InsuranceApp.Application.Abstractions.Security;
 
 public interface IPasswordService
 {

@@ -1,11 +1,16 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Auth;
 
 namespace InsuranceApp.Application.Services;
 
-public sealed class AuthService(IUserRepository userRepository) : IAuthService
+public sealed class AuthService(
+    IUserRepository userRepository, 
+    IPasswordService passwordService, 
+    IJwtService jwtService
+    ) : IAuthService
 {
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken)
     {
@@ -20,13 +25,18 @@ public sealed class AuthService(IUserRepository userRepository) : IAuthService
 
         var user = await userRepository.GetUserByUsernameAsync(loginDto.Username, cancellationToken);
 
-        if (user == null)
+        if (user == null || !user.IsActive)
         {
-            return Result<LoginResponseDto>.Failure(AuthErrors.UserNotFoundByUsername);
+            return Result<LoginResponseDto>.Failure(AuthErrors.NotAuthenticated);
         }
 
-        var responseLogin = new LoginResponseDto("", DateTime.UtcNow.AddMinutes(15));
+        if (!passwordService.VerifyPassword(user, loginDto.Password))
+        {
+            return Result<LoginResponseDto>.Failure(AuthErrors.NotAuthenticated);
+        }
 
-        return Result<LoginResponseDto>.Success(responseLogin);
+        var generatedToken = jwtService.GenerateToken(user);
+
+        return Result<LoginResponseDto>.Success(generatedToken);
     }
 }

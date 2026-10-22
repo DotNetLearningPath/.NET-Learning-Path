@@ -30,7 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IPolicyReportService, PolicyReportService>();
 
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IUserService, UserService>();
 
         return services;
     }

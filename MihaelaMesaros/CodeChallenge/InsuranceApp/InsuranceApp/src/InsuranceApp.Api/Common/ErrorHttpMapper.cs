@@ -75,6 +75,20 @@ public static class ErrorHttpMapper
                     error.Code,
                     error.Description);
                 break;
+
+            case ErrorType.NotAuthenticated:
+                logger.LogInformation(
+                    "Not authenticated. Code: {ErrorCode}. Description: {ErrorDescription}",
+                    error.Code,
+                    error.Description);
+                break;
+
+            case ErrorType.NotAuthorized:
+                logger.LogInformation(
+                    "Unauthorized access. Code: {ErrorCode}. Description: {ErrorDescription}",
+                    error.Code,
+                    error.Description);
+                break;
         }
     }
 

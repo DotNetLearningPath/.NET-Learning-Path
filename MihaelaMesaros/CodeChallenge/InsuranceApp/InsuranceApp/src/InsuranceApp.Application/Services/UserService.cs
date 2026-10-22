@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.User;
@@ -34,6 +35,14 @@ public sealed class UserService(IUserRepository userRepository, IBrokerRepositor
             return Result.Failure(UserErrors.InvalidPasswordLength);
         }
 
+        var existingUser = await userRepository.GetUserByUsernameAsync(username, cancellationToken);
+
+        if (existingUser is not null)
+        {
+            return Result.Failure(UserErrors.DuplicateUsername);
+        }
+
+
         if (!Enum.IsDefined(createUserDto.Role))
         {
             return Result.Failure(UserErrors.InvalidRole);
@@ -51,28 +60,17 @@ public sealed class UserService(IUserRepository userRepository, IBrokerRepositor
                 return Result.Failure(UserErrors.BrokerIdRequired);
             }
 
-            if (createUserDto.BrokerId.HasValue)
+            var broker = await brokerRepository.GetBrokerByIdAsync(createUserDto.BrokerId.Value, cancellationToken);
+
+            if (broker is null)
             {
-                var broker = await brokerRepository.GetBrokerByIdAsync(createUserDto.BrokerId.Value, cancellationToken);
-
-                if (broker is null)
-                {
-                    return Result.Failure(UserErrors.BrokerNotFound);
-                }
-
-                if (!broker.IsActive)
-                {
-                    return Result.Failure(UserErrors.BrokerInactive);
-                }
+                return Result.Failure(UserErrors.BrokerNotFound);
             }
-        }
-        
 
-        var existingUser = await userRepository.GetUserByUsernameAsync(username,  cancellationToken);
-
-        if (existingUser is not null)
-        {
-            return Result.Failure(UserErrors.DuplicateUsername);
+            if (!broker.IsActive)
+            {
+                return Result.Failure(UserErrors.BrokerInactive);
+            }
         }
 
 
@@ -91,6 +89,6 @@ public sealed class UserService(IUserRepository userRepository, IBrokerRepositor
 
         await userRepository.AddUserAsync(user, cancellationToken);
 
-        return Result<User>.Success(user);
+        return Result.Success();
     }
 }

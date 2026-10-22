@@ -1,8 +1,8 @@
-﻿using InsuranceApp.Application.Abstractions.Services;
+﻿using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace InsuranceApp.Application.Services;
+namespace InsuranceApp.Infrastructure.Security;
 
 internal sealed class PasswordService : IPasswordService
 {
