@@ -19,9 +19,9 @@ request:
     - name: baseUrl
       value: http://localhost:8000
     - name: clientId
-      value: 9365a353-ff9d-4fe1-b0f2-72b640943b61
+      value: 56c829e9-7feb-42b0-9195-45195b139dcf
     - name: buildingId
-      value: 99d120e7-e72a-4019-a2c5-6fda97820fb8
+      value: fc49b574-a4ef-4a57-94a3-387a5380b407
     - name: countryId
       value: fc1005f1-7931-41c7-8968-fc8a075cb2f3
     - name: countyId
@@ -29,15 +29,23 @@ request:
     - name: cityId
       value: c483cb89-93cb-4640-a648-44d6b1665b79
     - name: identificationNumber
-      value: "1792574854801"
+      value: "1792493915437"
     - name: feeId
-      value: 86eaa806-0c42-4e32-95bb-995fd2798d80
+      value: c4033716-f3f7-42a3-bd22-8ca52a4cd033
     - name: brokerId
-      value: ecd68e61-9c38-4eff-8157-53fa541e76a3
+      value: cb6476a6-f570-43c3-8968-fe69235ed1cf
     - name: brokerCode
-      value: PM-74856650
+      value: PM-93918553
     - name: feeName
-      value: Postman Fee 74856232
+       value: Postman Fee 93917262
+    - name: currencyCode
+      value: XUL
+    - name: currencyName
+      value: Bruno Currency 917702
+    - name: updatedCurrencyCode
+      value: YKC
+    - name: policyId
+      value: 3c936a83-fd7a-408c-a3e7-44aa97c3b415
     - name: riskFactorReference
       value: 01d24366-b436-454a-8c13-02be3855500a
     - name: riskFactorId

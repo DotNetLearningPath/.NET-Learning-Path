@@ -1,0 +1,19 @@
+name: insurance-app-tests
+
+services:
+  postgres-tests:
+    image: postgres:18
+    container_name: postgres-tests
+    ports:
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-insurance_app_test_admin}
+      POSTGRES_USER: ${POSTGRES_USER:-insurance_test}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-insurance_test_password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    tmpfs:
+      - /var/lib/postgresql

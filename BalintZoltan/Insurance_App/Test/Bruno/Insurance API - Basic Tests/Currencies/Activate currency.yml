@@ -1,0 +1,24 @@
+info:
+  name: Activate currency
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/currencies/{{currencyId}}/activate"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });
+        const body = res.getBody();
+        test('Currency is active', function () { expect(body.isActive).to.eql(true); });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
