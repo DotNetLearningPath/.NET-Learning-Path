@@ -47,4 +47,16 @@ public class PolicyReportsController(IPolicyReportService policyReportService) :
 
         return Ok(result.Select(row => row.ToResponse()));
     }
+
+    [HttpGet("policies-by-broker")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PolicyReportRowResponse>>> GetPoliciesByBroker(
+        [FromQuery] PolicyReportRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await _policyReportService.GetReportAsync(PolicyReportGrouping.Broker, request.ToQuery(), cancellationToken);
+
+        return Ok(result.Select(row => row.ToResponse()));
+    }
 }

@@ -4,5 +4,6 @@ public enum PolicyReportGrouping
 {
     Country,
     County,
-    City
+    City,
+    Broker
 }
