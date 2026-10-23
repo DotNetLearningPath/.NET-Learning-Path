@@ -1,6 +1,8 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.Infrastructure.Persistence.Repositories;
+using InsuranceApp.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +44,11 @@ public static class DependencyInjection
         services.AddScoped<IPolicyRepository, PolicyRepository>();
 
         services.AddScoped<IPolicyReportRepository, PolicyReportRepository>();
+        
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IJwtService, JwtService>();
 
         return services;
     }

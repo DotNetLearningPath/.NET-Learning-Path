@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.FeeConfig;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Admin;
@@ -10,6 +11,7 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// </summary>
 /// <param name="feeConfigService">The service used to manage fee configurations.</param>
 /// <param name="logger">The logger.</param>
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/admin/fees")]
 public sealed class FeesController(IFeeConfigService feeConfigService, ILogger<FeesController> logger) : ControllerBase
