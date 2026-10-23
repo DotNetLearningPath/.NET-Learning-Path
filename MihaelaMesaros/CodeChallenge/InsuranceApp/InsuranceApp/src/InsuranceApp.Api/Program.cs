@@ -134,30 +134,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    #region Temporary users seeding. To be removed after user registration is implemented.
-    using (var scope = app.Services.CreateScope())
-    {
-        var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-
-        var usersToCreate = new List<CreateUserDto>
-        {
-            new("admin", "#TempPassAdmin1#", Role.Admin, null),
-            new("broker1", "$TempPassBroker1$", Role.Broker, Guid.Parse("8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C")),
-            new("broker2", "$TempPassBroker2$", Role.Broker, Guid.Parse("63176400-7DC6-4678-D991-08DF1EC835C7"))
-        };
-
-        foreach (var user in usersToCreate)
-        {
-            var result = await userService.CreateUserAsync(user, CancellationToken.None);
-
-            if (!result.IsSuccess && result.Error != null && result.Error.Code != UserErrors.DuplicateUsername.Code)
-            {
-                throw new InvalidOperationException($"Failed to seed user '{user.Username}'. Reason: {result.Error.Description} ({result.Error.Code})");
-            }
-        }
-    }
-    #endregion
 }
 #endregion
 

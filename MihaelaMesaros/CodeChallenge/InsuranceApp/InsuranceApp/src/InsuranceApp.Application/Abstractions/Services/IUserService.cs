@@ -5,5 +5,6 @@ namespace InsuranceApp.Application.Abstractions.Services;
 
 public interface IUserService
 {
-    Task<Result> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
+    Task<Result<UserDto>> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<Result<UserDto>> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
 }

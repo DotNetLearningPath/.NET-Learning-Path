@@ -32,6 +32,13 @@ public static class ErrorHttpMapper
 
             ErrorType.Conflict => new ConflictObjectResult(CreateProblemDetails(StatusCodes.Status409Conflict, "Resource conflict", error)),
 
+            ErrorType.NotAuthenticated => new UnauthorizedObjectResult(CreateProblemDetails(401, "Authentication failed", error)),
+
+            ErrorType.NotAuthorized => new ObjectResult(CreateProblemDetails(403, "Access denied", error))
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            },
+
             _ => throw new InvalidOperationException($"Unsupported error type: {error.Type}.")
         };
     }
