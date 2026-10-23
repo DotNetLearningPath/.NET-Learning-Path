@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: support-api-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - support-api-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    depends_on: 
+      postgres: 
+        condition: service_healthy
+        restart: true
+    container_name: support-api-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development 
+    secrets:
+      - source: jwt_signing_key
+        target: Jwt__SigningKey
+      - source: supportdb_connection_string
+        target: ConnectionStrings__SupportDb
+
+secrets:  
+  supportdb_connection_string:
+    file: ./secrets/supportdb-connection-string
+  jwt_signing_key:
+    file: ./secrets/jwt-signing-key
+
+volumes:
+  support-api-postgres-data:

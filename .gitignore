@@ -71,3 +71,9 @@ MihaelaMesaros/CodeChallenge/InsuranceApp/InsuranceApp/CODE_REVIEW.md
 *.md
 /BalintZoltan/Insurance_App/.sonarqube
 /BalintZoltan/Insurance_App/Resources/Insurance_app_demo.pptx
+
+.codex/
+bin/
+obj/
+.vs/
+secrets/
