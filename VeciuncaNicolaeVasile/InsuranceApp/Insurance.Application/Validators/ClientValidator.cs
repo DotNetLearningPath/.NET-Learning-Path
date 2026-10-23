@@ -8,7 +8,7 @@ namespace Insurance.Application.Validators
     {
         public void Validate(Client client)
         {
-            if(client == null)
+            if (client == null)
             {
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
             }
@@ -45,4 +45,3 @@ namespace Insurance.Application.Validators
         }
     }
 }
-

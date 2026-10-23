@@ -10,5 +10,7 @@ namespace Insurance.Domain.Entities
         public string IdentificationNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
+        public ICollection<Building> Buildings { get; set; } = new List<Building>();
+        public string? PrimaryAddress { get; set; }
     }
 }
