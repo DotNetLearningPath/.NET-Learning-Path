@@ -1,5 +1,4 @@
-﻿
-namespace Insurance.Domain.Enums
+﻿namespace Insurance.Domain.Enums
 {
     public enum ClientType
     {

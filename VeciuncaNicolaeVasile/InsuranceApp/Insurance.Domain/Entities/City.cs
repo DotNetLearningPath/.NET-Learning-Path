@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Insurance.Domain.Entities
+﻿namespace Insurance.Domain.Entities
 {
     public class City
     {

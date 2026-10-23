@@ -1,5 +1,4 @@
-﻿
-namespace Insurance.Domain.Entities
+﻿namespace Insurance.Domain.Entities
 {
     public class County
     {
