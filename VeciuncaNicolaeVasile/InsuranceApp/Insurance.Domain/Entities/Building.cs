@@ -15,6 +15,5 @@ namespace Insurance.Domain.Entities
         public decimal SurfaceArea { get; set; }
         public bool? IsFloodZone { get; set; }
         public bool? IsEarthquakeRiskZone { get; set; }
-
     }
 }
