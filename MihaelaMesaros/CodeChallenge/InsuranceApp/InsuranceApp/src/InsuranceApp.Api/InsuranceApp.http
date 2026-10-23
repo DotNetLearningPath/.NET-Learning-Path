@@ -24,62 +24,64 @@
 @policyEndDate = 2026-12-31
 @policyBasePremium = 100.00
 
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiOGZmZGIzNC05ZDNhLTQ5MGMtYTQ4Yy0xZTgwMTQ5ZWFmNWEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsIm5iZiI6MTc5Mjc2NjU1OSwiZXhwIjoxNzkyNzY3NDU5LCJpc3MiOiJJbnN1cmFuY2VBcHAiLCJhdWQiOiJJbnN1cmFuY2VBcHAifQ.zNKk8ALlNIk7YvoqxY-35KPuTi8vFR8s6hA-MbSKJDs
+
 
 ### Get countries
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/countries
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get counties by country
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/countries/{{countryId}}/counties
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get cities by county
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/counties/{{countyId}}/cities
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search clients
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients?pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search clients by name
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients?name=John&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search clients by identification number
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients?identifier=1980101223344&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get client by ID
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create individual client
 
 POST {{InsuranceApp_HostAddress}}/api/brokers/clients
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
-
 {
   "clientType": 1,
   "name": "John Doe",
@@ -94,6 +96,7 @@ Accept: application/json
 ### Create company client
 
 POST {{InsuranceApp_HostAddress}}/api/brokers/clients
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -111,6 +114,7 @@ Accept: application/json
 ### Update client
 
 PUT {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -127,19 +131,20 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/buildings/{{buildingId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get buildings by client
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create building for client
 
 POST {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -160,6 +165,7 @@ Accept: application/json
 ### Update building
 
 PUT {{InsuranceApp_HostAddress}}/api/brokers/buildings/{{buildingId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -181,19 +187,20 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/admin/currencies
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get currency by ID
 
 GET {{InsuranceApp_HostAddress}}/api/admin/currencies/{{currencyId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create currency
 
 POST {{InsuranceApp_HostAddress}}/api/admin/currencies
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -209,6 +216,7 @@ Accept: application/json
 ### Update currency
 
 PUT {{InsuranceApp_HostAddress}}/api/admin/currencies/{{currencyId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -225,19 +233,20 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/admin/fees
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get fee configuration by ID
 
 GET {{InsuranceApp_HostAddress}}/api/admin/fees/{{feeConfigId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create broker commission fee
 
 POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -255,6 +264,7 @@ Accept: application/json
 ### Create risk adjustment fee
 
 POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -272,6 +282,7 @@ Accept: application/json
 ### Create administration fee
 
 POST {{InsuranceApp_HostAddress}}/api/admin/fees
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -289,6 +300,7 @@ Accept: application/json
 ### Update fee configuration
 
 PUT {{InsuranceApp_HostAddress}}/api/admin/fees/{{feeConfigId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -307,19 +319,20 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients/ffffffff-ffff-ffff-ffff-ffffffffffff
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Client - empty GUID -> 400
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/clients/00000000-0000-0000-0000-000000000000
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Currency - invalid exchange rate -> 400
 
 POST {{InsuranceApp_HostAddress}}/api/admin/currencies
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -335,6 +348,7 @@ Accept: application/json
 ### Building - invalid surface area -> 400
 
 POST {{InsuranceApp_HostAddress}}/api/brokers/clients/{{clientId}}/buildings
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -360,7 +374,7 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/admin/risk-factors
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get risk factor configuration by ID
@@ -373,6 +387,7 @@ Accept: application/json
 ### Create country risk factor
 
 POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -388,6 +403,7 @@ Accept: application/json
 ### Create county risk factor
 
 POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -403,6 +419,7 @@ Accept: application/json
 ### Create city risk factor
 
 POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -418,6 +435,7 @@ Accept: application/json
 ### Create building type risk factor
 
 POST {{InsuranceApp_HostAddress}}/api/admin/risk-factors
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -433,6 +451,7 @@ Accept: application/json
 ### Update risk factor configuration
 
 PUT {{InsuranceApp_HostAddress}}/api/admin/risk-factors/{{riskFactorConfigId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -453,19 +472,20 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/admin/brokers
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get broker by ID
 
 GET {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create broker
 
 POST {{InsuranceApp_HostAddress}}/api/admin/brokers
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -483,6 +503,7 @@ Accept: application/json
 ### Update broker
 
 PUT {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -499,6 +520,7 @@ Accept: application/json
 ### Activate broker
 
 POST {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}/activate
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ###
@@ -506,6 +528,7 @@ Accept: application/json
 ### Deactivate broker
 
 POST {{InsuranceApp_HostAddress}}/api/admin/brokers/{{brokerId}}/deactivate
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ###
@@ -518,54 +541,55 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search policies by client
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?clientId={{clientId}}&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search policies by broker
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?brokerId={{brokerId}}&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search policies by status
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?status=1&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search policies by date range
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?startDate=2026-10-01&endDate=2027-10-01&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Search policies with all filters
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies?clientId={{clientId}}&brokerId={{brokerId}}&status=1&startDate=2026-10-01&endDate=2027-10-01&pageNumber=1&pageSize=20
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Get policy by ID
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies/{{policyId}}
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Create draft policy
 
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -586,7 +610,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies/1c204a4e-ce66-4c17-1e15-08df29b83d57/activate
 Content-Type: application/json
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Cancel policy
@@ -594,6 +618,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies/3f839f0b-b6a7-438f-24c4-08df2612c1c8/cancel
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "cancellationReason": " aaa "
@@ -609,14 +634,14 @@ Accept: application/json
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies/ffffffff-ffff-ffff-ffff-ffffffffffff
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Policy - empty ID -> 400
 
 GET {{InsuranceApp_HostAddress}}/api/brokers/policies/00000000-0000-0000-0000-000000000000
 Accept: application/json
-
+Authorization: Bearer {{accessToken}}
 ###
 
 ### Policy - invalid base premium -> 400
@@ -624,6 +649,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "clientId": "{{clientId}}",
@@ -642,6 +668,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "clientId": "{{clientId}}",
@@ -660,6 +687,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "clientId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
@@ -678,6 +706,7 @@ Accept: application/json
 POST {{InsuranceApp_HostAddress}}/api/brokers/policies
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "clientId": "00000000-0000-0000-0000-000000000000",
@@ -710,30 +739,37 @@ Accept: application/json
 ### With all filters
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### No filter
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Without From
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from=&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Without To
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to=&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Without Status
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status=&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Without Currency
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status={{status}}&currency=&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Without BuildingType
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-country?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType=
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ###
 
@@ -743,10 +779,12 @@ Accept: application/json
 ### With all filters
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-county?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### No filter
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-county
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ###
 
@@ -756,10 +794,12 @@ Accept: application/json
 ### With all filters
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-city?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### No filter
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-city
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ###
 
@@ -769,10 +809,55 @@ Accept: application/json
 ### With all filters
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-broker?from={{from}}&to={{to}}&status={{status}}&currency={{currency}}&buildingType={{buildingType}}
 Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### No filter
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-broker
 Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+
+# ============================================================
+# Create users
+# ============================================================
+
+### Create Admin User
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "admin2",
+  "password": "#TempPassAdmin2#",
+  "role": 1,
+  "brokerId": null
+}
+
+### Create Broker User
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "broker1",
+  "password": "$TempPassBroker1$",
+  "role": 2,
+  "brokerId": "8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "broker2",
+  "password": "$TempPassBroker2$",
+  "role": 2,
+  "brokerId": "63176400-7DC6-4678-D991-08DF1EC835C7"
+}
 
 ###
 
@@ -785,13 +870,35 @@ Content-Type: application/json
 Accept: application/json
 {
   "username": "admin",
-  "password": "#QwErTy#"
+  "password": "#TempPassAdmin1#"
 }
+
+###
 
 POST {{InsuranceApp_HostAddress}}/api/auth/login
 Content-Type: application/json
 Accept: application/json
 {
-  "username": "broker",
-  "password": "$AsDfGh$"
+  "username": "broker1",
+  "password": "$TempPassBroker1$"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "broker1",
+  "password": "$TempPassBroker1$"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "broker2",
+  "password": "$TempPassBroker2$"
 }

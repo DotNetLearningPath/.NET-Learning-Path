@@ -2,6 +2,7 @@
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Admin;
@@ -11,6 +12,8 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// </summary>
 /// <param name="policyReportService">The service for policies reports.</param>
 /// <param name="logger">The logger.</param>
+//[Authorize(Roles = "Admin")]
+[AllowAnonymous]
 [ApiController]
 [Route("api/admin/reports")]
 public sealed class ReportsController(IPolicyReportService policyReportService, ILogger<ReportsController> logger) : ControllerBase
