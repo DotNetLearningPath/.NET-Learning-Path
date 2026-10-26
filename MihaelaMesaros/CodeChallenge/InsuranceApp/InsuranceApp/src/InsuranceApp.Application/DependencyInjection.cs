@@ -24,7 +24,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPolicyService, PolicyService>();
         services.AddScoped<IPolicyReferenceService, PolicyReferenceService>();
-        services.AddScoped<IPolicyNumberGeneratorService, PolicyNumberGeneratorService>();
+        services.AddSingleton<IPolicyNumberGeneratorService, PolicyNumberGeneratorService>();
         services.AddScoped<IPolicyCalculationService, PolicyCalculationService>();
 
         services.AddScoped<IPolicyReportService, PolicyReportService>();
