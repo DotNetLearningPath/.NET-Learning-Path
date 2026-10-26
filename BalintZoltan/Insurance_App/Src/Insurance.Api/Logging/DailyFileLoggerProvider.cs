@@ -16,6 +16,7 @@ public sealed class DailyFileLoggerProvider : ILoggerProvider
 
     public void Dispose()
     {
+        // Required by ILoggerProvider; this provider does not own disposable resources.
     }
 
     private sealed class DailyFileLogger(
@@ -83,6 +84,7 @@ public sealed class DailyFileLoggerProvider : ILoggerProvider
 
             public void Dispose()
             {
+                // Required by IDisposable; this provider does not own disposable resources.
             }
         }
     }

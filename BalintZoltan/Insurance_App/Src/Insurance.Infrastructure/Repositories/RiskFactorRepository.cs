@@ -20,7 +20,7 @@ public sealed class RiskFactorRepository(
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<RiskFactorConfiguration?> GetByLevelAndReferenceAsync(
+    public Task<RiskFactorConfiguration?> GetRiskFactorByLevelAndReferenceAsync(
         RiskFactorLevel level,
         string reference,
         CancellationToken cancellationToken) =>
@@ -32,7 +32,7 @@ public sealed class RiskFactorRepository(
                 && configuration.IsActive,
                 cancellationToken);
 
-    public Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
+    public Task<RiskFactorConfiguration?> GetRiskFactorByBuildingTypeAsync(
         BuildingType buildingType,
         CancellationToken cancellationToken) =>
         dbContext.RiskFactorConfigurations
@@ -42,6 +42,20 @@ public sealed class RiskFactorRepository(
                 && configuration.Reference == buildingType.ToString()
                 && configuration.IsActive,
                 cancellationToken);
+
+    public Task<RiskFactorConfiguration?> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken) =>
+        dbContext.RiskFactorConfigurations
+            .FirstOrDefaultAsync(configuration => configuration.Id == id, cancellationToken);
+
+    public async Task UpdateRiskFactorAsync(
+        RiskFactorConfiguration configuration,
+        CancellationToken cancellationToken)
+    {
+        dbContext.RiskFactorConfigurations.Update(configuration);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
     public async Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(
         Guid? countryId,

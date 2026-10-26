@@ -1,7 +1,7 @@
-using Insurance.Domain.Entities;
-using Insurance.Domain.Enums;
 using Insurance.Application.Abstractions;
 using Insurance.Application.DTO.Common;
+using Insurance.Domain.Entities;
+using Insurance.Domain.Enums;
 using Insurance.Infrastructure.Extensions;
 using Insurance.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +49,11 @@ public sealed class PolicyRepository(
 
     public async Task<PagedResult<Policy>> SearchPoliciesAsync(
         string? policyNumber,
+        Guid? clientId,
+        Guid? brokerId,
         PolicyStatus? status,
+        DateTime? startDateFrom,
+        DateTime? startDateTo,
         PaginationRequest pagination,
         CancellationToken cancellationToken)
     {
@@ -65,6 +69,26 @@ public sealed class PolicyRepository(
         if (status.HasValue)
         {
             query = query.Where(policy => policy.Status == status.Value);
+        }
+
+        if (clientId.HasValue)
+        {
+            query = query.Where(policy => policy.ClientId == clientId.Value);
+        }
+
+        if (brokerId.HasValue)
+        {
+            query = query.Where(policy => policy.BrokerId == brokerId.Value);
+        }
+
+        if (startDateFrom.HasValue)
+        {
+            query = query.Where(policy => policy.StartDate >= startDateFrom.Value);
+        }
+
+        if (startDateTo.HasValue)
+        {
+            query = query.Where(policy => policy.StartDate <= startDateTo.Value);
         }
 
         return await query

@@ -4,7 +4,8 @@ using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class ErrorResponsesTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class ErrorResponsesTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Theory]
     [InlineData("buildings/{id}")]

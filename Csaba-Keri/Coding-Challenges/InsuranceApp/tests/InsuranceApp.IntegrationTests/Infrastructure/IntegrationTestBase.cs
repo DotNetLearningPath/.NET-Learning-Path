@@ -1,5 +1,4 @@
 ﻿using InsuranceApp.Infrastructure.Persistence;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
@@ -7,55 +6,28 @@ using System.Text.Json.Nodes;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
 
-public abstract class IntegrationTestBase : IAsyncLifetime
+public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsyncLifetime
 {
-    private readonly SqliteConnection _dbConnection = new("Data Source=:memory:;Foreign Keys=True");
-    private InsuranceApiFactory? _apiFactory;
+    private readonly IntegrationTestFixture _fixture = fixture;
 
-    protected HttpClient HttpClient { get; private set; } = null!;
+    private protected HttpClient HttpClient { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
-        await _dbConnection.OpenAsync();
-
-        // The production model uses PostgreSQL's C collation for exact identifiers.
-        // This test-only collation supports the ASCII identifiers used by these tests.
-        _dbConnection.CreateCollation("C", StringComparer.Ordinal.Compare);
-
-        _apiFactory = new InsuranceApiFactory(_dbConnection);
-
-        using (var scope = _apiFactory.Services.CreateScope())
-        {
-            await scope.ServiceProvider
-                .GetRequiredService<InsuranceDbContext>()
-                .Database
-                .EnsureCreatedAsync();
-        }
-
-        HttpClient = _apiFactory.CreateClient();
+        await _fixture.ResetDatabaseAsync();
+        HttpClient = _fixture.CreateHttpClient();
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
         HttpClient?.Dispose();
 
-        try
-        {
-            if (_apiFactory is not null)
-            {
-                await _apiFactory.DisposeAsync();
-            }
-        }
-        finally
-        {
-            // Closing the last connection destroys this test's database.
-            await _dbConnection.DisposeAsync();
-        }
+        return Task.CompletedTask;
     }
 
-    protected async Task<T> QueryDatabaseAsync<T>(Func<InsuranceDbContext, Task<T>> query)
+    private protected async Task<T> QueryDatabaseAsync<T>(Func<InsuranceDbContext, Task<T>> query)
     {
-        using var scope = _apiFactory!.Services.CreateScope();
+        using var scope = _fixture.Services.CreateScope();
 
         var insuranceDbContext = scope.ServiceProvider
             .GetRequiredService<InsuranceDbContext>();
@@ -63,7 +35,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await query(insuranceDbContext);
     }
 
-    protected async Task<JsonObject> CreateClientAsync(JsonObject? request = null)
+    private protected async Task<JsonObject> CreateClientAsync(JsonObject? request = null)
     {
         using var response = await HttpClient.PostAsJsonAsync(
             requestUri: "/api/brokers/clients",
@@ -75,7 +47,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
-    protected async Task<JsonObject> CreateBuildingAsync(Guid clientId, JsonObject? request = null)
+    private protected async Task<JsonObject> CreateBuildingAsync(Guid clientId, JsonObject? request = null)
     {
         using var response = await HttpClient.PostAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}/buildings",
@@ -87,7 +59,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
-    protected async Task<JsonObject> CreateBrokerAsync(JsonObject? request = null)
+    private protected async Task<JsonObject> CreateBrokerAsync(JsonObject? request = null)
     {
         using var response = await HttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/brokers",
@@ -99,7 +71,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
-    protected async Task<JsonObject> CreateCurrencyAsync(JsonObject? request = null)
+    private protected async Task<JsonObject> CreateCurrencyAsync(JsonObject? request = null)
     {
         using var response = await HttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
@@ -111,7 +83,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
-    protected async Task<JsonObject> CreateFeeAsync(JsonObject? request = null)
+    private protected async Task<JsonObject> CreateFeeAsync(JsonObject? request = null)
     {
         using var response = await HttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/fees",
@@ -123,7 +95,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return await ReadJsonAsync(response);
     }
 
-    protected static async Task<JsonObject> ReadJsonAsync(HttpResponseMessage response)
+    private protected static async Task<JsonObject> ReadJsonAsync(HttpResponseMessage response)
     {
         var body = await response.Content.ReadFromJsonAsync<JsonObject>();
         
@@ -132,7 +104,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return body;
     }
 
-    protected static async Task<JsonObject> AssertProblemAsync(
+    private protected static async Task<JsonObject> AssertProblemAsync(
         HttpResponseMessage response,
         HttpStatusCode statusCode,
         string? errorKey = null

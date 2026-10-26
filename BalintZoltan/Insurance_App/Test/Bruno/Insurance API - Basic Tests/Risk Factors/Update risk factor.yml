@@ -1,0 +1,37 @@
+info:
+  name: Update risk factor
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/risk-factors/{{riskFactorId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "level": 2,
+        "reference": "{{riskFactorReference}}",
+        "adjustmentPercentage": 4.75,
+        "isActive": true
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: "test('Status is 200 OK', function () { expect(res.getStatus()).to.equal(200); });\r
+
+        test('Adjustment was updated', function () { expect(res.getBody().adjustmentPercentage).to.eql(4.75); });\r
+
+        test('Reference was retained', function () { expect(res.getBody().reference).to.eql(bru.getCollectionVar('riskFactorReference')); });"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

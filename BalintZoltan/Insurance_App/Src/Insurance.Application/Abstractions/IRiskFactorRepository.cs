@@ -10,13 +10,21 @@ public interface IRiskFactorRepository
         RiskFactorConfiguration configuration,
         CancellationToken cancellationToken);
 
-    Task<RiskFactorConfiguration?> GetByLevelAndReferenceAsync(
+    Task<RiskFactorConfiguration?> GetRiskFactorByLevelAndReferenceAsync(
         RiskFactorLevel level,
         string reference,
         CancellationToken cancellationToken);
 
-    Task<RiskFactorConfiguration?> GetByBuildingTypeAsync(
+    Task<RiskFactorConfiguration?> GetRiskFactorByBuildingTypeAsync(
         BuildingType buildingType,
+        CancellationToken cancellationToken);
+
+    Task<RiskFactorConfiguration?> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
+    Task UpdateRiskFactorAsync(
+        RiskFactorConfiguration configuration,
         CancellationToken cancellationToken);
 
     Task<List<RiskFactorConfiguration>> GetApplicableRiskFactorsAsync(

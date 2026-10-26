@@ -7,7 +7,8 @@ using System.Text.Json.Nodes;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class ClientsEndpointsTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Theory]
     [InlineData("Individual", ClientType.Individual)]

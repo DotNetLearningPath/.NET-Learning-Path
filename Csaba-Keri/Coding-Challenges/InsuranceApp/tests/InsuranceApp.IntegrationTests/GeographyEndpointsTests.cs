@@ -3,7 +3,8 @@ using System.Net;
 
 namespace InsuranceApp.IntegrationTests;
 
-public sealed class GeographyEndpointsTests : IntegrationTestBase
+[Collection(IntegrationTestCollection.Name)]
+public sealed class GeographyEndpointsTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetCountries_ReturnsSeededCountriesInNameOrder()
