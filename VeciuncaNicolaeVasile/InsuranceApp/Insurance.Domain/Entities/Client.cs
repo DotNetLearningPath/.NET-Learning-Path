@@ -4,7 +4,7 @@ namespace Insurance.Domain.Entities
 {
     public class Client
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public ClientType ClientType { get; set; }
         public string Name { get; set; } = string.Empty;
         public string IdentificationNumber { get; set; } = string.Empty;

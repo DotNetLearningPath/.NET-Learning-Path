@@ -9,7 +9,7 @@ namespace Insurance.Tests.Helpers
         {
             return new Client
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 ClientType = ClientType.Individual,
                 Name = "CRRRAa",
                 IdentificationNumber = "6767676767676767",

@@ -2,133 +2,134 @@
 using Insurance.Domain.Enums;
 using Insurance.Tests.Helpers;
 
-namespace Insurance.Tests.Unit;
-
-public class ClientValidatorTests
+namespace Insurance.Tests.Unit
 {
-    private readonly ClientValidator _validator = new();
-
-    [Fact]
-    public void Validate_WhenClientIsValid_DoesNotThrow()
+    public class ClientValidatorTests
     {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
+        private readonly ClientValidator _validator = new();
 
-        // Act
-        var exception = Record.Exception(() => _validator.Validate(client));
+        [Fact]
+        public void Validate_WhenClientIsValid_DoesNotThrow()
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
 
-        // Assert
-        Assert.Null(exception);
-    }
+            // Act
+            var exception = Record.Exception(() => _validator.Validate(client));
 
-    [Fact]
-    public void Validate_WhenClientIsNull_ThrowsArgumentNullException()
-    {
-        // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => _validator.Validate(null!));
+            // Assert
+            Assert.Null(exception);
+        }
 
-        // Assert
-        Assert.Equal("client", exception.ParamName);
-    }
+        [Fact]
+        public void Validate_WhenClientIsNull_ThrowsArgumentNullException()
+        {
+            // Act
+            var exception = Assert.Throws<ArgumentNullException>(() => _validator.Validate(null!));
 
-    [Fact]
-    public void Validate_WhenClientTypeIsInvalid_ThrowsArgumentException()
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.ClientType = (ClientType)123111241;
+            // Assert
+            Assert.Equal("client", exception.ParamName);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+        [Fact]
+        public void Validate_WhenClientTypeIsInvalid_ThrowsArgumentException()
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.ClientType = (ClientType)123111241;
 
-        // Assert
-        Assert.Contains("Invalid client type", exception.Message);
-    }
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_WhenNameIsInvalid_ThrowsArgumentException(string? name)
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.Name = name!;
+            // Assert
+            Assert.Contains("Invalid client type", exception.Message);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Validate_WhenNameIsInvalid_ThrowsArgumentException(string? name)
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.Name = name!;
 
-        // Assert
-        Assert.Contains("Name is required", exception.Message);
-    }
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_WhenIdentificationNumberIsInvalid_ThrowsArgumentException(
-        string? identificationNumber)
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.IdentificationNumber = identificationNumber!;
+            // Assert
+            Assert.Contains("Name is required", exception.Message);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Validate_WhenIdentificationNumberIsInvalid_ThrowsArgumentException(
+            string? identificationNumber)
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.IdentificationNumber = identificationNumber!;
 
-        // Assert
-        Assert.Contains("Identification number is required", exception.Message);
-    }
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_WhenEmailIsMissing_ThrowsArgumentException(string? email)
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.Email = email!;
+            // Assert
+            Assert.Contains("Identification number is required", exception.Message);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Validate_WhenEmailIsMissing_ThrowsArgumentException(string? email)
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.Email = email!;
 
-        // Assert
-        Assert.Contains("Email is required", exception.Message);
-    }
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
 
-    [Theory]
-    [InlineData("invalid-email")]
-    [InlineData("nicu@")]
-    public void Validate_WhenEmailFormatIsInvalid_ThrowsArgumentException(
-        string email)
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.Email = email;
+            // Assert
+            Assert.Contains("Email is required", exception.Message);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(
-            () => _validator.Validate(client));
+        [Theory]
+        [InlineData("invalid-email")]
+        [InlineData("nicu@")]
+        public void Validate_WhenEmailFormatIsInvalid_ThrowsArgumentException(
+            string email)
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.Email = email;
 
-        // Assert
-        Assert.Contains("Invalid email format", exception.Message);
-    }
+            // Act
+            var exception = Assert.Throws<ArgumentException>(
+                () => _validator.Validate(client));
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_WhenPhoneIsMissing_ThrowsArgumentException(string? phone)
-    {
-        // Arrange
-        var client = ClientTestDataHelper.CreateValidClient();
-        client.Phone = phone!;
+            // Assert
+            Assert.Contains("Invalid email format", exception.Message);
+        }
 
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Validate_WhenPhoneIsMissing_ThrowsArgumentException(string? phone)
+        {
+            // Arrange
+            var client = ClientTestDataHelper.CreateValidClient();
+            client.Phone = phone!;
 
-        // Assert
-        Assert.Contains("Phone number is required", exception.Message);
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => _validator.Validate(client));
+
+            // Assert
+            Assert.Contains("Phone number is required", exception.Message);
+        }
     }
 }

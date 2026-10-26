@@ -1,6 +1,17 @@
+using Insurance.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+
+var connectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection");
+
+
 // Add services to the container.
+
+builder.Services.AddDbContext<InsuranceDbContext>(options =>
+    options.UseSqlite(connectionString));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
