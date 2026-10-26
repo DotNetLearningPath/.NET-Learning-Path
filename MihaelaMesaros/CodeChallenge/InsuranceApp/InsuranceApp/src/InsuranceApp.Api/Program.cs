@@ -1,14 +1,12 @@
 using InsuranceApp.Api.ExceptionHandling;
 using InsuranceApp.Application;
-using InsuranceApp.Application.Abstractions.Services;
-using InsuranceApp.Application.Common;
-using InsuranceApp.Application.DTOs.User;
-using InsuranceApp.Domain.Enums;
 using InsuranceApp.Infrastructure;
+using InsuranceApp.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 
@@ -17,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 #region Service Registration
 builder.Services.AddControllers();
 
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 #endregion
@@ -75,39 +73,36 @@ builder.Services.AddSwaggerGen(options =>
 
 #region Authentication and Authorization Configuration
 
-var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
-var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured.");
-var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured.");
-
-var secretKeyBytes = Convert.FromBase64String(jwtSecretKey);
-if (secretKeyBytes.Length < 32)
-{
-    throw new InvalidOperationException("JWT SecretKey must contain at least 32 bytes.");
-}
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.MapInboundClaims = false;
-
-        options.TokenValidationParameters = new TokenValidationParameters
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>>(
+        (options, jwtSettingsOptions) =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
+            var settings = jwtSettingsOptions.Value;
 
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
+            options.MapInboundClaims = false;
 
-            ValidateLifetime = true,
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = settings.Issuer,
 
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                ValidateAudience = true,
+                ValidAudience = settings.Audience,
 
-            NameClaimType = ClaimTypes.Name,
-            RoleClaimType = ClaimTypes.Role
-        };
-    });
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(settings.SecretKey)),
+
+                NameClaimType = ClaimTypes.Name,
+                RoleClaimType = ClaimTypes.Role,
+
+                ClockSkew = TimeSpan.Zero
+            };
+        });
 
 builder.Services.AddAuthorization();
 

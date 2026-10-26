@@ -24,6 +24,6 @@ internal sealed class PasswordService : IPasswordService
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
-        return (result != PasswordVerificationResult.Failed ? true : false);
+        return result != PasswordVerificationResult.Failed;
     }
 }

@@ -1,38 +1,23 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.DTOs.Auth;
 using InsuranceApp.Domain.Entities;
-using InsuranceApp.Application.Abstractions.Security;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
 
 namespace InsuranceApp.Infrastructure.Security;
 
-internal sealed class JwtService(IConfiguration configuration) : IJwtService
+internal sealed class JwtService(IOptions<JwtSettings> options) : IJwtService
 {
     public LoginResponseDto GenerateToken(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        var secretKey = configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT secret key is not configured.");
+        var settings = options.Value;
 
-        var issuer = configuration["JwtSettings:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured.");
-
-        var audience = configuration["JwtSettings:Audience"] ?? throw new InvalidOperationException("JWT audience is not configured.");
-
-        if (!int.TryParse(configuration["JwtSettings:ExpirationMinutes"], out var expirationMinutes) || expirationMinutes <= 0)
-        {
-            throw new InvalidOperationException("JWT expiration is not configured correctly.");
-        }
-
-        var keyBytes = Convert.FromBase64String(secretKey);
-
-        if (keyBytes.Length < 32)
-        {
-            throw new InvalidOperationException("JWT signing key must contain at least 32 bytes.");
-        }
-
-        var signingKey = new SymmetricSecurityKey(keyBytes);
+        var signingKey = new SymmetricSecurityKey(Convert.FromBase64String(settings.SecretKey));
 
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
@@ -49,11 +34,11 @@ internal sealed class JwtService(IConfiguration configuration) : IJwtService
         }
 
         var now = DateTime.UtcNow;
-        var expiresAt = now.AddMinutes(expirationMinutes);
+        var expiresAt = now.AddMinutes(settings.ExpirationMinutes);
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: settings.Issuer,
+            audience: settings.Audience,
             claims: claims,
             expires: expiresAt,
             notBefore: now,

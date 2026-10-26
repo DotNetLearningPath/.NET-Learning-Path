@@ -50,6 +50,43 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<IJwtService, JwtService>();
 
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetSection(JwtSettings.SectionName))
+            .Validate(
+                settings => 
+                    !string.IsNullOrWhiteSpace(settings.Issuer) 
+                    && !string.IsNullOrWhiteSpace(settings.Audience) 
+                    && settings.ExpirationMinutes > 0 
+                    && IsValidSecretKey(settings.SecretKey),
+                "Invalid JWT configuration."
+            )
+            .ValidateOnStart();
+
+        services.AddOptions<DatabaseSettings>()
+            .Bind(configuration.GetSection(DatabaseSettings.SectionName))
+            .Validate(
+                settings => settings.CommandTimeoutSeconds > 0,
+                "CommandTimeoutSeconds must be greater than zero."
+            )
+            .ValidateOnStart();
+
         return services;
+    }
+
+    private static bool IsValidSecretKey(string secretKey)
+    {
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            return false;
+        }
+
+        try
+        {
+            return Convert.FromBase64String(secretKey).Length >= 32;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }
