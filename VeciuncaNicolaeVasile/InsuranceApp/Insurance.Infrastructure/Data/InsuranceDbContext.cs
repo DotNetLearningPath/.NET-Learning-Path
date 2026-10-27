@@ -7,6 +7,7 @@ namespace Insurance.Infrastructure.Data
     {
         public InsuranceDbContext(DbContextOptions<InsuranceDbContext> options) : base(options)
         {
+
         }
 
         public DbSet<Client> Clients => Set<Client>();

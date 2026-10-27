@@ -1,10 +1,13 @@
 ﻿using Insurance.Application.Interfaces;
+using Insurance.Application.Exceptions;
 using Insurance.Domain.Entities;
 
 namespace Insurance.Application.Services
 {
     public class ClientService : IClientService
     {
+        private const int MaximumPageSize = 100;
+
         private readonly IClientRepository _clientRepository;
         private readonly IClientValidator _clientValidator;
 
@@ -18,11 +21,11 @@ namespace Insurance.Application.Services
         {
             _clientValidator.Validate(client);
 
-            bool alreadyExists = await _clientRepository.ExistsByIdentificationNumberAsync(client.IdentificationNumber, cancellationToken);
+            bool alreadyExists = await _clientRepository.ExistsClientByIdentificationNumberAsync(client.IdentificationNumber, cancellationToken);
 
-            if(alreadyExists)
+            if (alreadyExists)
             {
-                throw new InvalidOperationException($"A client with the identification number {client.IdentificationNumber} already exists.");
+                throw new DuplicateClientException(client.IdentificationNumber);
             }
 
             client.Id = Guid.NewGuid();
@@ -36,29 +39,44 @@ namespace Insurance.Application.Services
 
         public async Task<Client?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await _clientRepository.GetByIdAsync(id, cancellationToken);
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentException("Client ID cannot be empty.", nameof(id));
+            }
+
+            return await _clientRepository.GetClientByIdAsync(id, cancellationToken);
         }
 
-        public async Task<List<Client>> SearchAsync(string? name, string? identificationNumber, int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<Client?> GetByIdWithBuildingsAsync(Guid id, CancellationToken cancellationToken)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentException("Client ID cannot be empty.", nameof(id));
+            }
+
+            return await _clientRepository.GetClientByIdWithBuildingsAsync(id, cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<Client>> SearchAsync(string? name, string? identificationNumber, int page, int pageSize, CancellationToken cancellationToken)
         {
             if (page < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than zero.");
             }
 
-            if (pageSize < 1)
+            if (pageSize < 1 || pageSize > MaximumPageSize)
             {
-                throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
+                throw new ArgumentOutOfRangeException(nameof(pageSize), $"Page size must be between 1 and {MaximumPageSize}.");
             }
 
-            return await _clientRepository.SearchAsync(name, identificationNumber, page, pageSize, cancellationToken);
+            return await _clientRepository.SearchClientsAsync(name, identificationNumber, page, pageSize, cancellationToken);
         }
 
         public async Task<Client?> UpdateAsync(Client client, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(client);
 
-            var existingClient = await _clientRepository.GetByIdAsync(client.Id, cancellationToken);
+            var existingClient = await _clientRepository.GetClientByIdAsync(client.Id, cancellationToken);
 
             if (existingClient == null)
             {

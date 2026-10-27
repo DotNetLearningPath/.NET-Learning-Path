@@ -17,19 +17,26 @@ namespace Insurance.Api.Controllers
         }
 
         [HttpGet("{clientId:guid}", Name = "GetClientById")]
+        [ProducesResponseType(typeof(ClientResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(Guid clientId, CancellationToken cancellationToken)
         {
-            var client = await _clientService.GetByIdAsync(clientId, cancellationToken);
+            var client = await _clientService.GetByIdWithBuildingsAsync(clientId, cancellationToken);
 
             if (client == null)
             {
                 return NotFound();
             }
 
-            return Ok(client);
+            return Ok(ToResponse(client));
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(List<ClientResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchAsync([FromQuery] string? name, [FromQuery] string? identifier, [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
@@ -40,10 +47,14 @@ namespace Insurance.Api.Controllers
                 pageSize,
                 cancellationToken);
 
-            return Ok(clients);
+            return Ok(clients.Select(ToResponse).ToList());
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ClientResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateAsync([FromBody] CreateClientDto request, CancellationToken cancellationToken)
         {
             var client = new Client
@@ -58,10 +69,17 @@ namespace Insurance.Api.Controllers
 
             var createdClient = await _clientService.CreateAsync(client, cancellationToken);
 
-            return CreatedAtRoute("GetClientById", new { clientId = createdClient.Id }, createdClient);
+            return CreatedAtRoute(
+                "GetClientById",
+                new { clientId = createdClient.Id },
+                ToResponse(createdClient));
         }
 
         [HttpPut("{clientId:guid}")]
+        [ProducesResponseType(typeof(ClientResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateAsync(Guid clientId, [FromBody] UpdateClientDto request, CancellationToken cancellationToken)
         {
             var client = new Client
@@ -80,7 +98,33 @@ namespace Insurance.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(updatedClient);
+            return Ok(ToResponse(updatedClient));
+        }
+
+        private static ClientResponseDto ToResponse(Client client)
+        {
+            return new ClientResponseDto
+            {
+                Id = client.Id,
+                ClientType = client.ClientType,
+                Name = client.Name,
+                IdentificationNumber = client.IdentificationNumber,
+                Email = client.Email,
+                Phone = client.Phone,
+                PrimaryAddress = client.PrimaryAddress,
+                Buildings = client.Buildings.Select(building => new ClientBuildingDto
+                {
+                    Id = building.Id,
+                    Street = building.Street,
+                    StreetNumber = building.StreetNumber,
+                    CityId = building.CityId,
+                    ConstructionYear = building.ConstructionYear,
+                    BuildingType = building.BuildingType,
+                    NumberOfFloors = building.NumberOfFloors,
+                    SurfaceArea = building.SurfaceArea,
+                    InsuredValue = building.InsuredValue
+                }).ToList()
+            };
         }
     }
 }
