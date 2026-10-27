@@ -97,12 +97,10 @@ namespace Insurance.Application.Services
 
             _clientValidator.Validate(clientToValidate);
 
-
             existingClient.Name = client.Name;
             existingClient.Email = client.Email;
             existingClient.Phone = client.Phone;
             existingClient.PrimaryAddress = client.PrimaryAddress;
-
 
             await _clientRepository.SaveChangesAsync(cancellationToken);
 
