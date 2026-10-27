@@ -25,6 +25,8 @@ public class InsuranceDbContext(
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(InsuranceDbContext).Assembly);
+        
         GeographySeed.Configure(builder);
+        RoleSeed.Configure(builder);
     }
 }

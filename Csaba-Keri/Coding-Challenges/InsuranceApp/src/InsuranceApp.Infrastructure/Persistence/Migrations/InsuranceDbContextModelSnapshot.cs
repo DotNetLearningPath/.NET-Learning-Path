@@ -47,6 +47,22 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+                            ConcurrencyStamp = "11111111-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"),
+                            ConcurrencyStamp = "22222222-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+                            Name = "Broker",
+                            NormalizedName = "BROKER"
+                        });
                 });
 
             modelBuilder.Entity("InsuranceApp.Infrastructure.Identity.ApplicationUser", b =>
