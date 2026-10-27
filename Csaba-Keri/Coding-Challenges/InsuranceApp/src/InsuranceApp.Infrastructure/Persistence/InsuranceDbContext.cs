@@ -1,11 +1,13 @@
-﻿using InsuranceApp.Infrastructure.Persistence.Entities;
+﻿using InsuranceApp.Infrastructure.Identity;
+using InsuranceApp.Infrastructure.Persistence.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.Infrastructure.Persistence;
 
 public class InsuranceDbContext(
     DbContextOptions<InsuranceDbContext> options
-) : DbContext(options)
+) : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
 {
     public DbSet<ClientEntity> Clients => Set<ClientEntity>();
     public DbSet<BuildingEntity> Buildings => Set<BuildingEntity>();
@@ -19,10 +21,10 @@ public class InsuranceDbContext(
     public DbSet<PolicyEntity> Policies => Set<PolicyEntity>();
     public DbSet<PolicyAdjustmentEntity> PolicyAdjustments => Set<PolicyAdjustmentEntity>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InsuranceDbContext).Assembly);
-        GeographySeed.Configure(modelBuilder);
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(InsuranceDbContext).Assembly);
+        GeographySeed.Configure(builder);
     }
 }
