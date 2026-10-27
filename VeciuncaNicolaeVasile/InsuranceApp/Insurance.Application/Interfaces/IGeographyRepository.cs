@@ -7,6 +7,5 @@ namespace Insurance.Application.Interfaces
         Task<IReadOnlyList<Country>> GetCountriesAsync(CancellationToken cancellationToken);
         Task<IReadOnlyList<County>> GetCountiesByCountryIdAsync(Guid countryId, CancellationToken cancellationToken);
         Task<IReadOnlyList<City>> GetCitiesByCountyIdAsync(Guid countyId, CancellationToken cancellationToken);
-
     }
 }
