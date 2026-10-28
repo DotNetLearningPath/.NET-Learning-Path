@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using InsuranceApp.Application.Authentication.Exceptions;
 using InsuranceApp.Application.Brokers.Exceptions;
 using InsuranceApp.Application.Clients.Exceptions;
 using InsuranceApp.Application.Common.Exceptions;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         var (statusCode, title) = exception switch
         {
+            InvalidCredentialsException =>
+                (StatusCodes.Status401Unauthorized, "Authentication failed."),
+
+            AccountAccessDeniedException =>
+                (StatusCodes.Status403Forbidden, "Account access denied."),
+
             EntityNotFoundException =>
                 (StatusCodes.Status404NotFound, "Resource not found."),
 
@@ -75,6 +82,11 @@ public class GlobalExceptionHandler : IExceptionHandler
             _ =>
                 (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
         };
+
+        if (statusCode == StatusCodes.Status401Unauthorized)
+        {
+            httpContext.Response.Headers.WWWAuthenticate = "Bearer";
+        }
 
         Dictionary<string, object?>? extensions = null;
 

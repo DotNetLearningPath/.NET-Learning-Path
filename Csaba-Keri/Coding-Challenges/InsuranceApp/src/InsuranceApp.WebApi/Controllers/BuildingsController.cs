@@ -2,13 +2,18 @@
 using InsuranceApp.WebApi.Mappings;
 using InsuranceApp.WebApi.Models.Buildings;
 using InsuranceApp.WebApi.Models.Common;
+using InsuranceApp.WebApi.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.WebApi.Controllers;
 
 [ApiController]
 [Route("api/brokers/buildings")]
+[Authorize(Policy = AuthorizationPolicies.BrokerOnly)]
 [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public class BuildingsController : ControllerBase
 {
     private readonly IBuildingService _buildingService;

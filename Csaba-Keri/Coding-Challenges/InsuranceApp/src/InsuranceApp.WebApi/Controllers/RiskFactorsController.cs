@@ -2,13 +2,18 @@
 using InsuranceApp.WebApi.Mappings;
 using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.RiskFactors;
+using InsuranceApp.WebApi.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.WebApi.Controllers;
 
 [ApiController]
 [Route("api/admin/risk-factors")]
+[Authorize(Policy = AuthorizationPolicies.AdminOnly)]
 [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public class RiskFactorsController(IRiskFactorService riskFactorService) : ControllerBase
 {
     private readonly IRiskFactorService _riskFactorService = riskFactorService;
