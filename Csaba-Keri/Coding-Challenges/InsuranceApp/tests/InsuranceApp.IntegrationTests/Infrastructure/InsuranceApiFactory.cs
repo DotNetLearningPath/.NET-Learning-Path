@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Infrastructure.Persistence;
+using InsuranceApp.IntegrationTests.Authentication;
 using InsuranceApp.WebApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -16,6 +17,10 @@ internal class InsuranceApiFactory(string connectionString) : WebApplicationFact
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:InsuranceDatabase", connectionString);
+        builder.UseSetting("Jwt:Issuer", AuthenticationTestData.Issuer);
+        builder.UseSetting("Jwt:Audience", AuthenticationTestData.Audience);
+        builder.UseSetting("Jwt:SigningKey", AuthenticationTestData.SigningKey);
+        builder.UseSetting("Jwt:AccessTokenLifetimeMinutes", "15");
 
         builder.ConfigureTestServices(services =>
         {

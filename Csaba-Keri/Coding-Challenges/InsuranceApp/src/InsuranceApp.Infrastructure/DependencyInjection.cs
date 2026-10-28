@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Application.Brokers;
+﻿using InsuranceApp.Application.Authentication;
+using InsuranceApp.Application.Brokers;
 using InsuranceApp.Application.Buildings;
 using InsuranceApp.Application.Clients;
 using InsuranceApp.Application.Currencies;
@@ -35,6 +36,8 @@ public static class DependencyInjection
         })
             .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<InsuranceDbContext>();
+
+        services.AddScoped<IAccountAuthenticator, IdentityAccountAuthenticator>();
 
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IBuildingRepository, BuildingRepository>();
