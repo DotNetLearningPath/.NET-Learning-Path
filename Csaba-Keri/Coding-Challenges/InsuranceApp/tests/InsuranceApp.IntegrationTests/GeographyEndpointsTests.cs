@@ -10,7 +10,7 @@ public sealed class GeographyEndpointsTests(IntegrationTestFixture fixture) : In
     public async Task GetCountries_ReturnsSeededCountriesInNameOrder()
     {
         // Act
-        using var response = await HttpClient.GetAsync("/api/brokers/countries");
+        using var response = await BrokerHttpClient.GetAsync("/api/brokers/countries");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -29,7 +29,7 @@ public sealed class GeographyEndpointsTests(IntegrationTestFixture fixture) : In
     public async Task GetCountiesByCountryId_ReturnsOnlyCountiesOfRequestedCountry()
     {
         // Act
-        using var response = await HttpClient.GetAsync($"/api/brokers/countries/{TestData.RomaniaId}/counties");
+        using var response = await BrokerHttpClient.GetAsync($"/api/brokers/countries/{TestData.RomaniaId}/counties");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -47,7 +47,7 @@ public sealed class GeographyEndpointsTests(IntegrationTestFixture fixture) : In
     public async Task GetCitiesByCountyId_PagedRequest_ReturnsOnlyCitiesOfRequestedCounty()
     {
         // Act
-        using var response = await HttpClient.GetAsync(
+        using var response = await BrokerHttpClient.GetAsync(
             requestUri: $"/api/brokers/counties/{TestData.ClujId}/cities?pageNumber=2&pageSize=1"
         );
 

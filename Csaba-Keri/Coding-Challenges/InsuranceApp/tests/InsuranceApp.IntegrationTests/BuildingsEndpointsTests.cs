@@ -19,7 +19,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         var request = TestData.Building();
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}/buildings",
             value: request
         );
@@ -56,7 +56,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         Assert.Equal(125.50m, saved.SurfaceArea);
         Assert.Equal(250000m, saved.InsuredValue);
 
-        using var getResponse = await HttpClient.GetAsync(response.Headers.Location);
+        using var getResponse = await BrokerHttpClient.GetAsync(response.Headers.Location);
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(body, await ReadJsonAsync(getResponse)));
     }
@@ -88,7 +88,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         }
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}/buildings",
             value: request
         );
@@ -106,7 +106,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         var request = TestData.Building();
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}/buildings",
             value: request
         );
@@ -141,7 +141,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         request["clientId"] = anotherClient["id"]!.GetValue<Guid>();
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await BrokerHttpClient.PutAsJsonAsync(
             requestUri: $"/api/brokers/buildings/{originalBuildingId}",
             value: request
         );
@@ -166,7 +166,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         Assert.Equal(222.25m, saved.SurfaceArea);
         Assert.Equal(310000.75m, saved.InsuredValue);
 
-        using var getResponse = await HttpClient.GetAsync($"/api/brokers/buildings/{originalBuildingId}");
+        using var getResponse = await BrokerHttpClient.GetAsync($"/api/brokers/buildings/{originalBuildingId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(body, await ReadJsonAsync(getResponse)));
     }
@@ -186,7 +186,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await BrokerHttpClient.PutAsJsonAsync(
             requestUri: $"/api/brokers/buildings/{originalBuildingId}",
             value: request
         );
@@ -194,7 +194,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.BadRequest, "Address.CityId");
         
-        using var getResponse = await HttpClient.GetAsync($"/api/brokers/buildings/{originalBuildingId}");
+        using var getResponse = await BrokerHttpClient.GetAsync($"/api/brokers/buildings/{originalBuildingId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(originalBuilding, await ReadJsonAsync(getResponse)));
     }
@@ -213,7 +213,7 @@ public sealed class BuildingsEndpointsTests(IntegrationTestFixture fixture) : In
         await CreateBuildingAsync(secondClientId);
 
         // Act
-        using var response = await HttpClient.GetAsync($"/api/brokers/clients/{firstClientId}/buildings?pageSize=1");
+        using var response = await BrokerHttpClient.GetAsync($"/api/brokers/clients/{firstClientId}/buildings?pageSize=1");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
