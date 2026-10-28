@@ -50,6 +50,10 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<IJwtService, JwtService>();
 
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+
         services.AddOptions<JwtSettings>()
             .Bind(configuration.GetSection(JwtSettings.SectionName))
             .Validate(
@@ -57,6 +61,7 @@ public static class DependencyInjection
                     !string.IsNullOrWhiteSpace(settings.Issuer) 
                     && !string.IsNullOrWhiteSpace(settings.Audience) 
                     && settings.ExpirationMinutes > 0 
+                    && settings.RefreshTokenExpirationDays > 0
                     && IsValidSecretKey(settings.SecretKey),
                 "Invalid JWT configuration."
             )

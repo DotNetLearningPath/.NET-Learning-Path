@@ -5,5 +5,5 @@ namespace InsuranceApp.Application.Abstractions.Security;
 
 public interface IJwtService
 {
-    LoginResponseDto GenerateToken(User user);
+    AccessTokenDto GenerateAccessToken(User user);
 }
