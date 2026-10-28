@@ -889,16 +889,26 @@ POST {{InsuranceApp_HostAddress}}/api/auth/login
 Content-Type: application/json
 Accept: application/json
 {
-  "username": "broker1",
-  "password": "$TempPassBroker1$"
-}
-
-###
-
-POST {{InsuranceApp_HostAddress}}/api/auth/login
-Content-Type: application/json
-Accept: application/json
-{
   "username": "broker2",
   "password": "$TempPassBroker2$"
+}
+
+### Refresh Token
+POST {{InsuranceApp_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+{
+  "refreshToken": "7cOrszp+osRVMCrWR3DJl1gcOBp9Vh8IPD+ncYNsMhs="
+}
+### Refresh Token New
+POST {{InsuranceApp_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+{
+  "refreshToken": "4rxdJWtmPgM6ZEBzzGEFcbB3Ipewlzt8FajMKKgCIAI="
+}
+
+### Logout
+POST {{InsuranceApp_HostAddress}}/api/auth/logout
+Content-Type: application/json
+{
+  "refreshToken": "4rxdJWtmPgM6ZEBzzGEFcbB3Ipewlzt8FajMKKgCIAI="
 }

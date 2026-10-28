@@ -11,7 +11,7 @@ namespace InsuranceApp.Infrastructure.Security;
 
 internal sealed class JwtService(IOptions<JwtSettings> options) : IJwtService
 {
-    public LoginResponseDto GenerateToken(User user)
+    public AccessTokenDto GenerateAccessToken(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
@@ -45,6 +45,6 @@ internal sealed class JwtService(IOptions<JwtSettings> options) : IJwtService
             signingCredentials: credentials
         );
 
-        return new LoginResponseDto(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
+        return new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }
