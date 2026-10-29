@@ -1,12 +1,14 @@
 ﻿using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Services;
+using InsuranceApp.Application.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InsuranceApp.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IGeographyService, GeographyService>();
 
@@ -24,10 +26,21 @@ public static class DependencyInjection
 
         services.AddScoped<IPolicyService, PolicyService>();
         services.AddScoped<IPolicyReferenceService, PolicyReferenceService>();
-        services.AddScoped<IPolicyNumberGeneratorService, PolicyNumberGeneratorService>();
+        services.AddSingleton<IPolicyNumberGeneratorService, PolicyNumberGeneratorService>();
         services.AddScoped<IPolicyCalculationService, PolicyCalculationService>();
 
         services.AddScoped<IPolicyReportService, PolicyReportService>();
+
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
+
+        services.AddOptions<ApplicationSettings>()
+            .Bind(configuration.GetSection(ApplicationSettings.SectionName))
+            .Validate(
+                settings => !string.IsNullOrWhiteSpace(settings.BaseCurrencyCode),
+                "BaseCurrencyCode must be configured."
+            )
+            .ValidateOnStart();
 
         return services;
     }
