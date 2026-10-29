@@ -13,7 +13,6 @@ public sealed class UserRefreshToken
     public DateTime CreatedAt { get; set; }
 
     public DateTime? RevokedAt { get; set; }
-    public DateTime SessionExpiresAt { get; set; }
 
     public User User { get; set; } = null!;
 }
