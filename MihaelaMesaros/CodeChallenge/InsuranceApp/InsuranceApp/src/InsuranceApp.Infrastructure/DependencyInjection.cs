@@ -1,6 +1,8 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.Infrastructure.Persistence.Repositories;
+using InsuranceApp.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,7 +44,54 @@ public static class DependencyInjection
         services.AddScoped<IPolicyRepository, PolicyRepository>();
 
         services.AddScoped<IPolicyReportRepository, PolicyReportRepository>();
+        
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddSingleton<IPasswordService, PasswordService>();
+        services.AddSingleton<IJwtService, JwtService>();
+
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetSection(JwtSettings.SectionName))
+            .Validate(
+                settings => 
+                    !string.IsNullOrWhiteSpace(settings.Issuer) 
+                    && !string.IsNullOrWhiteSpace(settings.Audience) 
+                    && settings.ExpirationMinutes > 0 
+                    && settings.RefreshTokenExpirationDays > 0
+                    && IsValidSecretKey(settings.SecretKey),
+                "Invalid JWT configuration."
+            )
+            .ValidateOnStart();
+
+        services.AddOptions<DatabaseSettings>()
+            .Bind(configuration.GetSection(DatabaseSettings.SectionName))
+            .Validate(
+                settings => settings.CommandTimeoutSeconds > 0,
+                "CommandTimeoutSeconds must be greater than zero."
+            )
+            .ValidateOnStart();
 
         return services;
+    }
+
+    private static bool IsValidSecretKey(string secretKey)
+    {
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            return false;
+        }
+
+        try
+        {
+            return Convert.FromBase64String(secretKey).Length >= 32;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }

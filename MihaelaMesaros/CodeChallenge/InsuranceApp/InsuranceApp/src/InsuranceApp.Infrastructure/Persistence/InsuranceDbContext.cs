@@ -22,6 +22,10 @@ public sealed class InsuranceDbContext(DbContextOptions<InsuranceDbContext> opti
     public DbSet<FeeConfig> FeeConfigs { get; set; }
     public DbSet<RiskFactorConfig> RiskFactorConfigs { get; set; }
 
+    public DbSet<User> Users { get; set; }
+
+    public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

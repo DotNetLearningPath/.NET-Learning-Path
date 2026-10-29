@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.Currency;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Admin;
@@ -10,6 +11,7 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// </summary>
 /// <param name="currencyService">The currency service.</param>
 /// <param name="logger">The logger.</param>
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/admin/currencies")]
 public sealed class CurrenciesController(ICurrencyService currencyService, ILogger<CurrenciesController> logger) : ControllerBase

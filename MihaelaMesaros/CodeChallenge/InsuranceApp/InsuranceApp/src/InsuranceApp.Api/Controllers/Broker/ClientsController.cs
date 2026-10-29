@@ -1,8 +1,9 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
-using InsuranceApp.Application.DTOs.Client;
-using Microsoft.AspNetCore.Mvc;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Application.DTOs.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Broker;
 
@@ -11,6 +12,7 @@ namespace InsuranceApp.Api.Controllers.Broker;
 /// </summary>
 /// <param name="clientService">The client service.</param>
 /// <param name="logger">The logger.</param>
+[Authorize(Roles = "Broker")]
 [ApiController]
 [Route("api/brokers/clients")]
 public sealed class ClientsController(IClientService clientService, ILogger<ClientsController> logger) : ControllerBase
