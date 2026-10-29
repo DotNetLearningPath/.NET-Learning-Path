@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Insurance.Api/Insurance.Api.csproj" Id="c02606dd-1a81-402d-bfea-c02daf0c7022" />
+  <Project Path="Insurance.Application/Insurance.Application.csproj" Id="f89e65b4-efe6-4b65-955b-ef594275320d" />
+  <Project Path="Insurance.Domain/Insurance.Domain.csproj" Id="c4aa80a7-d3ab-49c7-9a21-eb68a5370ea0" />
+  <Project Path="Insurance.Infrastructure/Insurance.Infrastructure.csproj" Id="ec966b9b-5017-4b4e-962f-bd6b5cfb9a71" />
+  <Project Path="Insurance.Tests/Insurance.Tests.csproj" Id="99c14ed8-34b5-43a2-9684-a3dfef4c56c3" />
+</Solution>
