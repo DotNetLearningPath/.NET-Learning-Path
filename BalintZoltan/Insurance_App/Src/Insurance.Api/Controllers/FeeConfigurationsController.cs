@@ -18,13 +18,22 @@ public sealed class FeeConfigurationsController(
         return Ok(fees);
     }
 
+    [HttpGet("{id:guid}", Name = nameof(GetFeeByIdAsync))]
+    public async Task<ActionResult<FeeConfigurationDto>> GetFeeByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var fee = await feeConfigurationService.GetFeeByIdAsync(id, cancellationToken);
+        return Ok(fee);
+    }
+
     [HttpPost]
     public async Task<ActionResult<FeeConfigurationDto>> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)
     {
         var fee = await feeConfigurationService.CreateFeeAsync(request, cancellationToken);
-        return Created($"/api/admin/fees/{fee.Id}", fee);
+        return CreatedAtRoute(nameof(GetFeeByIdAsync), new { id = fee.Id }, fee);
     }
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<FeeConfigurationDto>> UpdateFeeAsync(

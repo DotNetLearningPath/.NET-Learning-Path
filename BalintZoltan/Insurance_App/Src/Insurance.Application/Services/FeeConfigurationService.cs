@@ -21,6 +21,17 @@ public sealed class FeeConfigurationService(
             TotalCount = page.TotalCount
         };
     }
+
+    public async Task<FeeConfigurationDto> GetFeeByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var fee = await repository.GetFeeConfigurationByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException("Fee configuration was not found.");
+
+        return MapToFeeConfigurationDto(fee);
+    }
+
     public async Task<FeeConfigurationDto> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken)

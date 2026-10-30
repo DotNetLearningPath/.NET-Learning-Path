@@ -9,6 +9,10 @@ public interface IRiskFactorConfigurationService
         PaginationRequest pagination,
         CancellationToken cancellationToken);
 
+    Task<RiskFactorConfigurationDto> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
     Task<RiskFactorConfigurationDto> CreateRiskFactorAsync(
         SaveRiskFactorConfigurationRequest request,
         CancellationToken cancellationToken);
