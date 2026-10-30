@@ -1,5 +1,6 @@
 ﻿using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Domain.Entities.Geography;
+using InsuranceManagement.Infrastructure.Persistence.Configurations;
 using InsuranceManagement.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,9 @@ namespace InsuranceManagement.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new BuildingConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientConfiguration());
 
             GeographySeedData.Seed(modelBuilder);
         }

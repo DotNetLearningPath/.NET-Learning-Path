@@ -33,7 +33,7 @@ public static class GeographySeedData
             new
             {
                 Id = bucharestCountyId,
-                Name = "București",
+                Name = "Bucuresti",
                 CountryId = romaniaId
             });
 
@@ -47,7 +47,7 @@ public static class GeographySeedData
             new
             {
                 Id = Guid.Parse("55555555-5555-4555-8555-555555555555"),
-                Name = "București",
+                Name = "Bucuresti",
                 CountyId = bucharestCountyId
             });
     }
