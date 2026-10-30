@@ -8,9 +8,9 @@ namespace SupportAPI.Application.QueryHandlers
     public class GetRequestByIdQueryHandler(
         IRequestsRepository requestsRepository,
         ICurrentUser currentUser,
-        IValidator<GetRequestByIdQuery> validator) : IQueryHandler<GetRequestByIdQuery, SingleRequestResult>
+        IValidator<GetRequestByIdQuery> validator) : IQueryHandler<GetRequestByIdQuery, UserRequestResult>
     {
-        public async Task<SingleRequestResult?> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
+        public async Task<UserRequestResult?> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
         {
             await validator.ValidateAndThrowAsync(query, cancellationToken);
             var userId = currentUser.UserId;
@@ -19,7 +19,7 @@ namespace SupportAPI.Application.QueryHandlers
 
             if (request != null)
             {
-                return new SingleRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
+                return new UserRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
             }
 
             return null;

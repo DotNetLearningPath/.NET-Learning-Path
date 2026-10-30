@@ -7,26 +7,17 @@ using SupportAPI.Infrastructure.Repositories;
 
 namespace SupportAPI.Infrastructure
 {
-    public static class DependencyInjection
+    public static class InfrastructureDependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<SupportDbContext>(options => options.UseNpgsql(connectionString));
 
             services.AddScoped<IRequestsRepository, RequestsRepository>();
+            services.AddScoped<IUserProvisioningRepository, UserProvisioningRepository>();
             
             return services;
         }
 
-        public static IServiceCollection AddUserRegistration(this IServiceCollection services)
-        {
-            services.AddIdentityCore<User>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<SupportDbContext>();
-
-            return services;
-        }
     }
 }

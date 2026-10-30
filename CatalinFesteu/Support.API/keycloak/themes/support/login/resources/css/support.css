@@ -1,0 +1,38 @@
+.login-pf body {
+  background: #f7f8f7;
+  font-family: Arial, sans-serif;
+  color: #252a27;
+}
+#kc-header, #kc-header-wrapper {
+  color: #286447;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
+}
+#kc-header-wrapper { padding-bottom: 18px; }
+.card-pf {
+  border: 1px solid #dfe4e0;
+  border-top: 4px solid #286447;
+  border-radius: 6px;
+  box-shadow: none;
+}
+#kc-page-title { font-size: 22px; font-weight: 600; }
+.pf-c-form-control, .form-control {
+  border: 1px solid #cbd3cd;
+  border-radius: 4px;
+  min-height: 40px;
+}
+.pf-c-form-control:focus, .form-control:focus {
+  border-color: #286447;
+  outline: 2px solid #28644722;
+}
+.pf-c-button.pf-m-primary, .btn-primary {
+  background: #286447;
+  background-image: none;
+  border-color: #286447;
+  border-radius: 4px;
+  min-height: 40px;
+}
+.pf-c-button.pf-m-primary:hover, .btn-primary:hover { background: #204f38; }
+a { color: #286447; }
+#kc-info-wrapper { background: #edf6ef; }

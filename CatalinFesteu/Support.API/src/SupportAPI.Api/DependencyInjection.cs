@@ -1,33 +1,34 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SupportAPI.Infrastructure;
 
 namespace SupportAPI.Api
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, JwtSettings settings)
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfigurationSection keycloakSettings)
         { 
             
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    options.MetadataAddress = keycloakSettings["MetadataAddress"]!;
+                    options.RequireHttpsMetadata = false;
+
                     options.MapInboundClaims = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = settings.Issuer,
-
+                        ValidIssuer = keycloakSettings["Issuer"],
+                        
                         ValidateAudience = true,
-                        ValidAudience = settings.Audience,
-
+                        ValidAudience = keycloakSettings["Audience"],
+                        
                         ValidateLifetime = true,
 
+                        RequireExpirationTime = true,
+
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(settings.SigningKey)),
-                        ValidAlgorithms = [SecurityAlgorithms.HmacSha256]
                     };
                 });
 

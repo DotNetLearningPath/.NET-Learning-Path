@@ -2,7 +2,7 @@
 
 namespace SupportAPI.Application.Commands
 {
-    public record CreateRequestCommand(
+    public record CreateUserRequestCommand(
         string Title,
         string RequestContent);
 }

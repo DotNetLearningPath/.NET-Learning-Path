@@ -16,9 +16,34 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: "http://localhost:8180"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+    ports:
+      - "8180:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+      - ./keycloak:/opt/keycloak/data/import:ro
+      - ./keycloak/themes/support:/opt/keycloak/themes/support:ro
+    healthcheck:
+      test: ["CMD", "bash", "-ec", "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   api:
     depends_on: 
+      keycloak:
+        condition: service_healthy
+        restart: true
       postgres: 
         condition: service_healthy
         restart: true
@@ -30,11 +55,35 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development 
+      Keycloak__MetadataAddress: "http://keycloak:8080/realms/support/.well-known/openid-configuration"
+      Keycloak__RealmUrl: "http://localhost:8180/realms/support"
+      Keycloak__Issuer: "http://localhost:8180/realms/support"
     secrets:
-      - source: jwt_signing_key
-        target: Jwt__SigningKey
       - source: supportdb_connection_string
         target: ConnectionStrings__SupportDb
+
+  frontend:
+    container_name: support-frontend
+    build:
+      context: ${FRONTEND_PATH:-../frontend}
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "http://localhost:8080"
+        VITE_KEYCLOAK_URL: "http://localhost:8180"
+        VITE_KEYCLOAK_REALM: "support"
+        VITE_KEYCLOAK_CLIENT_ID: "support-frontend"
+    ports:
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 3s
+      start_period: 5s
 
 secrets:  
   supportdb_connection_string:
@@ -44,3 +93,4 @@ secrets:
 
 volumes:
   support-api-postgres-data:
+  keycloak-data:

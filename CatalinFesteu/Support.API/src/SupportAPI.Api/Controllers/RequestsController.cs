@@ -11,17 +11,17 @@ namespace SupportAPI.Api.Controllers
     [ApiController]
     [Route("api/requests")]
     public class RequestsController(
-        ICommandHandler<CreateRequestCommand,SingleRequestResult> commandHandler,
-        IQueryHandler<GetRequestByIdQuery, SingleRequestResult> queryHandler): ControllerBase
+        ICommandHandler<CreateUserRequestCommand,UserRequestResult> commandHandler,
+        IQueryHandler<GetRequestByIdQuery, UserRequestResult> queryHandler): ControllerBase
     {
         [Authorize]
         [HttpPost]
-        [ProducesResponseType(typeof(SingleRequestResult), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(UserRequestResult), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create(
           [FromBody] CreateRequest body,
           CancellationToken cancellationToken)
         {
-            var command = new CreateRequestCommand(body.Title, body.RequestContent);
+            var command = new CreateUserRequestCommand(body.Title, body.RequestContent);
             var result = await commandHandler.Handle(command, cancellationToken);
             return CreatedAtAction
                 (nameof(Get),
@@ -31,7 +31,7 @@ namespace SupportAPI.Api.Controllers
 
         [Authorize]
         [HttpGet("{requestId:guid}")]
-        [ProducesResponseType(typeof(SingleRequestResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserRequestResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(
             [FromRoute] Guid requestId,

@@ -17,8 +17,9 @@ builder.Configuration.AddKeyPerFile(
     directoryPath: "/run/secrets",
     optional: true);
 
-var jwtSettingsSection = builder.Configuration.GetSection(JwtSettings.SectionName)
-    ?? throw new InvalidOperationException("JWT settings are missing");
+var keycloakSettings = builder.Configuration.GetSection("Keycloak")
+    ?? throw new InvalidOperationException("Identity Provider settings are missing");
+
 var connectionString = builder.Configuration.GetConnectionString("SupportDb");
 
 
@@ -26,75 +27,86 @@ var connectionString = builder.Configuration.GetConnectionString("SupportDb");
 // Add services to the container.
 builder.Services.AddControllers();
 
+var frontendOrigins = builder.Configuration
+    .GetSection("Frontend:Origins").Get<string[]>()
+    ?? ["http://localhost:5173"];
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("Frontend", policy => policy
+        .WithOrigins(frontendOrigins)
+        .WithMethods("GET", "POST")
+        .WithHeaders("Authorization", "Content-Type", "Accept")));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    var realmUrl = keycloakSettings["RealmUrl"];
+
+    options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Enter the access token"
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
+        {
+            AuthorizationCode = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri(
+                    $"{realmUrl}/protocol/openid-connect/auth"),
+                TokenUrl = new Uri(
+                    $"{realmUrl}/protocol/openid-connect/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    ["openid"] = "Authenticate the user"
+                }
+            }
+        }
     });
 
-    options.AddSecurityRequirement(document =>
-        new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-        });
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Keycloak", document)] = ["openid"]
+    });
 });
 
 
-
-builder.Services.AddOptions<JwtSettings>()
-    .Bind(jwtSettingsSection)
-    .Validate(settings =>
-        !string.IsNullOrWhiteSpace(settings.Issuer) &&
-        !string.IsNullOrWhiteSpace(settings.Audience) &&
-        !string.IsNullOrWhiteSpace(settings.SigningKey) &&
-        settings.AccessTokenMinutes > 0, "Jwt settings are invalid"
-    )
-    .ValidateOnStart();
-
-
-
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 
-builder.Services.AddScoped<IAccessTokenGenerator, JwtAccessTokenGenerator>();
-
-builder.Services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserCommandValidator>();
-builder.Services.AddScoped<IValidator<CreateRequestCommand>, CreateRequestCommandValidator>();
+builder.Services.AddScoped<IValidator<CreateUserRequestCommand>, CreateRequestCommandValidator>();
 builder.Services.AddScoped<IValidator<GetRequestByIdQuery>, GetRequestByIdQueryValidator>();
 
-builder.Services.AddScoped<ICommandHandler<LoginCommand, LoginResult>, LoginCommandHandler>();
-builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, RegisterUserResult>, RegisterUserCommandHandler>();
-builder.Services.AddScoped<ICommandHandler<CreateRequestCommand, SingleRequestResult>, CreateRequestCommandHandler>();
-builder.Services.AddScoped<IQueryHandler<GetRequestByIdQuery, SingleRequestResult>, GetRequestByIdQueryHandler>();
+builder.Services.AddScoped<ICommandHandler<CreateUserRequestCommand, UserRequestResult>, CreateRequestCommandHandler>();
+builder.Services.AddScoped<IQueryHandler<GetRequestByIdQuery, UserRequestResult>, GetRequestByIdQueryHandler>();
 
 
 
 builder.Services.AddInfrastructure(connectionString!);
-builder.Services.AddUserRegistration();
 builder.Services.AddAuthorization();
 
-var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
-
-builder.Services.AddJwtAuthentication(jwtSettings);
+builder.Services.AddJwtAuthentication(keycloakSettings);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.OAuthClientId("support-realm");
+        options.OAuthUsePkce();
+        options.OAuthScopes("openid");
+    });
 }
 
 app.UseHttpsRedirection();
 
+app.UseCors("Frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+app.UseMiddleware<UserProvisioningMiddleware>();
 
 app.MapControllers();
 

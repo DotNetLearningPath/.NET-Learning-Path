@@ -5,8 +5,9 @@ using SupportAPI.Domain.Entities;
 namespace SupportAPI.Infrastructure.Persistence
 {
     public class SupportDbContext(
-        DbContextOptions<SupportDbContext>options) : IdentityUserContext<User, Guid>(options)
+        DbContextOptions<SupportDbContext>options) : DbContext(options)
     {
+        public DbSet<User> Users { get; set; }
         public DbSet<Request> Requests { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -3,7 +3,7 @@ using SupportAPI.Application.Commands;
 
 namespace SupportAPI.Application.Validations
 {
-    public class CreateRequestCommandValidator : AbstractValidator<CreateRequestCommand>
+    public class CreateRequestCommandValidator : AbstractValidator<CreateUserRequestCommand>
     {
         public CreateRequestCommandValidator()
         {

@@ -2,6 +2,7 @@
 {
     public enum DepartmentType
     {
+        Unassigned,
         IT,
         HR,
         Development
