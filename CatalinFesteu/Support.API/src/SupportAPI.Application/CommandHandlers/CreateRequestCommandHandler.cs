@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using SupportAPI.Application.Abstractions;
 using SupportAPI.Application.Commands;
 using SupportAPI.Application.Results;
@@ -18,6 +18,7 @@ namespace SupportAPI.Application.CommandHandlers
             var request = Request.Create(currentUser.UserId, command.Title, command.RequestContent);
 
             await requestsRepository.AddRequestAsync(request, cancellationToken);
+            await requestsRepository.SaveChangesAsync(cancellationToken);
 
             return new UserRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
         }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SupportAPI.Application.Abstractions;
 using SupportAPI.Domain.Entities;
@@ -12,15 +12,6 @@ namespace SupportAPI.Infrastructure.Repositories
         public async Task AddRequestAsync(Request request, CancellationToken cancellationToken)
         {
             await dbContext.Requests.AddAsync(request, cancellationToken);
-            try
-            {
-                await SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateException exception) when (exception.InnerException is PostgresException postgresException)
-            {
-                //TO Extend
-                throw new PersistenceException(postgresException.Message);
-            }
         }
 
         public async Task<Request?> GetRequestByIdAsync(Guid userId, Guid requestId, CancellationToken cancellationToken)
@@ -35,7 +26,14 @@ namespace SupportAPI.Infrastructure.Repositories
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-             await dbContext.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (exception.InnerException is PostgresException)
+            {
+                throw new PersistenceException("Saving request changes failed.", exception);
+            }
         }
     }
 }

@@ -11,6 +11,8 @@ namespace SupportAPI.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
             services.AddDbContext<SupportDbContext>(options => options.UseNpgsql(connectionString));
 
             services.AddScoped<IRequestsRepository, RequestsRepository>();

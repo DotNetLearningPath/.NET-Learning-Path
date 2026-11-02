@@ -17,11 +17,12 @@ namespace SupportAPI.Domain.Entities
         public static User Create(string name, string identityIssuer, string identitySubject)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-            ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(identityIssuer));
-            ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(identitySubject));
+            ArgumentException.ThrowIfNullOrWhiteSpace(identityIssuer, nameof(identityIssuer));
+            ArgumentException.ThrowIfNullOrWhiteSpace(identitySubject, nameof(identitySubject));
 
             return new User
             {
+                Id = Guid.CreateVersion7(),
                 Name = name.Trim(),
                 IdentityIssuer = identityIssuer,
                 IdentitySubject = identitySubject
