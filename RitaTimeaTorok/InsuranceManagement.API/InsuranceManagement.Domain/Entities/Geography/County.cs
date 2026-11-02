@@ -1,6 +1,6 @@
 ﻿namespace InsuranceManagement.Domain.Entities.Geography
 {
-    public class County
+    public class County : IEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 

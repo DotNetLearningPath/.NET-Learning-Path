@@ -3,7 +3,7 @@ using InsuranceManagement.Domain.Enums;
 
 namespace InsuranceManagement.Domain.Entities
 {
-    public class Building
+    public class Building : IEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 

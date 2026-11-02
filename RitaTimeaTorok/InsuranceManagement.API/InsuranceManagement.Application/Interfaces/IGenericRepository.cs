@@ -1,6 +1,9 @@
+using InsuranceManagement.Domain.Entities;
+
 namespace InsuranceManagement.Application.Interfaces;
 
-public interface IGenericRepository<TEntity> where TEntity : class
+public interface IGenericRepository<TEntity> 
+    where TEntity : class, IEntity
 {
     Task<List<TEntity>> GetAllAsync();
 

@@ -2,7 +2,7 @@
 
 namespace InsuranceManagement.Domain.Entities
 {
-    public class Client
+    public class Client : IEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
