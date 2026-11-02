@@ -1,6 +1,4 @@
-﻿using SupportAPI.Application.Abstractions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using SupportAPI.Application.Abstractions;
 
 namespace SupportAPI.Api
 {
@@ -10,6 +8,7 @@ namespace SupportAPI.Api
 
         public void SetUserId(Guid userId)
         {
+            ArgumentOutOfRangeException.ThrowIfEqual(userId, Guid.Empty);
             UserId = userId;
         }
     }

@@ -7,7 +7,7 @@ namespace SupportAPI.Api
         RequestDelegate next)
     {
         public async Task InvokeAsync(HttpContext httpContext,
-            IUserProvisioningRepository userRepository,
+            IUserProvisioningService userProvisioningService,
             HttpCurrentUser currentUser)
         {
             if (httpContext.User.Identity?.IsAuthenticated == true)
@@ -30,7 +30,7 @@ namespace SupportAPI.Api
                     return;
                 }
 
-                var userId = await userRepository.FindOrCreateUserAsync(name, issuer, subject, httpContext.RequestAborted);
+                var userId = await userProvisioningService.FindOrCreateUserAsync(name, issuer, subject, httpContext.RequestAborted);
 
                 currentUser.SetUserId(userId);
             }

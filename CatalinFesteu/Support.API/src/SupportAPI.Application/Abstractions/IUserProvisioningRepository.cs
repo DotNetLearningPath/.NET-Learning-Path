@@ -1,10 +1,9 @@
-﻿namespace SupportAPI.Application.Abstractions
+using SupportAPI.Domain.Entities;
+
+namespace SupportAPI.Application.Abstractions;
+
+public interface IUserProvisioningRepository
 {
-    public interface IUserProvisioningRepository
-    {
-        Task<Guid> FindOrCreateUserAsync(string name,
-            string issuer,
-            string subject,
-            CancellationToken cancellationToken);
-    }
+    Task<Guid?> FindUserIdAsync(string issuer, string subject, CancellationToken cancellationToken);
+    Task<bool> TryAddUserAsync(User user, CancellationToken cancellationToken);
 }

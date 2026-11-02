@@ -1,6 +1,18 @@
-@Support.API_HostAddress = http://localhost:5028
+@SupportAPI_HostAddress = http://localhost:8080
+@accessToken = paste-access-token-here
+@requestId = 00000000-0000-0000-0000-000000000000
 
-GET {{Support.API_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{SupportAPI_HostAddress}}/api/requests
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Example support request",
+  "requestContent": "Describe the problem here."
+}
 
 ###
+
+GET {{SupportAPI_HostAddress}}/api/requests/{{requestId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json

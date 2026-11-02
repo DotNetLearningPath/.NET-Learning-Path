@@ -63,6 +63,7 @@ services:
         target: ConnectionStrings__SupportDb
 
   frontend:
+    profiles: ["frontend"]
     container_name: support-frontend
     build:
       context: ${FRONTEND_PATH:-../frontend}

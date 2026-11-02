@@ -6,6 +6,7 @@ using SupportAPI.Application.Commands;
 using SupportAPI.Application.Queries;
 using SupportAPI.Application.QueryHandlers;
 using SupportAPI.Application.Results;
+using SupportAPI.Application.Services;
 using SupportAPI.Application.Validations;
 
 namespace SupportAPI.Application;
@@ -18,6 +19,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<GetRequestByIdQuery>, GetRequestByIdQueryValidator>();
         services.AddScoped<ICommandHandler<CreateUserRequestCommand, UserRequestResult>, CreateRequestCommandHandler>();
         services.AddScoped<IQueryHandler<GetRequestByIdQuery, UserRequestResult>, GetRequestByIdQueryHandler>();
+
+        services.AddScoped<IUserProvisioningService, UserProvisioningService>();
 
         return services;
     }

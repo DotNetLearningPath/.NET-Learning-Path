@@ -1,47 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SupportAPI.Application.Abstractions;
 using SupportAPI.Domain.Entities;
 using SupportAPI.Infrastructure.Persistence;
 
-namespace SupportAPI.Infrastructure.Repositories
+namespace SupportAPI.Infrastructure.Repositories;
+
+public sealed class UserProvisioningRepository(SupportDbContext dbContext) : IUserProvisioningRepository
 {
-    public class UserProvisioningRepository(SupportDbContext dbContext) : IUserProvisioningRepository
+    public async Task<Guid?> FindUserIdAsync(string issuer, string subject, CancellationToken cancellationToken)
     {
-        public async Task<Guid> FindOrCreateUserAsync(string name, string issuer, string subject, CancellationToken cancellationToken)
+        return await dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.IdentityIssuer == issuer && user.IdentitySubject == subject)
+            .Select(user => (Guid?)user.Id)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<bool> TryAddUserAsync(User user, CancellationToken cancellationToken)
+    {
+        await dbContext.Users.AddAsync(user, cancellationToken);
+        try
         {
-            var userId = await FindUserIdAsync(issuer, subject, cancellationToken);
-
-            if (userId != Guid.Empty) return userId;
-
-            var user = User.Create(name, issuer, subject);
-
-            try
-            {
-                await dbContext.Users.AddAsync(user, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                return user.Id;
-            }
-            catch (DbUpdateException exception) when (exception.InnerException is PostgresException
-            {
-                SqlState: PostgresErrorCodes.UniqueViolation,
-                ConstraintName: "UX_Users_IdentityIssuer_IdentitySubject"
-            })
-            {
-                dbContext.Entry(user).State = EntityState.Detached;
-                var existingUserId = await FindUserIdAsync(issuer, subject, cancellationToken);
-
-                return existingUserId;
-            }
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return true;
         }
-
-        private async Task<Guid> FindUserIdAsync(string issuer, string subject, CancellationToken cancellationToken)
+        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
         {
-            return await dbContext.Users
-                .AsNoTracking()
-                .Where(x => x.IdentityIssuer == issuer && x.IdentitySubject == subject)
-                .Select(x => x.Id)
-                .SingleOrDefaultAsync(cancellationToken);
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "UX_Users_IdentityIssuer_IdentitySubject"
+        })
+        {
+            dbContext.Entry(user).State = EntityState.Detached;
+            return false;
         }
     }
 }
