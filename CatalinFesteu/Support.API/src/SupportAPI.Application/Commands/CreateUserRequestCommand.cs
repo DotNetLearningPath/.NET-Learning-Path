@@ -1,6 +1,4 @@
-﻿using SupportAPI.Domain.ValueObjects;
-
-namespace SupportAPI.Application.Commands
+﻿namespace SupportAPI.Application.Commands
 {
     public record CreateUserRequestCommand(
         string Title,

@@ -7,7 +7,7 @@ using SupportAPI.Infrastructure.Persistence;
 
 namespace SupportAPI.Infrastructure.Repositories
 {
-    public class RequestsRepository(SupportDbContext dbContext) : IRequestsRepository
+    public class UserRequestsRepository(SupportDbContext dbContext) : IUserRequestsRepository
     {
         public async Task AddRequestAsync(Request request, CancellationToken cancellationToken)
         {

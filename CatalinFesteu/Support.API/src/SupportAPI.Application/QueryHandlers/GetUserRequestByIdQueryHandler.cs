@@ -5,17 +5,16 @@ using SupportAPI.Application.Results;
 
 namespace SupportAPI.Application.QueryHandlers
 {
-    public class GetRequestByIdQueryHandler(
-        IRequestsRepository requestsRepository,
+    public class GetUserRequestByIdQueryHandler(
+        IUserRequestsRepository requestsRepository,
         ICurrentUser currentUser,
-        IValidator<GetRequestByIdQuery> validator) : IQueryHandler<GetRequestByIdQuery, UserRequestResult>
+        IValidator<GetUserRequestByIdQuery> validator) : IQueryHandler<GetUserRequestByIdQuery, UserRequestResult>
     {
-        public async Task<UserRequestResult?> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
+        public async Task<UserRequestResult?> Handle(GetUserRequestByIdQuery query, CancellationToken cancellationToken)
         {
             await validator.ValidateAndThrowAsync(query, cancellationToken);
-            var userId = currentUser.UserId;
 
-            var request = await requestsRepository.GetRequestByIdAsync(userId, query.RequestId, cancellationToken);
+            var request = await requestsRepository.GetRequestByIdAsync(currentUser.UserId, query.RequestId, cancellationToken);
 
             if (request != null)
             {

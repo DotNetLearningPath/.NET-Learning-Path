@@ -3,9 +3,9 @@ using SupportAPI.Application.Commands;
 
 namespace SupportAPI.Application.Validations
 {
-    public class CreateRequestCommandValidator : AbstractValidator<CreateUserRequestCommand>
+    public class CreateUserRequestCommandValidator : AbstractValidator<CreateUserRequestCommand>
     {
-        public CreateRequestCommandValidator()
+        public CreateUserRequestCommandValidator()
         {
             RuleFor(x => x.Title)
                 .NotEmpty()

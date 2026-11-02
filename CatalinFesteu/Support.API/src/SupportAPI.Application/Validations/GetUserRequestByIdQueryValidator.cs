@@ -3,9 +3,9 @@ using SupportAPI.Application.Queries;
 
 namespace SupportAPI.Application.Validations
 {
-    public class GetRequestByIdQueryValidator : AbstractValidator<GetRequestByIdQuery>
+    public class GetUserRequestByIdQueryValidator : AbstractValidator<GetUserRequestByIdQuery>
     {
-        public GetRequestByIdQueryValidator()
+        public GetUserRequestByIdQueryValidator()
         {
             RuleFor(x => x.RequestId).NotEmpty().WithMessage("RequestId required");
         }

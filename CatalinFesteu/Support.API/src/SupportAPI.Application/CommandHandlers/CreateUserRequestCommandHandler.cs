@@ -6,10 +6,10 @@ using SupportAPI.Domain.Entities;
 
 namespace SupportAPI.Application.CommandHandlers
 {
-    public class CreateRequestCommandHandler(
+    public class CreateUserRequestCommandHandler(
         ICurrentUser currentUser,
         IValidator<CreateUserRequestCommand> validator,
-        IRequestsRepository requestsRepository) : ICommandHandler<CreateUserRequestCommand, UserRequestResult>
+        IUserRequestsRepository requestsRepository) : ICommandHandler<CreateUserRequestCommand, UserRequestResult>
     {
         public async Task<UserRequestResult> Handle(CreateUserRequestCommand command, CancellationToken cancellationToken)
         {

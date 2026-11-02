@@ -15,7 +15,7 @@ namespace SupportAPI.Infrastructure
 
             services.AddDbContext<SupportDbContext>(options => options.UseNpgsql(connectionString));
 
-            services.AddScoped<IRequestsRepository, RequestsRepository>();
+            services.AddScoped<IUserRequestsRepository, UserRequestsRepository>();
 
             return services;
         }
