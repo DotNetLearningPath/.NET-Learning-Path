@@ -9,7 +9,7 @@ namespace SupportAPI.Domain.Entities
         public string Title { get; private set; } = string.Empty;
         public string RequestContent { get; private set; } = string.Empty;
         public RequestStatus Status { get; private set; }
-        
+
         private Request()
         {
 
