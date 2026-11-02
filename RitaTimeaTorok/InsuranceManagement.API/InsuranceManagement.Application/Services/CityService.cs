@@ -7,47 +7,51 @@ using InsuranceManagement.Domain.Entities.Geography;
 namespace InsuranceManagement.Application.Services;
 
 public class CityService(
-    IGenericRepository<City> cityService,
-    IGenericRepository<County> countyService,
+    IGenericRepository<City> cityRepository,
+    IGenericRepository<County> countyRepository,
     IMapper mapper) : ICityService
 {
     public async Task<List<CityDto>> GetAllAsync() =>
-        mapper.Map<List<CityDto>>(await cityService.GetAllAsync());
+        mapper.Map<List<CityDto>>(await cityRepository.GetAllAsync());
 
     public async Task<CityDto?> GetAsync(Guid id) =>
-        mapper.Map<CityDto?>(await cityService.GetAsync(id));
+        mapper.Map<CityDto?>(await cityRepository.GetAsync(id));
 
     public async Task<CityDto> CreateAsync(CreateCityDto request)
     {
-        if (await countyService.GetAsync(request.CountyId) is null)
+        if (await countyRepository.GetAsync(request.CountyId) is null)
         {
             throw new ValidationException("CountyId must refer to an existing county.");
         }
 
-        var city = await cityService.AddAsync(mapper.Map<City>(request));
+        var city = await cityRepository.AddAsync(mapper.Map<City>(request));
         return mapper.Map<CityDto>(city);
     }
 
     public async Task<CityDto?> UpdateAsync(Guid id, UpdateCityDto request)
     {
-        var city = await cityService.GetAsync(id);
+        var city = await cityRepository.GetAsync(id);
         if (city is null) return null;
 
-        if (await countyService.GetAsync(request.CountyId) is null)
+        if (await countyRepository.GetAsync(request.CountyId) is null)
         {
             throw new ValidationException("CountyId must refer to an existing county.");
         }
 
         mapper.Map(request, city);
-        await cityService.UpdateAsync(city);
+        await cityRepository.UpdateAsync(city);
         return mapper.Map<CityDto>(city);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        if (await cityService.GetAsync(id) is null) return false;
+        var city = await cityRepository.GetAsync(id);
 
-        await cityService.DeleteAsync(id);
+        if (city is null)
+            return false;
+
+        await cityRepository.DeleteAsync(city);
+
         return true;
     }
 }

@@ -33,9 +33,13 @@ public class CountryService(
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        if (await countryRepository.GetAsync(id) is null) return false;
+        var country = await countryRepository.GetAsync(id);
 
-        await countryRepository.DeleteAsync(id);
+        if (country is null)
+            return false;
+
+        await countryRepository.DeleteAsync(country);
+
         return true;
     }
 }

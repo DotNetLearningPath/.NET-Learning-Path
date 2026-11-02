@@ -27,14 +27,8 @@ public class GenericRepository<TEntity>(InsuranceDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(TEntity entity)
     {
-        var entity = await context.Set<TEntity>().FindAsync(id);
-        if (entity is null)
-        {
-            return;
-        }
-
         context.Set<TEntity>().Remove(entity);
         await context.SaveChangesAsync();
     }
