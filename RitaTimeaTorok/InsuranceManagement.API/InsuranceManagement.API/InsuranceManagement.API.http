@@ -1,0 +1,13 @@
+@InsuranceManagement.API_HostAddress = http://localhost:5295
+
+### List countries
+GET {{InsuranceManagement.API_HostAddress}}/api/countries
+Accept: application/json
+
+### List counties
+GET {{InsuranceManagement.API_HostAddress}}/api/counties
+Accept: application/json
+
+### List cities
+GET {{InsuranceManagement.API_HostAddress}}/api/cities
+Accept: application/json

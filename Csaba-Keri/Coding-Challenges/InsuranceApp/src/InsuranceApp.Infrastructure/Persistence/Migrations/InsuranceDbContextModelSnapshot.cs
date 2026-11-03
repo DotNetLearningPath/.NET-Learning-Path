@@ -22,6 +22,129 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Identity.ApplicationRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+                            ConcurrencyStamp = "11111111-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"),
+                            ConcurrencyStamp = "22222222-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+                            Name = "Broker",
+                            NormalizedName = "BROKER"
+                        });
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Identity.ApplicationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("BrokerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("broker_id");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrokerId")
+                        .IsUnique();
+
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.BrokerEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -542,13 +665,13 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                     b.ToTable("policies", null, t =>
                         {
-                            t.HasCheckConstraint("ck_policies_cancellation_audit", "(cancelled_at IS NULL AND cancellation_effective_date IS NULL AND cancellation_reason IS NULL)\r\nOR (status = 'Cancelled' AND cancelled_at IS NOT NULL AND cancellation_effective_date IS NOT NULL\r\nAND cancellation_reason IS NOT NULL AND length(btrim(cancellation_reason)) > 0\r\nAND cancellation_effective_date = (cancelled_at AT TIME ZONE 'UTC')::date\r\nAND cancellation_effective_date <= end_date)");
+                            t.HasCheckConstraint("ck_policies_cancellation_audit", "(cancelled_at IS NULL AND cancellation_effective_date IS NULL AND cancellation_reason IS NULL)\nOR (status = 'Cancelled' AND cancelled_at IS NOT NULL AND cancellation_effective_date IS NOT NULL\nAND cancellation_reason IS NOT NULL AND length(btrim(cancellation_reason)) > 0\nAND cancellation_effective_date = (cancelled_at AT TIME ZONE 'UTC')::date\nAND cancellation_effective_date <= end_date)");
 
                             t.HasCheckConstraint("ck_policies_currency_exchange_rate_to_base", "currency_exchange_rate_to_base > 0");
 
                             t.HasCheckConstraint("ck_policies_expiry_audit", "expired_at IS NULL OR (status = 'Expired' AND end_date < (expired_at AT TIME ZONE 'UTC')::date)");
 
-                            t.HasCheckConstraint("ck_policies_lifecycle_timestamps", "updated_at >= created_at\r\nAND (activated_at IS NULL OR (activated_at >= created_at AND activated_at <= updated_at AND status <> 'Draft'))\r\nAND (cancelled_at IS NULL OR (cancelled_at >= created_at AND cancelled_at <= updated_at\r\nAND (activated_at IS NULL OR cancelled_at >= activated_at)))\r\nAND (expired_at IS NULL OR (expired_at >= created_at AND expired_at <= updated_at\r\nAND (activated_at IS NULL OR expired_at >= activated_at)))");
+                            t.HasCheckConstraint("ck_policies_lifecycle_timestamps", "updated_at >= created_at\nAND (activated_at IS NULL OR (activated_at >= created_at AND activated_at <= updated_at AND status <> 'Draft'))\nAND (cancelled_at IS NULL OR (cancelled_at >= created_at AND cancelled_at <= updated_at\nAND (activated_at IS NULL OR cancelled_at >= activated_at)))\nAND (expired_at IS NULL OR (expired_at >= created_at AND expired_at <= updated_at\nAND (activated_at IS NULL OR expired_at >= activated_at)))");
 
                             t.HasCheckConstraint("ck_policies_period", "end_date >= start_date");
 
@@ -614,6 +737,136 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_risk_factor_configurations_target", "(level = 'Country' AND country_id IS NOT NULL AND county_id IS NULL AND city_id IS NULL AND building_type IS NULL)\nOR (level = 'County' AND county_id IS NOT NULL AND country_id IS NULL AND city_id IS NULL AND building_type IS NULL)\nOR (level = 'City' AND city_id IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND building_type IS NULL)\nOR (level = 'BuildingType' AND building_type IS NOT NULL AND country_id IS NULL AND county_id IS NULL AND city_id IS NULL)");
                         });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("character varying(34)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<Guid>");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Identity.ApplicationUserRole", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasDiscriminator().HasValue("ApplicationUserRole");
+                });
+
+            modelBuilder.Entity("InsuranceApp.Infrastructure.Identity.ApplicationUser", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Persistence.Entities.BrokerEntity", null)
+                        .WithOne()
+                        .HasForeignKey("InsuranceApp.Infrastructure.Identity.ApplicationUser", "BrokerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.BuildingEntity", b =>
@@ -710,6 +963,57 @@ namespace InsuranceApp.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CountyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_risk_factor_configurations_county_id");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("InsuranceApp.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InsuranceApp.Infrastructure.Persistence.Entities.PolicyEntity", b =>
