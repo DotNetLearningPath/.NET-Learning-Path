@@ -7,7 +7,7 @@ namespace SupportAPI.Infrastructure.Persistence
         DbContextOptions<SupportDbContext>options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<Request> Requests { get; set; }
+        public DbSet<SupportRequest> Requests { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

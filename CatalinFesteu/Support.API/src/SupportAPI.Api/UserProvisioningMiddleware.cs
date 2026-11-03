@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.JsonWebTokens;
 using SupportAPI.Application.Abstractions;
 using System.Security.Claims;
 
@@ -12,14 +13,14 @@ namespace SupportAPI.Api
         {
             if (httpContext.User.Identity?.IsAuthenticated == true)
             {
-                var issuer = httpContext.User.FindFirstValue("iss");
-                var subject = httpContext.User.FindFirstValue("sub");
+                var issuer = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Iss);
+                var subject = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-                var name = httpContext.User.FindFirstValue("name");
+                var name = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Name);
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    name = httpContext.User.FindFirstValue("preferred_username");
+                    name = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.PreferredUsername);
                 }
                 if (string.IsNullOrWhiteSpace(issuer) ||
                       string.IsNullOrWhiteSpace(subject) ||

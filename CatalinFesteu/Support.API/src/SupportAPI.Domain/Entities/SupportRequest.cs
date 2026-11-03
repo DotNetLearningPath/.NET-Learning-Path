@@ -2,20 +2,20 @@
 
 namespace SupportAPI.Domain.Entities
 {
-    public class Request
+    public class SupportRequest
     {
         public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string RequestContent { get; private set; } = string.Empty;
-        public RequestStatus Status { get; private set; }
+        public SupportRequestStatus Status { get; private set; }
 
-        private Request()
+        private SupportRequest()
         {
 
         }
 
-        public static Request Create(Guid userId, string title, string requestContent)
+        public static SupportRequest Create(Guid userId, string title, string requestContent)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             ArgumentException.ThrowIfNullOrWhiteSpace(requestContent, nameof(requestContent));
@@ -24,19 +24,19 @@ namespace SupportAPI.Domain.Entities
                 throw new ArgumentException("UserId must be provided when creating a request");
             }
 
-            return new Request
+            return new SupportRequest
             {
                 Id = Guid.CreateVersion7(),
                 UserId = userId,
                 Title = title.Trim(),
                 RequestContent = requestContent.Trim(),
-                Status = RequestStatus.Open
+                Status = SupportRequestStatus.Open
             };
         }
 
-        public void ChangeStatus(RequestStatus status)
+        public void ChangeStatus(SupportRequestStatus status)
         {
-            if (!Enum.IsDefined(typeof(RequestStatus), status))
+            if (!Enum.IsDefined(typeof(SupportRequestStatus), status))
             {
                 throw new ArgumentException("Invalid status provided");
             }

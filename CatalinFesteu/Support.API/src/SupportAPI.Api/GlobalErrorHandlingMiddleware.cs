@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace SupportAPI.Api;
 
 public sealed class GlobalErrorHandlingMiddleware(
-    RequestDelegate next,
-    ILogger<GlobalErrorHandlingMiddleware> logger)
+    RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -40,7 +39,6 @@ public sealed class GlobalErrorHandlingMiddleware(
                     Title = "One or more validation errors occurred."
                 };
 
-                logger.LogWarning("Request validation failed. TraceId: {TraceId}", traceId);
             }
             else if (exception is BadHttpRequestException badRequestException)
             {
@@ -52,8 +50,6 @@ public sealed class GlobalErrorHandlingMiddleware(
             }
             else
             {
-                logger.LogError(exception, "Unhandled request failure. TraceId: {TraceId}", traceId);
-
                 problem = new ProblemDetails
                 {
                     Status = StatusCodes.Status500InternalServerError,
@@ -66,6 +62,7 @@ public sealed class GlobalErrorHandlingMiddleware(
 
             context.Response.Clear();
             context.Response.StatusCode = problem.Status!.Value;
+           
             await context.Response.WriteAsJsonAsync(
                 (object)problem,
                 options: null,

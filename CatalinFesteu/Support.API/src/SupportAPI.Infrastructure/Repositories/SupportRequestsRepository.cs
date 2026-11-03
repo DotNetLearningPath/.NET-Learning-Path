@@ -7,14 +7,14 @@ using SupportAPI.Infrastructure.Persistence;
 
 namespace SupportAPI.Infrastructure.Repositories
 {
-    public class RequestsRepository(SupportDbContext dbContext) : IRequestsRepository
+    public class SupportRequestsRepository(SupportDbContext dbContext) : ISupportRequestsRepository
     {
-        public async Task AddRequestAsync(Request request, CancellationToken cancellationToken)
+        public async Task AddRequestAsync(SupportRequest request, CancellationToken cancellationToken)
         {
             await dbContext.Requests.AddAsync(request, cancellationToken);
         }
 
-        public async Task<Request?> GetRequestByIdAsync(Guid userId, Guid requestId, CancellationToken cancellationToken)
+        public async Task<SupportRequest?> GetRequestByIdAsync(Guid userId, Guid requestId, CancellationToken cancellationToken)
         {
             return await dbContext.Requests
                 .AsNoTracking()

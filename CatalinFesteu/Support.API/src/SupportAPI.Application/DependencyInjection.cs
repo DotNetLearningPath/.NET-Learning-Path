@@ -15,10 +15,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<IValidator<CreateUserRequestCommand>, CreateRequestCommandValidator>();
-        services.AddScoped<IValidator<GetRequestByIdQuery>, GetRequestByIdQueryValidator>();
-        services.AddScoped<ICommandHandler<CreateUserRequestCommand, UserRequestResult>, CreateRequestCommandHandler>();
-        services.AddScoped<IQueryHandler<GetRequestByIdQuery, UserRequestResult>, GetRequestByIdQueryHandler>();
+        services.AddScoped<IValidator<CreateSupportRequestCommand>, CreateSupportRequestCommandValidator>();
+        services.AddScoped<IValidator<GetSupportRequestByIdQuery>, GetSupportRequestByIdQueryValidator>();
+        services.AddScoped<ICommandHandler<CreateSupportRequestCommand, SupportRequestResult>, CreateSupportRequestCommandHandler>();
+        services.AddScoped<IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult>, GetRequestByIdQueryHandler>();
 
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
 

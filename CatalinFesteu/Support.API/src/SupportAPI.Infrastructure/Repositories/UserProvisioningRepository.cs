@@ -20,6 +20,7 @@ public sealed class UserProvisioningRepository(SupportDbContext dbContext) : IUs
     public async Task<bool> TryAddUserAsync(User user, CancellationToken cancellationToken)
     {
         await dbContext.Users.AddAsync(user, cancellationToken);
+
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);

@@ -7,9 +7,9 @@ using System.Text;
 
 namespace SupportAPI.Infrastructure.Configurations
 {
-    public class RequestConfiguration : IEntityTypeConfiguration<Request>
+    public class SupportRequestConfiguration : IEntityTypeConfiguration<SupportRequest>
     {
-        public void Configure(EntityTypeBuilder<Request> builder)
+        public void Configure(EntityTypeBuilder<SupportRequest> builder)
         {
             builder.HasKey(r => r.Id);
 

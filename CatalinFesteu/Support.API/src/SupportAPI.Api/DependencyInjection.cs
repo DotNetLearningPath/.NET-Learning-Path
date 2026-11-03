@@ -19,10 +19,12 @@ public static class DependencyInjection
         }
 
         var keycloak = configuration.GetRequiredSection("Keycloak");
+       
         var metadataAddress = RequiredUri(keycloak, "MetadataAddress", environment);
         var realmUrl = RequiredUri(keycloak, "RealmUrl", environment).TrimEnd('/');
         var issuer = RequiredUri(keycloak, "Issuer", environment);
         var audience = keycloak["Audience"];
+
         if (string.IsNullOrWhiteSpace(audience))
         {
             throw new InvalidOperationException("Keycloak:Audience is required.");
@@ -32,8 +34,9 @@ public static class DependencyInjection
         services.AddInfrastructure(connectionString);
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddScoped<HttpCurrentUser>();
-        services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<HttpCurrentUser>());
+        services.AddScoped<ICurrentUser, HttpCurrentUser>();
+     
+        
         services.AddAuthorization();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -74,14 +77,6 @@ public static class DependencyInjection
                 [new OpenApiSecuritySchemeReference("Keycloak", document)] = ["openid"]
             });
         });
-
-        var frontendOrigins = configuration.GetSection("Frontend:Origins").Get<string[]>()
-            ?? ["http://localhost:5173"];
-        services.AddCors(options => options.AddPolicy("Frontend", policy => policy
-            .WithOrigins(frontendOrigins)
-            .WithMethods("GET", "POST")
-            .WithHeaders("Authorization", "Content-Type", "Accept")));
-
         return services;
     }
 

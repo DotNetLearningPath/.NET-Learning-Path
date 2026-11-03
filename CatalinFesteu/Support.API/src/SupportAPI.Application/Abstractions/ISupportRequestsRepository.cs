@@ -2,10 +2,10 @@
 
 namespace SupportAPI.Application.Abstractions
 {
-    public interface IRequestsRepository
+    public interface ISupportRequestsRepository
     {
-        Task AddRequestAsync(Request request, CancellationToken cancellationToken);
-        Task<Request?> GetRequestByIdAsync(Guid userId, Guid requestId, CancellationToken cancellationToken);
+        Task AddRequestAsync(SupportRequest request, CancellationToken cancellationToken);
+        Task<SupportRequest?> GetRequestByIdAsync(Guid userId, Guid requestId, CancellationToken cancellationToken);
         Task SaveChangesAsync(CancellationToken cancellationToken);
         // Task GetAllRequestsForUserAsync(Guid userId, CancellationToken cancellationToken); this one requires pagination
     }

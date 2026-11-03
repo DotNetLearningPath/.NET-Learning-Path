@@ -1,6 +1,6 @@
 ﻿namespace SupportAPI.Domain.ValueObjects
 {
-    public enum RequestStatus
+    public enum SupportRequestStatus
     {
         Open = 0,
         Pending,

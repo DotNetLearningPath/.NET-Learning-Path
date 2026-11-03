@@ -2,7 +2,7 @@
 
 namespace SupportAPI.Api.Requests
 {
-    public sealed record CreateRequest
+    public sealed record CreateSupportRequest
     {
         [Required, MaxLength(200),]
         public string Title { get; set; } = string.Empty;

@@ -10,18 +10,18 @@ namespace SupportAPI.Api.Controllers
 {
     [ApiController]
     [Route("api/requests")]
-    public class RequestsController(
-        ICommandHandler<CreateUserRequestCommand,UserRequestResult> commandHandler,
-        IQueryHandler<GetRequestByIdQuery, UserRequestResult> queryHandler): ControllerBase
+    public class SupportRequestsController(
+        ICommandHandler<CreateSupportRequestCommand,SupportRequestResult> commandHandler,
+        IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult> queryHandler): ControllerBase
     {
         [Authorize]
         [HttpPost]
-        [ProducesResponseType(typeof(UserRequestResult), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(SupportRequestResult), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create(
-          [FromBody] CreateRequest body,
+          [FromBody] CreateSupportRequest body,
           CancellationToken cancellationToken)
         {
-            var command = new CreateUserRequestCommand(body.Title, body.RequestContent);
+            var command = new CreateSupportRequestCommand(body.Title, body.RequestContent);
             var result = await commandHandler.Handle(command, cancellationToken);
             return CreatedAtAction
                 (nameof(Get),
@@ -31,13 +31,13 @@ namespace SupportAPI.Api.Controllers
 
         [Authorize]
         [HttpGet("{requestId:guid}")]
-        [ProducesResponseType(typeof(UserRequestResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SupportRequestResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(
             [FromRoute] Guid requestId,
             CancellationToken cancellationToken)
         {
-            var query = new GetRequestByIdQuery(requestId);
+            var query = new GetSupportRequestByIdQuery(requestId);
             var result = await queryHandler.Handle(query, cancellationToken);
             return result is null ? NotFound() : Ok(result);
         }

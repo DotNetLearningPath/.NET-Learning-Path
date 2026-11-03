@@ -6,11 +6,11 @@ using SupportAPI.Application.Results;
 namespace SupportAPI.Application.QueryHandlers
 {
     public class GetRequestByIdQueryHandler(
-        IRequestsRepository requestsRepository,
+        ISupportRequestsRepository requestsRepository,
         ICurrentUser currentUser,
-        IValidator<GetRequestByIdQuery> validator) : IQueryHandler<GetRequestByIdQuery, UserRequestResult>
+        IValidator<GetSupportRequestByIdQuery> validator) : IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult>
     {
-        public async Task<UserRequestResult?> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
+        public async Task<SupportRequestResult?> Handle(GetSupportRequestByIdQuery query, CancellationToken cancellationToken)
         {
             await validator.ValidateAndThrowAsync(query, cancellationToken);
             var userId = currentUser.UserId;
@@ -19,7 +19,7 @@ namespace SupportAPI.Application.QueryHandlers
 
             if (request != null)
             {
-                return new UserRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
+                return new SupportRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
             }
 
             return null;
