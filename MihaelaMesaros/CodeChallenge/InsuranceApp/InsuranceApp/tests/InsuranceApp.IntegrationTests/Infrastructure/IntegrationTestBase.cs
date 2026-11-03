@@ -186,9 +186,18 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     protected async Task AuthenticateAsBrokerAsync(Guid brokerId)
     {
-        var brokerUser = TestData.CreateBrokerUser(brokerId);
+        var brokerUser = await DbContext.Users.FirstOrDefaultAsync(x => x.Username == TestData.BrokerUsername);
 
-        await SeedUserAsync(brokerUser);
+        if (brokerUser is null)
+        {
+            brokerUser = TestData.CreateBrokerUser(brokerId);
+            await SeedUserAsync(brokerUser);
+        }
+        else
+        {
+            brokerUser.BrokerId = brokerId;
+            await DbContext.SaveChangesAsync();
+        }
 
         var login = await LoginAsync(brokerUser.Username);
 

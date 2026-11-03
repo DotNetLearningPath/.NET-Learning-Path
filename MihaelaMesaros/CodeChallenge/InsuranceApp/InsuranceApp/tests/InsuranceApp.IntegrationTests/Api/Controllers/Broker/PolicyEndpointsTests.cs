@@ -17,6 +17,13 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
 {
     private const string BaseUrl = "/api/brokers/policies";
 
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsBrokerAsync(TestData.BrokerForCreate.BrokerId);
+    }
+
     #region Create Policy Tests
 
     [Theory]
@@ -130,6 +137,12 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
         // Arrange
         var policies = await SeedPoliciesListAsync();
 
+        var brokerId = TestData.BrokersList[0].BrokerId;
+
+        await AuthenticateAsBrokerAsync(brokerId);
+
+        var expectedPolicies = policies.Where(x => x.BrokerId == brokerId).ToList();
+
         // Act
         var response = await HttpClient.GetAsync($"{BaseUrl}?pageNumber=1&pageSize=20");
 
@@ -139,11 +152,12 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
         var result = await response.Content.ReadFromJsonAsync<PagedResult<PolicyDto>>();
 
         Assert.NotNull(result);
-        Assert.Equal(policies.Count, result.Items.Count);
-        Assert.Equal(policies.Count, result.TotalCount);
+        Assert.Equal(expectedPolicies.Count, result.Items.Count);
+        Assert.Equal(expectedPolicies.Count, result.TotalCount);
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(20, result.PageSize);
-        Assert.All(policies, policy => Assert.Contains(result.Items, x => x.PolicyId == policy.PolicyId));
+
+        Assert.All(expectedPolicies, policy => Assert.Contains(result.Items, x => x.PolicyId == policy.PolicyId));
     }
 
     [Theory]
@@ -155,25 +169,30 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
         // Arrange
         var policies = await SeedPoliciesListAsync();
 
-        var expectedPolicy = policies[0];
-        var expectedCount = 0;
+        var brokerId = TestData.BrokersList[0].BrokerId;
+
+        await AuthenticateAsBrokerAsync(brokerId);
+
+        var expectedPolicy = policies.First(x => x.BrokerId == brokerId);
+
+        var expectedPolicies = policies.Where(x => x.BrokerId == brokerId).ToList();
 
         string queryString;
 
         if (filter == "clientId")
         {
             queryString = $"clientId={expectedPolicy.ClientId}";
-            expectedCount = 2;
+            expectedPolicies = expectedPolicies.Where(x => x.ClientId == expectedPolicy.ClientId).ToList();
         }
         else if (filter == "brokerId")
         {
             queryString = $"brokerId={expectedPolicy.BrokerId}";
-            expectedCount = 2;
+            expectedPolicies = expectedPolicies.Where(x => x.BrokerId == expectedPolicy.BrokerId).ToList();
         }
         else
         {
             queryString = $"status={expectedPolicy.Status}";
-            expectedCount = 2;
+            expectedPolicies = expectedPolicies.Where(x => x.Status == expectedPolicy.Status).ToList();
         }
 
         // Act
@@ -185,13 +204,10 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
         var result = await response.Content.ReadFromJsonAsync<PagedResult<PolicyDto>>();
 
         Assert.NotNull(result);
-        Assert.Equal(expectedCount, result.Items.Count);
-        Assert.Equal(expectedCount, result.TotalCount);
+        Assert.Equal(expectedPolicies.Count, result.Items.Count);
+        Assert.Equal(expectedPolicies.Count, result.TotalCount);
 
-        foreach (var policy in policies.Take(expectedCount))
-        {
-            Assert.Contains(result.Items, x => x.PolicyId == policy.PolicyId);
-        }
+        Assert.All(expectedPolicies, policy => Assert.Contains(result.Items, x => x.PolicyId == policy.PolicyId));
     }
 
     [Theory]
@@ -309,11 +325,12 @@ public sealed class PolicyEndpointsTests(WebApplicationFactorySqlite factory)
 
         await DbContext.SaveChangesAsync();
 
+        await AuthenticateAsBrokerAsync(TestData.BrokerInactive.BrokerId);
+
         // Act
         var response = await HttpClient.PostAsync($"{BaseUrl}/{policyToSeed.PolicyId}/activate", null);
 
         // Assert
-        Assert.False(TestData.BrokerInactive.IsActive);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         var persistedPolicy = await DbContext.Policies.AsNoTracking().FirstAsync(x => x.PolicyId == policyToSeed.PolicyId);

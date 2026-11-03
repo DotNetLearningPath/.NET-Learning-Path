@@ -45,16 +45,16 @@ internal static class TestData
 
     public const decimal InvalidRiskFactorPercentageScale = 5.123m;
 
+    public static readonly Guid BrokerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
     public static readonly Guid PolicyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid PolicyClientId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     public static readonly Guid PolicyBuildingId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-    public static readonly Guid PolicyBrokerId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+    public static readonly Guid PolicyBrokerId = TestData.BrokerId;
     public static readonly Guid PolicyCurrencyId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     public const string PolicyNumber = "2026-TEST123456";
     public const string PolicyCancellationReason = "Requested by client";
     public const decimal PolicyFinalPremium = 1000m;
-
-    public static readonly Guid BrokerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
 
     #region Geography
@@ -483,7 +483,7 @@ internal static class TestData
             PolicyNumber = PolicyNumber,
             ClientId = Guid.NewGuid(),
             BuildingId = Guid.NewGuid(),
-            BrokerId = Guid.NewGuid(),
+            BrokerId = PolicyBrokerId,
             CurrencyId = Guid.NewGuid(),
             Status = PolicyStatus.Draft,
             StartDate = startDate,
@@ -504,7 +504,7 @@ internal static class TestData
             PolicyNumber = "2026-TEST654321",
             ClientId = Guid.NewGuid(),
             BuildingId = Guid.NewGuid(),
-            BrokerId = Guid.NewGuid(),
+            BrokerId = PolicyBrokerId,
             CurrencyId = Guid.NewGuid(),
             Status = PolicyStatus.Draft,
             StartDate = startDate,

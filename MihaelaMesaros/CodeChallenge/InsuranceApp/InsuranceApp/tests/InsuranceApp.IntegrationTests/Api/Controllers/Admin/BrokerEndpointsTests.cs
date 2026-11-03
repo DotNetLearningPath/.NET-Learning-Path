@@ -16,6 +16,13 @@ public sealed class BrokerEndpointsTests(WebApplicationFactorySqlite factory)
 {
     private const string BaseUrl = "/api/admin/brokers";
 
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsAdminAsync();
+    }
+
     #region Create Broker
 
     [Fact]
