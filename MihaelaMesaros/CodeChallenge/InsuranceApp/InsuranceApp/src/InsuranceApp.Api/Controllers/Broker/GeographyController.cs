@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.Geography;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Broker;
@@ -10,6 +11,7 @@ namespace InsuranceApp.Api.Controllers.Broker;
 /// </summary>
 /// <param name="geographyService">The geography service.</param>
 /// <param name="logger">The logger.</param>
+[Authorize(Roles = "Broker")]
 [ApiController]
 [Route("api/brokers")]
 public sealed class GeographyController(IGeographyService geographyService, ILogger<GeographyController> logger) : ControllerBase

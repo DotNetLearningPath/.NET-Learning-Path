@@ -1,6 +1,7 @@
 ﻿using InsuranceApp.Api.Common;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.Api.Controllers.Admin;
@@ -10,6 +11,7 @@ namespace InsuranceApp.Api.Controllers.Admin;
 /// </summary>
 /// <param name="riskFactorConfigService">The service used to manage risk factor configurations.</param>
 /// <param name="logger">The logger.</param>
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/admin/risk-factors")]
 public sealed class RiskFactorsController(IRiskFactorConfigService riskFactorConfigService, ILogger<RiskFactorsController> logger) : ControllerBase

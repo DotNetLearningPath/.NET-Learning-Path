@@ -32,6 +32,13 @@ public static class ErrorHttpMapper
 
             ErrorType.Conflict => new ConflictObjectResult(CreateProblemDetails(StatusCodes.Status409Conflict, "Resource conflict", error)),
 
+            ErrorType.NotAuthenticated => new UnauthorizedObjectResult(CreateProblemDetails(401, "Authentication failed", error)),
+
+            ErrorType.NotAuthorized => new ObjectResult(CreateProblemDetails(403, "Access denied", error))
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            },
+
             _ => throw new InvalidOperationException($"Unsupported error type: {error.Type}.")
         };
     }
@@ -72,6 +79,20 @@ public static class ErrorHttpMapper
             case ErrorType.NotFound:
                 logger.LogInformation(
                     "Resource not found. Code: {ErrorCode}. Description: {ErrorDescription}",
+                    error.Code,
+                    error.Description);
+                break;
+
+            case ErrorType.NotAuthenticated:
+                logger.LogInformation(
+                    "Not authenticated. Code: {ErrorCode}. Description: {ErrorDescription}",
+                    error.Code,
+                    error.Description);
+                break;
+
+            case ErrorType.NotAuthorized:
+                logger.LogInformation(
+                    "Unauthorized access. Code: {ErrorCode}. Description: {ErrorDescription}",
                     error.Code,
                     error.Description);
                 break;

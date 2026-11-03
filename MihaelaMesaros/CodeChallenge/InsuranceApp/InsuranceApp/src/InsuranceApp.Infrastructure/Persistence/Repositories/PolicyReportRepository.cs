@@ -3,10 +3,11 @@ using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
-public sealed class PolicyReportRepository(InsuranceDbContext dbContext) : IPolicyReportRepository
+public sealed class PolicyReportRepository(InsuranceDbContext dbContext, IOptions<DatabaseSettings> options) : IPolicyReportRepository
 {
     public async Task<IReadOnlyList<PolicyReportDto>> GetReportPoliciesAsync(
         PolicyReportGroupType groupType, 
@@ -97,6 +98,7 @@ public sealed class PolicyReportRepository(InsuranceDbContext dbContext) : IPoli
         var command = new CommandDefinition(
             query,
             queryParameters,
+            commandTimeout: options.Value.CommandTimeoutSeconds,
             cancellationToken: cancellationToken
         );
 

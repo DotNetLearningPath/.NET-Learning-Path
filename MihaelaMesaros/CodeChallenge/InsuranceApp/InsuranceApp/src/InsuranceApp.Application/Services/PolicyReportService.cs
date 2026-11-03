@@ -2,13 +2,14 @@
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Reports;
+using InsuranceApp.Application.Settings;
 using InsuranceApp.Domain.Constants;
 using InsuranceApp.Domain.Enums;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace InsuranceApp.Application.Services;
 
-public sealed class PolicyReportService(IPolicyReportRepository policyReportRepository, IConfiguration configuration) : IPolicyReportService
+public sealed class PolicyReportService(IPolicyReportRepository policyReportRepository, IOptions<ApplicationSettings> options) : IPolicyReportService
 {
     public async Task<Result<IReadOnlyList<PolicyReportDto>>> GetReportPoliciesAsync(
         PolicyReportGroupType groupType, 
@@ -21,12 +22,7 @@ public sealed class PolicyReportService(IPolicyReportRepository policyReportRepo
             return Result<IReadOnlyList<PolicyReportDto>>.Failure(PolicyReportErrors.InvalidGroupType);
         }
 
-        var configBaseCurrencyCode = configuration["CurrencySettings:BaseCurrencyCode"];
-        if (string.IsNullOrWhiteSpace(configBaseCurrencyCode))
-        {
-            return Result<IReadOnlyList<PolicyReportDto>>.Failure(PolicyReportErrors.BaseCurrencyCodeNotConfigured);
-        }
-
+        var configBaseCurrencyCode = options.Value.BaseCurrencyCode;
 
         var validationPolicyReportFilters = ValidatePolicyReportFilters(policyReportFiltersDto);
 

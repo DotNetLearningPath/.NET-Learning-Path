@@ -2,9 +2,11 @@
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Application.Services;
+using InsuranceApp.Application.Settings;
 using InsuranceApp.Domain.Enums;
 using InsuranceApp.UnitTests.Common;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Moq;
 using System.Globalization;
 
@@ -13,17 +15,20 @@ namespace InsuranceApp.UnitTests.Application.Services;
 public sealed class PolicyReportServiceTests
 {
     private readonly Mock<IPolicyReportRepository> _repositoryMock;
-    private readonly Mock<IConfiguration> _configurationMock;
     private readonly PolicyReportService _service;
 
     public PolicyReportServiceTests()
     {
         _repositoryMock = new Mock<IPolicyReportRepository>();
-        _configurationMock = new Mock<IConfiguration>();
 
-        _configurationMock.Setup(x => x["CurrencySettings:BaseCurrencyCode"]).Returns(TestData.BaseCurrencyCode);
+        var options = Options.Create(
+            new ApplicationSettings
+            {
+                BaseCurrencyCode = TestData.BaseCurrencyCode
+            }
+        );
 
-        _service = new PolicyReportService(_repositoryMock.Object, _configurationMock.Object);
+        _service = new PolicyReportService(_repositoryMock.Object, options);
     }
 
     #region Reports policies by group type
@@ -189,27 +194,6 @@ public sealed class PolicyReportServiceTests
         {
             Assert.Equal(PolicyReportErrors.InvalidBuildingTypeId.Code, result.Error?.Code);
         }
-
-        _repositoryMock.Verify(x => x.GetReportPoliciesAsync(It.IsAny<PolicyReportGroupType>(), It.IsAny<PolicyReportFiltersDto>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public async Task GetReportPoliciesAsync_BaseCurrencyNotConfigured_ReturnsFailure(string? baseCurrencyCode)
-    {
-        // Arrange
-        _configurationMock.Setup(x => x["CurrencySettings:BaseCurrencyCode"]).Returns(baseCurrencyCode);
-
-        var filters = new PolicyReportFiltersDto(null, null, null, null, null);
-
-        // Act
-        var result = await _service.GetReportPoliciesAsync(PolicyReportGroupType.Country, filters, CancellationToken.None);
-
-        // Assert
-        Assert.False(result.IsSuccess);
-        Assert.Equal(PolicyReportErrors.BaseCurrencyCodeNotConfigured.Code, result.Error?.Code);
 
         _repositoryMock.Verify(x => x.GetReportPoliciesAsync(It.IsAny<PolicyReportGroupType>(), It.IsAny<PolicyReportFiltersDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
