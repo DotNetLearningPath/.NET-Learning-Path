@@ -21,6 +21,8 @@ namespace InsuranceManagement.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.ApplyConfiguration(new CountyConfiguration());
+            modelBuilder.ApplyConfiguration(new CityConfiguration());
             modelBuilder.ApplyConfiguration(new BuildingConfiguration());
             modelBuilder.ApplyConfiguration(new ClientConfiguration());
 

@@ -18,13 +18,18 @@ builder.Services.AddDbContext<InsuranceDbContext>(options =>
 });
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICountyService, CountyService>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IBuildingService, BuildingService>();
 
 builder.Services.AddAutoMapper(
     config => { },
-    typeof(GeographyMappingProfile));
+    typeof(GeographyMappingProfile),
+    typeof(ClientMappingProfile),
+    typeof(BuildingMappingProfile));
 
 builder.Services.AddControllers();
 
