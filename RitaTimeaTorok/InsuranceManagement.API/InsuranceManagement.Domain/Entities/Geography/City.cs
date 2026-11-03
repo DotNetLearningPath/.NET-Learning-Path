@@ -9,8 +9,5 @@
         public Guid CountyId { get; set; }
 
         public County County { get; set; } = null!;
-
-        public ICollection<Building> Buildings { get; set; }
-            = new List<Building>();
     }
 }

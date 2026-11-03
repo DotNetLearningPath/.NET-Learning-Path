@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InsuranceManagement.Application.DTOs.Geography;
 
 public class CreateCountyDto
 {
-    public string Name { get; set; } = string.Empty;
-    public Guid CountryId { get; set; }
+    [MaxLength(100)]
+    public required string Name { get; set; }
+    public required Guid CountryId { get; set; }
 }

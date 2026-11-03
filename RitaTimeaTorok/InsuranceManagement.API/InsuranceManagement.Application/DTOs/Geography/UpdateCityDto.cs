@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InsuranceManagement.Application.DTOs.Geography;
 
 public class UpdateCityDto
 {
-    public string Name { get; set; } = string.Empty;
-    public Guid CountyId { get; set; }
+    [MaxLength(100)]
+    public required string Name { get; set; }
+    public required Guid CountyId { get; set; }
 }

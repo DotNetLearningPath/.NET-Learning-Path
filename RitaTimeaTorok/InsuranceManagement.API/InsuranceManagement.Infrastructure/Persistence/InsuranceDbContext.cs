@@ -6,13 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceManagement.Infrastructure.Persistence
 {
-    public class InsuranceDbContext : DbContext
+    public class InsuranceDbContext(
+        DbContextOptions<InsuranceDbContext> options)
+        : DbContext(options)
     {
-        public InsuranceDbContext(DbContextOptions options) : base(options)
-        {
-            
-        }
-
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Building> Buildings => Set<Building>();
 

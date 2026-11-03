@@ -15,8 +15,5 @@ namespace InsuranceManagement.Domain.Entities
         public string Email { get; set; } = string.Empty;
 
         public string PhoneNumber { get; set; } = string.Empty;
-
-        public ICollection<Building> Buildings { get; set; }
-            = new List<Building>();
     }
 }

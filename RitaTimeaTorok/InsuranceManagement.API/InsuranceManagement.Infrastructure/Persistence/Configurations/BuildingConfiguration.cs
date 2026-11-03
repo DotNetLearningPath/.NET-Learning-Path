@@ -8,6 +8,9 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
 {
     public void Configure(EntityTypeBuilder<Building> builder)
     {
+        builder.Property(b => b.Address)
+            .HasMaxLength(250);
+
         builder.Property(b => b.InsuredValue)
             .HasPrecision(18, 3);
 

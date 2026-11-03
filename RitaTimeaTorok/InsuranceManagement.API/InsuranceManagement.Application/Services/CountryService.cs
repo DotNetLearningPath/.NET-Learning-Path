@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.Interfaces;
@@ -17,6 +18,9 @@ public class CountryService(
 
     public async Task<CountryDto> CreateAsync(CreateCountryDto request)
     {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ValidationException("Country name is required.");
+
         var country = await countryRepository.AddAsync(mapper.Map<Country>(request));
         return mapper.Map<CountryDto>(country);
     }
@@ -24,7 +28,11 @@ public class CountryService(
     public async Task<CountryDto?> UpdateAsync(Guid id, UpdateCountryDto request)
     {
         var country = await countryRepository.GetAsync(id);
-        if (country is null) return null;
+        if (country is null) 
+            return null;
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ValidationException("Country name is required.");
 
         mapper.Map(request, country);
         await countryRepository.UpdateAsync(country);

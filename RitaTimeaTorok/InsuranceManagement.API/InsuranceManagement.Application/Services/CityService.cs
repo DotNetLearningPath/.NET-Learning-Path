@@ -19,10 +19,11 @@ public class CityService(
 
     public async Task<CityDto> CreateAsync(CreateCityDto request)
     {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ValidationException("City name is required.");
+
         if (await countyRepository.GetAsync(request.CountyId) is null)
-        {
             throw new ValidationException("CountyId must refer to an existing county.");
-        }
 
         var city = await cityRepository.AddAsync(mapper.Map<City>(request));
         return mapper.Map<CityDto>(city);
@@ -31,12 +32,14 @@ public class CityService(
     public async Task<CityDto?> UpdateAsync(Guid id, UpdateCityDto request)
     {
         var city = await cityRepository.GetAsync(id);
-        if (city is null) return null;
+        if (city is null) 
+            return null;
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ValidationException("City name is required.");
 
         if (await countyRepository.GetAsync(request.CountyId) is null)
-        {
             throw new ValidationException("CountyId must refer to an existing county.");
-        }
 
         mapper.Map(request, city);
         await cityRepository.UpdateAsync(city);

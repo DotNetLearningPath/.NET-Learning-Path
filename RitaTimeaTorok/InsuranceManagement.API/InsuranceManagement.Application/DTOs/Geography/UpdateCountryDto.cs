@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InsuranceManagement.Application.DTOs.Geography;
 
 public class UpdateCountryDto
 {
-    public string Name { get; set; } = string.Empty;
+    [MaxLength(100)]
+    public required string Name { get; set; }
 }
