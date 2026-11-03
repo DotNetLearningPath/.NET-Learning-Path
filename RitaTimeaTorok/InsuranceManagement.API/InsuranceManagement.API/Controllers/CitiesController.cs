@@ -1,6 +1,5 @@
 using InsuranceManagement.Application.DTOs.Geography;
-using InsuranceManagement.Application.Interfaces;
-using System.ComponentModel.DataAnnotations;
+using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceManagement.API.Controllers;
@@ -23,29 +22,15 @@ public class CitiesController(ICityService cityService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCityDto createCity)
     {
-        try
-        {
-            var city = await cityService.CreateAsync(createCity);
-            return CreatedAtAction(nameof(GetById), new { id = city.Id }, city);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var city = await cityService.CreateAsync(createCity);
+        return CreatedAtAction(nameof(GetById), new { id = city.Id }, city);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateCityDto updateCity)
     {
-        try
-        {
-            var city = await cityService.UpdateAsync(id, updateCity);
-            return city is null ? NotFound() : Ok(city);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var city = await cityService.UpdateAsync(id, updateCity);
+        return city is null ? NotFound() : Ok(city);
     }
 
     [HttpDelete("{id:guid}")]

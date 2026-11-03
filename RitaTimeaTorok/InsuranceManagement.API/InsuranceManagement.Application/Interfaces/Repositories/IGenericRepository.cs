@@ -1,6 +1,6 @@
 using InsuranceManagement.Domain.Entities;
 
-namespace InsuranceManagement.Application.Interfaces;
+namespace InsuranceManagement.Application.Interfaces.Repositories;
 
 public interface IGenericRepository<TEntity> 
     where TEntity : class, IEntity

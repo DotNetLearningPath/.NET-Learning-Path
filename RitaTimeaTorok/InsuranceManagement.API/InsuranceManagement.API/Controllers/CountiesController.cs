@@ -1,6 +1,5 @@
 using InsuranceManagement.Application.DTOs.Geography;
-using InsuranceManagement.Application.Interfaces;
-using System.ComponentModel.DataAnnotations;
+using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceManagement.API.Controllers;
@@ -23,29 +22,15 @@ public class CountiesController(ICountyService countyService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateCountyDto createCounty)
     {
-        try
-        {
-            var county = await countyService.CreateAsync(createCounty);
-            return CreatedAtAction(nameof(GetById), new { id = county.Id }, county);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var county = await countyService.CreateAsync(createCounty);
+        return CreatedAtAction(nameof(GetById), new { id = county.Id }, county);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateCountyDto updateCounty)
     {
-        try
-        {
-            var county = await countyService.UpdateAsync(id, updateCounty);
-            return county is null ? NotFound() : Ok(county);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var county = await countyService.UpdateAsync(id, updateCounty);
+        return county is null ? NotFound() : Ok(county);
     }
 
     [HttpDelete("{id:guid}")]

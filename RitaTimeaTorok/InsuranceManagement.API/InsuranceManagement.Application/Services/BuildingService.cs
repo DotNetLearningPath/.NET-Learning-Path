@@ -1,15 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
-using InsuranceManagement.Application.Interfaces;
+using InsuranceManagement.Application.Interfaces.Repositories;
+using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Domain.Entities.Geography;
-using InsuranceManagement.Domain.Enums;
 
 namespace InsuranceManagement.Application.Services;
 
 public class BuildingService(
-    IGenericRepository<Building> buildingRepository,
+    IBuildingRepository buildingRepository,
     IGenericRepository<Client> clientRepository,
     IGenericRepository<City> cityRepository,
     IMapper mapper) : IBuildingService

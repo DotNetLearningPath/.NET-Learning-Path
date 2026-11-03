@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Building;
-using InsuranceManagement.Application.Interfaces;
+using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceManagement.API.Controllers;
@@ -23,29 +22,15 @@ public class BuildingsController(IBuildingService buildingService) : ControllerB
     [HttpPost]
     public async Task<IActionResult> Create(CreateBuildingDto createBuilding)
     {
-        try
-        {
-            var building = await buildingService.CreateAsync(createBuilding);
-            return CreatedAtAction(nameof(GetById), new { id = building.Id }, building);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var building = await buildingService.CreateAsync(createBuilding);
+        return CreatedAtAction(nameof(GetById), new { id = building.Id }, building);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateBuildingDto updateBuilding)
     {
-        try
-        {
-            var building = await buildingService.UpdateAsync(id, updateBuilding);
-            return building is null ? NotFound() : Ok(building);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var building = await buildingService.UpdateAsync(id, updateBuilding);
+        return building is null ? NotFound() : Ok(building);
     }
 
     [HttpDelete("{id:guid}")]

@@ -1,14 +1,17 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
-using InsuranceManagement.Application.Interfaces;
 using InsuranceManagement.Domain.Entities.Geography;
+using InsuranceManagement.Application.Interfaces.Services;
+using InsuranceManagement.Application.Interfaces.Repositories;
+using InsuranceManagement.Application.Exceptions;
 
 namespace InsuranceManagement.Application.Services;
 
 public class CityService(
     IGenericRepository<City> cityRepository,
     IGenericRepository<County> countyRepository,
+    IBuildingRepository buildingRepository,
     IMapper mapper) : ICityService
 {
     public async Task<List<CityDto>> GetAllAsync() =>
@@ -52,6 +55,10 @@ public class CityService(
 
         if (city is null)
             return false;
+
+        if (await buildingRepository.ExistsByCityIdAsync(id))
+            throw new ConflictException(
+                "Cannot delete a city that contains buildings.");
 
         await cityRepository.DeleteAsync(city);
 

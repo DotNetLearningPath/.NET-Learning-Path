@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Client;
-using InsuranceManagement.Application.Interfaces;
+using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceManagement.API.Controllers;
@@ -23,29 +22,15 @@ public class ClientsController(IClientService clientService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateClientDto createClient)
     {
-        try
-        {
-            var client = await clientService.CreateAsync(createClient);
-            return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var client = await clientService.CreateAsync(createClient);
+        return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateClientDto updateClient)
     {
-        try
-        {
-            var client = await clientService.UpdateAsync(id, updateClient);
-            return client is null ? NotFound() : Ok(client);
-        }
-        catch (ValidationException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var client = await clientService.UpdateAsync(id, updateClient);
+        return client is null ? NotFound() : Ok(client);
     }
 
     [HttpDelete("{id:guid}")]

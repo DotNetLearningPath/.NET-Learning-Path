@@ -1,6 +1,6 @@
 using InsuranceManagement.Application.DTOs.Building;
 
-namespace InsuranceManagement.Application.Interfaces;
+namespace InsuranceManagement.Application.Interfaces.Services;
 
 public interface IBuildingService
 {

@@ -1,6 +1,6 @@
 using InsuranceManagement.Application.DTOs.Client;
 
-namespace InsuranceManagement.Application.Interfaces;
+namespace InsuranceManagement.Application.Interfaces.Services;
 
 public interface IClientService
 {

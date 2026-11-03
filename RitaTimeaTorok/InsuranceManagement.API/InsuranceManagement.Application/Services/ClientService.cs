@@ -1,13 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Client;
-using InsuranceManagement.Application.Interfaces;
+using InsuranceManagement.Application.Exceptions;
+using InsuranceManagement.Application.Interfaces.Repositories;
+using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities;
 
 namespace InsuranceManagement.Application.Services;
 
 public class ClientService(
-    IGenericRepository<Client> clientRepository,
+    IClientRepository clientRepository,
+    IBuildingRepository buildingRepository,
     IMapper mapper) : IClientService
 {
     public async Task<List<ClientDto>> GetAllAsync() =>
@@ -19,7 +22,7 @@ public class ClientService(
     public async Task<ClientDto> CreateAsync(CreateClientDto request)
     {
         var client = mapper.Map<Client>(request);
-        ValidateClient(client);
+        await ValidateClientAsync(client);
 
         client = await clientRepository.AddAsync(client);
         return mapper.Map<ClientDto>(client);
@@ -32,7 +35,8 @@ public class ClientService(
             return null;
 
         mapper.Map(request, client);
-        ValidateClient(client);
+        await ValidateClientAsync(client, id);
+
         await clientRepository.UpdateAsync(client);
         return mapper.Map<ClientDto>(client);
     }
@@ -43,16 +47,26 @@ public class ClientService(
         if (client is null)
             return false;
 
+        if (await buildingRepository.ExistsByClientIdAsync(id))
+            throw new ConflictException(
+                "Cannot delete a client that owns buildings.");
+
         await clientRepository.DeleteAsync(client);
         return true;
     }
 
-    private static void ValidateClient(Client client)
+    private async Task ValidateClientAsync(
+        Client client,
+        Guid? excludeClientId = null)
     {
         if (string.IsNullOrWhiteSpace(client.Name))
             throw new ValidationException("Client name is required.");
 
         if (string.IsNullOrWhiteSpace(client.IdentificationNumber))
             throw new ValidationException("Identification number is required.");
+
+        if (await clientRepository.ExistsByIdentificationNumberAsync(
+            client.IdentificationNumber, excludeClientId))
+            throw new ConflictException("A client with this identification number already exists.");
     }
 }

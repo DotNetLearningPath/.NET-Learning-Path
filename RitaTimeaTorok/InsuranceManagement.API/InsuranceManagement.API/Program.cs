@@ -1,11 +1,19 @@
-using InsuranceManagement.Infrastructure.Persistence;
-using InsuranceManagement.Application.Interfaces;
-using InsuranceManagement.Application.Services;
+using InsuranceManagement.API.Middleware;
+using InsuranceManagement.Application.Interfaces.Repositories;
+using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Mapping;
+using InsuranceManagement.Application.Services;
+using InsuranceManagement.Infrastructure.Persistence;
 using InsuranceManagement.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 var connectionString = builder.Configuration
     .GetConnectionString("InsuranceManagementConnection")
@@ -18,6 +26,8 @@ builder.Services.AddDbContext<InsuranceDbContext>(options =>
 });
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICountyService, CountyService>();
@@ -33,10 +43,15 @@ builder.Services.AddAutoMapper(
 
 builder.Services.AddControllers();
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
