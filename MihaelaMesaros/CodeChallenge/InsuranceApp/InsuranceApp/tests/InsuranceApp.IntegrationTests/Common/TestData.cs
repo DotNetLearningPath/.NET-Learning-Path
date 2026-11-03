@@ -564,4 +564,41 @@ internal static class TestData
 
     #endregion
 
+
+    #region Authentication
+
+    public const string TestPassword = "TestPassword123!";
+
+    public const string AdminUsername = "admin.test";
+    public const string BrokerUsername = "broker.test";
+
+    public static User CreateAdminUser()
+    {
+        return new User
+        {
+            UserId = Guid.NewGuid(),
+            Username = AdminUsername,
+            PasswordHash = string.Empty,
+            RoleId = Role.Admin,
+            BrokerId = null,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static User CreateBrokerUser(Guid brokerId)
+    {
+        return new User
+        {
+            UserId = Guid.NewGuid(),
+            Username = BrokerUsername,
+            PasswordHash = string.Empty,
+            RoleId = Role.Broker,
+            BrokerId = brokerId,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    #endregion
 }

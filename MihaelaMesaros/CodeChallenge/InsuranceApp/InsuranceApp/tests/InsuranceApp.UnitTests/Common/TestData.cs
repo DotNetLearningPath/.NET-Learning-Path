@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Application.DTOs.Broker;
+﻿using InsuranceApp.Application.DTOs.Auth;
+using InsuranceApp.Application.DTOs.Broker;
 using InsuranceApp.Application.DTOs.Building;
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.Currency;
@@ -560,6 +561,7 @@ internal static class TestData
     }
     #endregion
 
+
     #region Reports totals policies
     public static List<PolicyReportDto> CreatePolicyReports(PolicyReportGroupType groupType)
     {
@@ -587,5 +589,72 @@ internal static class TestData
             }
         ];
     }
+    #endregion
+
+
+    #region Authentication
+
+    public const string TestUsername = "broker1";
+    public const string TestPassword = "TestPassword123!";
+    public const string TestPasswordHash = "hashed-password";
+
+    public const string AccessToken = "test-access-token";
+    public const string RefreshToken = "test-refresh-token";
+    public const string RefreshTokenHash = "test-refresh-token-hash";
+
+    public static readonly Guid UserId = Guid.NewGuid();
+
+    public static User CreateUser(bool isActive = true)
+    {
+        return new User
+        {
+            UserId = UserId,
+            Username = TestUsername,
+            PasswordHash = TestPasswordHash,
+            RoleId = Role.Broker,
+            BrokerId = BrokerId,
+            IsActive = isActive,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static LoginDto CreateLoginDto(string username, string password)
+    {
+        return new LoginDto
+        {
+            Username = username,
+            Password = password
+        };
+    }
+
+    public static UserRefreshToken CreateUserRefreshToken(bool isExpired = false, bool isRevoked = false, bool isUserActive = true)
+    {
+        var user = CreateUser(isUserActive);
+
+        var expiresAt = DateTime.UtcNow.AddDays(7);
+        DateTime? revokedAt = null;
+
+        if (isExpired)
+        {
+            expiresAt = DateTime.UtcNow.AddMinutes(-1);
+        }
+
+        if (isRevoked)
+        {
+            revokedAt = DateTime.UtcNow.AddMinutes(-10);
+        }
+
+        return new UserRefreshToken
+        {
+            RefreshTokenId = Guid.NewGuid(),
+            UserId = user.UserId,
+            User = user,
+            TokenHash = RefreshTokenHash,
+            CreatedAt = DateTime.UtcNow.AddDays(-1),
+            ExpiresAt = expiresAt,
+            RevokedAt = revokedAt
+        };
+    }
+
     #endregion
 }
