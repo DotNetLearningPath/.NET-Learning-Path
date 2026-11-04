@@ -33,9 +33,9 @@ public sealed class UsersController(IUserService userService) : ControllerBase
     {
         var result = await userService.CreateUserAsync(createUserDto, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
 
         return CreatedAtRoute(GetUserByIdRouteName, new { userId = result.Value!.UserId }, result.Value);
@@ -54,9 +54,9 @@ public sealed class UsersController(IUserService userService) : ControllerBase
     {
         var result = await userService.GetUserByIdAsync(userId, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
 
         return Ok(result.Value);
