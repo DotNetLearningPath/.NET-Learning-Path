@@ -16,5 +16,15 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
 
         builder.Property(b => b.SurfaceArea)
             .HasPrecision(18, 3);
+
+        builder.HasOne(b => b.Client)
+            .WithMany()
+            .HasForeignKey(b => b.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(b => b.City)
+            .WithMany()
+            .HasForeignKey(b => b.CityId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

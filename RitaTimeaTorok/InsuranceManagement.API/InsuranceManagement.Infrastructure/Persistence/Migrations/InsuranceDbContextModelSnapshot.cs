@@ -197,13 +197,13 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("InsuranceManagement.Domain.Entities.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("City");
@@ -216,7 +216,7 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", "County")
                         .WithMany()
                         .HasForeignKey("CountyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("County");
@@ -227,7 +227,7 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", "Country")
                         .WithMany()
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Country");

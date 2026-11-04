@@ -1,8 +1,9 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
-using InsuranceManagement.Application.Interfaces;
 using InsuranceManagement.Domain.Entities.Geography;
+using InsuranceManagement.Application.Interfaces.Services;
+using InsuranceManagement.Application.Interfaces.Repositories;
 
 namespace InsuranceManagement.Application.Services;
 
