@@ -1,100 +1,83 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using SupportAPI.Application;
 using SupportAPI.Application.Abstractions;
-using SupportAPI.Infrastructure;
+using SupportAPI.Application.Services;
+using System.Linq.Expressions;
 
-namespace SupportAPI.Api;
-
-public static class DependencyInjection
+namespace SupportAPI.Api
 {
-    public static IServiceCollection AddSupportApi(
-        this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+    public static class DependencyInjection
     {
-        var connectionString = configuration.GetConnectionString("SupportDb");
-        if (string.IsNullOrWhiteSpace(connectionString))
+        public static IServiceCollection AddIdentityAndAccessManagement(
+            this IServiceCollection services, 
+            IConfiguration configuration)
         {
-            throw new InvalidOperationException("ConnectionStrings:SupportDb is required.");
+            var keycloakConfiguration = configuration.GetKeycloakConfiguration();
+            services.AddAuthorization();
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                 {
+                     options.MetadataAddress = keycloakConfiguration.MetadataAddress;
+                     options.RequireHttpsMetadata = false;
+                     options.MapInboundClaims = false;
+                     options.TokenValidationParameters = new TokenValidationParameters
+                     {
+                         ValidateIssuer = true,
+                         ValidIssuer = keycloakConfiguration.Issuer,
+                         
+                         ValidateAudience = true,
+                         ValidAudience = keycloakConfiguration.Audience,
+                        
+                         ValidateLifetime = true,
+                         RequireExpirationTime = true,
+                         ValidateIssuerSigningKey = true
+                     };
+                 });
+
+            services.AddScoped<ICurrentUser, HttpCurrentUser>();
+            services.AddScoped<IUserProvisioningService, UserProvisioningService>();
+           
+            return services;
         }
 
-        var keycloak = configuration.GetRequiredSection("Keycloak");
-       
-        var metadataAddress = RequiredUri(keycloak, "MetadataAddress", environment);
-        var realmUrl = RequiredUri(keycloak, "RealmUrl", environment).TrimEnd('/');
-        var issuer = RequiredUri(keycloak, "Issuer", environment);
-        var audience = keycloak["Audience"];
-
-        if (string.IsNullOrWhiteSpace(audience))
+        public static IServiceCollection AddSwaggerSetup(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
-            throw new InvalidOperationException("Keycloak:Audience is required.");
-        }
+            var keycloakConfiguration = configuration.GetKeycloakConfiguration();
+            services.AddEndpointsApiExplorer();
 
-        services.AddApplication();
-        services.AddInfrastructure(connectionString);
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddScoped<ICurrentUser, HttpCurrentUser>();
-     
-        
-        services.AddAuthorization();
-
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            services.AddSwaggerGen(options =>
             {
-                options.MetadataAddress = metadataAddress;
-                options.RequireHttpsMetadata = !environment.IsDevelopment();
-                options.MapInboundClaims = false;
-                options.TokenValidationParameters = new TokenValidationParameters
+                options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidateAudience = true,
-                    ValidAudience = audience,
-                    ValidateLifetime = true,
-                    RequireExpirationTime = true,
-                    ValidateIssuerSigningKey = true
-                };
-            });
-
-        services.AddSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
                     {
-                        AuthorizationUrl = new Uri($"{realmUrl}/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri($"{realmUrl}/protocol/openid-connect/token"),
-                        Scopes = new Dictionary<string, string> { ["openid"] = "Authenticate the user" }
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri(keycloakConfiguration.AuthorizationUrl),
+                            TokenUrl = new Uri(keycloakConfiguration.TokenUrl),
+                            Scopes = new Dictionary<string, string> { ["openid"] = "Authenticate the user" }
+                        }
                     }
-                }
+                });
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Keycloak", document)] = ["openid"]
+                });
             });
-            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("Keycloak", document)] = ["openid"]
-            });
-        });
-        return services;
-    }
 
-    private static string RequiredUri(
-        IConfigurationSection keycloak, string key, IHostEnvironment environment)
-    {
-        var value = keycloak[key];
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-        {
-            throw new InvalidOperationException($"Keycloak:{key} must be an absolute HTTP or HTTPS URL.");
+            return services;
         }
 
-        if (!environment.IsDevelopment() && uri.Scheme != Uri.UriSchemeHttps)
+        public static KeycloakConfiguration GetKeycloakConfiguration(this IConfiguration configuration)
         {
-            throw new InvalidOperationException($"Keycloak:{key} must use HTTPS outside Development.");
+            return configuration.GetSection(KeycloakConfiguration.SectionName).Get<KeycloakConfiguration>()
+                ?? throw new InvalidOperationException("Keycloak settings are missing");
         }
-
-        return value!;
     }
 }

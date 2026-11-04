@@ -32,7 +32,6 @@ namespace SupportAPI.Api.Controllers
         [Authorize]
         [HttpGet("{requestId:guid}")]
         [ProducesResponseType(typeof(SupportRequestResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(
             [FromRoute] Guid requestId,
             CancellationToken cancellationToken)

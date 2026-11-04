@@ -1,9 +1,20 @@
 using SupportAPI.Api;
+using SupportAPI.Application;
+using SupportAPI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
-builder.Services.AddSupportApi(builder.Configuration, builder.Environment);
+var connectionString = builder.Configuration.GetConnectionString("SupportDb")
+    ?? throw new InvalidOperationException("Connection string 'SupportDb' is not configured"); ;
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(connectionString);
+
+builder.Services.AddIdentityAndAccessManagement(builder.Configuration);
+
+builder.Services.AddSwaggerSetup(builder.Configuration);
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

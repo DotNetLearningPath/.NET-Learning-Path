@@ -33,16 +33,5 @@ namespace SupportAPI.Domain.Entities
                 Status = SupportRequestStatus.Open
             };
         }
-
-        public void ChangeStatus(SupportRequestStatus status)
-        {
-            if (!Enum.IsDefined(typeof(SupportRequestStatus), status))
-            {
-                throw new ArgumentException("Invalid status provided");
-            }
-            Status = status;
-
-            //TODO, plan a concrete set of rules regarding the status change
-        }
     }
 }

@@ -5,7 +5,7 @@ using SupportAPI.Application.Results;
 
 namespace SupportAPI.Application.QueryHandlers
 {
-    public class GetRequestByIdQueryHandler(
+    public class GetSupportRequestByIdQueryHandler(
         ISupportRequestsRepository requestsRepository,
         ICurrentUser currentUser,
         IValidator<GetSupportRequestByIdQuery> validator) : IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult>
