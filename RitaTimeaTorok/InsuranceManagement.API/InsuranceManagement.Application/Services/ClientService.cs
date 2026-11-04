@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Application.DTOs.Client;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
@@ -16,8 +17,18 @@ public class ClientService(
     public async Task<List<ClientDto>> GetAllAsync() =>
         mapper.Map<List<ClientDto>>(await clientRepository.GetAllAsync());
 
-    public async Task<ClientDto?> GetAsync(Guid id) =>
-        mapper.Map<ClientDto?>(await clientRepository.GetAsync(id));
+    public async Task<ClientDetailsDto?> GetAsync(Guid id)
+    {
+        var client = await clientRepository.GetAsync(id);
+        if (client is null)
+            return null;
+
+        var clientDetails = mapper.Map<ClientDetailsDto>(client);
+        var buildings = await buildingRepository.GetByClientIdAsync(id);
+        clientDetails.Buildings = mapper.Map<List<BuildingDto>>(buildings);
+
+        return clientDetails;
+    }
 
     public async Task<ClientDto> CreateAsync(CreateClientDto request)
     {

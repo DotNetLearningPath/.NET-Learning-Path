@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
+using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities;
@@ -12,13 +13,33 @@ public class BuildingService(
     IBuildingRepository buildingRepository,
     IGenericRepository<Client> clientRepository,
     IGenericRepository<City> cityRepository,
+    IGenericRepository<County> countyRepository,
+    IGenericRepository<Country> countryRepository,
     IMapper mapper) : IBuildingService
 {
     public async Task<List<BuildingDto>> GetAllAsync() =>
         mapper.Map<List<BuildingDto>>(await buildingRepository.GetAllAsync());
 
-    public async Task<BuildingDto?> GetAsync(Guid id) =>
-        mapper.Map<BuildingDto?>(await buildingRepository.GetAsync(id));
+    public async Task<BuildingDetailsDto?> GetAsync(Guid id)
+    {
+        var building = await buildingRepository.GetAsync(id);
+        if (building is null)
+            return null;
+
+        var city = await cityRepository.GetAsync(building.CityId)
+            ?? throw new InvalidOperationException("Building references a city that does not exist.");
+        var county = await countyRepository.GetAsync(city.CountyId)
+            ?? throw new InvalidOperationException("City references a county that does not exist.");
+        var country = await countryRepository.GetAsync(county.CountryId)
+            ?? throw new InvalidOperationException("County references a country that does not exist.");
+
+        var buildingDetails = mapper.Map<BuildingDetailsDto>(building);
+        buildingDetails.City = mapper.Map<CityDto>(city);
+        buildingDetails.County = mapper.Map<CountyDto>(county);
+        buildingDetails.Country = mapper.Map<CountryDto>(country);
+
+        return buildingDetails;
+    }
 
     public async Task<BuildingDto> CreateAsync(CreateBuildingDto request)
     {
@@ -35,9 +56,8 @@ public class BuildingService(
         if (building is null)
             return null;
 
-        var buildingToUpdate = mapper.Map<Building>(request);
-        await ValidateBuildingAsync(buildingToUpdate);
         mapper.Map(request, building);
+        await ValidateBuildingAsync(building);
         await buildingRepository.UpdateAsync(building);
         return mapper.Map<BuildingDto>(building);
     }

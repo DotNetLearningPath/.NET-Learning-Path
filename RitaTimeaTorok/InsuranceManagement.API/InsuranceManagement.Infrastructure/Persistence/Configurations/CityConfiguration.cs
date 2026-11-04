@@ -8,7 +8,7 @@ namespace InsuranceManagement.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<City> builder)
         {
-            builder.HasOne(c => c.County)
+            builder.HasOne<County>()
                 .WithMany()
                 .HasForeignKey(c => c.CountyId)
                 .OnDelete(DeleteBehavior.Restrict);
