@@ -16,13 +16,22 @@ public sealed class RiskFactorConfigurationsController(
         CancellationToken cancellationToken) =>
         Ok(await riskFactorConfigurationService.ListRiskFactorAsync(pagination, cancellationToken));
 
+    [HttpGet("{id:guid}", Name = nameof(GetRiskFactorByIdAsync))]
+    public async Task<ActionResult<RiskFactorConfigurationDto>> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken) =>
+        Ok(await riskFactorConfigurationService.GetRiskFactorByIdAsync(id, cancellationToken));
+
     [HttpPost]
     public async Task<ActionResult<RiskFactorConfigurationDto>> CreateRiskFactorAsync(
         SaveRiskFactorConfigurationRequest request,
         CancellationToken cancellationToken)
     {
         var configuration = await riskFactorConfigurationService.CreateRiskFactorAsync(request, cancellationToken);
-        return Created($"/api/admin/risk-factors/{configuration.Id}", configuration);
+        return CreatedAtRoute(
+            nameof(GetRiskFactorByIdAsync),
+            new { id = configuration.Id },
+            configuration);
     }
 
     [HttpPut("{id:guid}")]

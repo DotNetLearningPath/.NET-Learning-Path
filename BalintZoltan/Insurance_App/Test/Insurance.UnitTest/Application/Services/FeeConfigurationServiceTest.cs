@@ -65,6 +65,32 @@ public sealed class FeeConfigurationServiceTest
         Assert.Equal(2, result.TotalCount);
     }
 
+    [Fact]
+    public async Task GetFeeByIdAsync_ReturnsMappedFee()
+    {
+        var fee = CreateFee("Existing fee", FeeType.AdminFee, 2.5m);
+        await _repository.AddFeeConfigurationAsync(fee, CancellationToken.None);
+
+        var result = await _service.GetFeeByIdAsync(fee.Id, CancellationToken.None);
+
+        Assert.Equal(fee.Id, result.Id);
+        Assert.Equal(fee.Name, result.Name);
+        Assert.Equal(fee.Type, result.Type);
+        Assert.Equal(fee.Percentage, result.Percentage);
+        Assert.Equal(fee.EffectiveFrom, result.EffectiveFrom);
+        Assert.Equal(fee.EffectiveTo, result.EffectiveTo);
+        Assert.Equal(fee.IsActive, result.IsActive);
+    }
+
+    [Fact]
+    public async Task GetFeeByIdAsync_ThrowsNotFoundWhenFeeDoesNotExist()
+    {
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
+            _service.GetFeeByIdAsync(Guid.NewGuid(), CancellationToken.None));
+
+        Assert.Equal("Fee configuration was not found.", exception.Message);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
