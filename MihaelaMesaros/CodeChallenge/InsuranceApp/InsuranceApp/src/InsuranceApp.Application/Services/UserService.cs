@@ -27,12 +27,10 @@ public sealed class UserService(
 
         var user = await userRepository.GetUserByIdAsync(userId, cancellationToken);
 
-        if (user is null)
-        {
-            return Result<UserDto>.Failure(UserErrors.UserNotFoundById);
-        }
-
-        return Result<UserDto>.Success(MapUserToDto(user));
+        return 
+            user is null ? 
+            Result<UserDto>.Failure(UserErrors.UserNotFoundById) 
+            : Result<UserDto>.Success(MapUserToDto(user));
     }
 
     public async Task<Result<UserDto>> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
@@ -84,10 +82,7 @@ public sealed class UserService(
             return Result<UserDto>.Failure(UserErrors.DuplicateUsername);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("User {UserId} created.", user.UserId);
-        }
+        logger.LogInformation("User {UserId} created.", user.UserId);
 
         return Result<UserDto>.Success(MapUserToDto(user));
     }

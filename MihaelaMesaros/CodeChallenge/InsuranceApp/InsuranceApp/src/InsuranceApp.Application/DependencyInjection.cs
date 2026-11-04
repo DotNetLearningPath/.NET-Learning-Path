@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Services;
+using InsuranceApp.Application.Common;
 using InsuranceApp.Application.Services;
 using InsuranceApp.Application.Settings;
 using Microsoft.Extensions.Configuration;
@@ -38,7 +39,7 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(ApplicationSettings.SectionName))
             .Validate(
                 settings => !string.IsNullOrWhiteSpace(settings.BaseCurrencyCode),
-                "BaseCurrencyCode must be configured."
+                PolicyReportErrors.BaseCurrencyCodeNotConfigured.Description
             )
             .ValidateOnStart();
 

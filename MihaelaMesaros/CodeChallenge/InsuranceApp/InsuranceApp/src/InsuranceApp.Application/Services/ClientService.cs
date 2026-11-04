@@ -124,10 +124,7 @@ public sealed class ClientService(IClientRepository clientRepository, ILogger<Cl
             return Result<ClientDto>.Failure(ClientErrors.DuplicateIdentificationNumber);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Client {ClientId} created.", client.ClientId);
-        }
+        logger.LogInformation("Client {ClientId} created.", client.ClientId);
 
         return Result<ClientDto>.Success(MapClientToDto(client));
     }
@@ -177,10 +174,7 @@ public sealed class ClientService(IClientRepository clientRepository, ILogger<Cl
 
         await clientRepository.SaveClientChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Client {ClientId} updated.", clientId);
-        }
+        logger.LogInformation("Client {ClientId} updated.", clientId);
 
         return Result<ClientDto>.Success(MapClientToDto(client));
     }

@@ -91,10 +91,7 @@ public sealed class RiskFactorConfigService(IRiskFactorConfigRepository riskFact
             return Result<RiskFactorConfigDto>.Failure(RiskFactorConfigErrors.AlreadyExists);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Risk factor configuration {RiskFactorConfigId} created.", riskFactorConfig.RiskFactorConfigId);
-        }
+        logger.LogInformation("Risk factor configuration {RiskFactorConfigId} created.", riskFactorConfig.RiskFactorConfigId);
 
         return Result<RiskFactorConfigDto>.Success(MapRiskFactorConfigToDto(riskFactorConfig));
     }
@@ -161,10 +158,7 @@ public sealed class RiskFactorConfigService(IRiskFactorConfigRepository riskFact
             return Result<RiskFactorConfigDto>.Failure(RiskFactorConfigErrors.AlreadyExists);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Risk factor configuration {RiskFactorConfigId} updated.", riskFactorConfig.RiskFactorConfigId);
-        }
+        logger.LogInformation("Risk factor configuration {RiskFactorConfigId} updated.", riskFactorConfig.RiskFactorConfigId);
 
         return Result<RiskFactorConfigDto>.Success(MapRiskFactorConfigToDto(riskFactorConfig));
     }
