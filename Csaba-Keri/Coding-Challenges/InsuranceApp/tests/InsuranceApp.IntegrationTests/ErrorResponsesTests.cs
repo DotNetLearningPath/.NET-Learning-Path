@@ -19,7 +19,7 @@ public sealed class ErrorResponsesTests(IntegrationTestFixture fixture) : Integr
         var url = "/api/brokers/" + route.Replace("{id}", Guid.NewGuid().ToString());
 
         // Act
-        using var response = await HttpClient.GetAsync(url);
+        using var response = await BrokerHttpClient.GetAsync(url);
 
         // Assert
         var problem = await AssertProblemAsync(response, HttpStatusCode.NotFound);
@@ -41,7 +41,7 @@ public sealed class ErrorResponsesTests(IntegrationTestFixture fixture) : Integr
         var url = "/api/brokers/" + route;
 
         // Act
-        using var response = await HttpClient.GetAsync(url);
+        using var response = await BrokerHttpClient.GetAsync(url);
 
         // Assert
         var problem = await AssertProblemAsync(response, HttpStatusCode.BadRequest);
@@ -59,7 +59,7 @@ public sealed class ErrorResponsesTests(IntegrationTestFixture fixture) : Integr
         var request = resource == "clients" ? TestData.Client() : TestData.Building();
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(url, request);
+        using var response = await BrokerHttpClient.PutAsJsonAsync(url, request);
 
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.NotFound);

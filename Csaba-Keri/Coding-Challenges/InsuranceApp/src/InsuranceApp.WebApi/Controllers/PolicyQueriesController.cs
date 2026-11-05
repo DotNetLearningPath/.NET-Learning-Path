@@ -2,13 +2,18 @@
 using InsuranceApp.WebApi.Mappings;
 using InsuranceApp.WebApi.Models.Common;
 using InsuranceApp.WebApi.Models.Policies;
+using InsuranceApp.WebApi.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceApp.WebApi.Controllers;
 
 [ApiController]
 [Route("api/brokers/policies")]
+[Authorize(Policy = AuthorizationPolicies.BrokerOnly)]
 [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public class PolicyQueriesController(IPolicyQueryService policyQueryService) : ControllerBase
 {
     private readonly IPolicyQueryService _policyQueryService = policyQueryService;

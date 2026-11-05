@@ -23,7 +23,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         );
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: "/api/brokers/clients",
             value: request
         );
@@ -52,7 +52,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         Assert.Equal("+40 700 123 456", saved.Phone);
         Assert.Equal("Main Street 10", saved.PrimaryAddress);
 
-        using var getResponse = await HttpClient.GetAsync(response.Headers.Location);
+        using var getResponse = await BrokerHttpClient.GetAsync(response.Headers.Location);
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(body, await ReadJsonAsync(getResponse)));
     }
@@ -67,7 +67,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         );
 
         // Act
-        using var invalidResponse = await HttpClient.PostAsJsonAsync(
+        using var invalidResponse = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: "/api/brokers/clients",
             value: request
         );
@@ -76,7 +76,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
 
         request["email"] = "example@gmail.com";
         
-        using var validResponse = await HttpClient.PostAsJsonAsync(
+        using var validResponse = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: "/api/brokers/clients",
             value: request
         );
@@ -93,7 +93,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         var saved = await QueryDatabaseAsync(db => db.Clients.AsNoTracking().SingleAsync());
         Assert.Equal("example@gmail.com", saved.Email);
         
-        using var getResponse = await HttpClient.GetAsync("/api/brokers/clients");
+        using var getResponse = await BrokerHttpClient.GetAsync("/api/brokers/clients");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         
         var page = await ReadJsonAsync(getResponse);
@@ -111,7 +111,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        using var response = await HttpClient.PostAsync(
+        using var response = await BrokerHttpClient.PostAsync(
             requestUri: "/api/brokers/clients",
             content: content
         );
@@ -143,7 +143,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await BrokerHttpClient.PutAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}",
             value: request
         );
@@ -165,7 +165,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         Assert.Equal("IMMUTABLE-001", saved.IdentificationNumber);
         Assert.Equal(ClientType.Individual, saved.Type);
         
-        using var getResponse = await HttpClient.GetAsync($"/api/brokers/clients/{clientId}");
+        using var getResponse = await BrokerHttpClient.GetAsync($"/api/brokers/clients/{clientId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(body, await ReadJsonAsync(getResponse)));
     }
@@ -185,7 +185,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await BrokerHttpClient.PutAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}",
             value: request
         );
@@ -193,7 +193,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.BadRequest, "Email");
         
-        using var getResponse = await HttpClient.GetAsync($"/api/brokers/clients/{clientId}");
+        using var getResponse = await BrokerHttpClient.GetAsync($"/api/brokers/clients/{clientId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(originalClient, await ReadJsonAsync(getResponse)));
     }
@@ -207,8 +207,8 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         await CreateClientAsync(TestData.Client(name: "Alpha"));
 
         // Act
-        using var response = await HttpClient.GetAsync("/api/brokers/clients?pageNumber=2&pageSize=1");
-        using var beyondLastPage = await HttpClient.GetAsync("/api/brokers/clients?pageNumber=2147483647&pageSize=100");
+        using var response = await BrokerHttpClient.GetAsync("/api/brokers/clients?pageNumber=2&pageSize=1");
+        using var beyondLastPage = await BrokerHttpClient.GetAsync("/api/brokers/clients?pageNumber=2147483647&pageSize=100");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -239,7 +239,7 @@ public sealed class ClientsEndpointsTests(IntegrationTestFixture fixture) : Inte
         );
 
         // Act
-        using var response = await HttpClient.GetAsync("/api/brokers/clients?identifier=ABC-123");
+        using var response = await BrokerHttpClient.GetAsync("/api/brokers/clients?identifier=ABC-123");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
