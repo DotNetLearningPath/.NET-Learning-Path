@@ -1,5 +1,7 @@
 using InsuranceApp.Api.ExceptionHandling;
+using InsuranceApp.Api.Security;
 using InsuranceApp.Application;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Infrastructure;
 using InsuranceApp.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,9 @@ builder.Services.AddControllers();
 builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 #endregion
 
 

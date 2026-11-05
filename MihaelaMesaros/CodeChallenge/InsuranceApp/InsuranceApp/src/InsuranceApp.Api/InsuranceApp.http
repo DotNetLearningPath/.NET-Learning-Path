@@ -17,14 +17,124 @@
 @feeConfigId = 9EA036E6-61B7-F111-BC3C-BCF1054861B1
 @riskFactorConfigId = BB66291C-62B7-F111-BC3C-BCF1054861B1
 
-@brokerId = 8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C
+@brokerId = 5da2c8f9-2ba9-4b19-58ed-08df35bb1f19
 @policyId = 6cbfe0f6-dc3b-4f41-bfdc-08df254ef4c7
 
 @policyStartDate = 2026-10-15
 @policyEndDate = 2026-12-31
 @policyBasePremium = 100.00
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiOGZmZGIzNC05ZDNhLTQ5MGMtYTQ4Yy0xZTgwMTQ5ZWFmNWEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsIm5iZiI6MTc5MzAxNjg3NywiZXhwIjoxNzkzMDE3Nzc3LCJpc3MiOiJJbnN1cmFuY2VBcHAiLCJhdWQiOiJJbnN1cmFuY2VBcHAifQ.pJeyrPreUhtAljilat08ytmMUzFs2tjBRHeh9m8nYH4
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhNjFkZWM0OC0zNDRjLTRjYjMtOTRiZi1mZWE2MzNlZGZjMTEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYnJva2VyMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkJyb2tlciIsImJyb2tlcklkIjoiNWRhMmM4ZjktMmJhOS00YjE5LTU4ZWQtMDhkZjM1YmIxZjE5IiwibmJmIjoxNzkzMjg4NDI5LCJleHAiOjE3OTMyODkzMjksImlzcyI6Ikluc3VyYW5jZUFwcCIsImF1ZCI6Ikluc3VyYW5jZUFwcCJ9.lM4ZzP2Zw_4mL6gVLQHaj2C0SdBbwJoUw9-qYFIQPxE
+@refreshToken = /g5ES/mGbTAVjG0Mr+JNsj4qbhiAZPAx0TN2EaEBI24=
+
+###
+
+# ============================================================
+# Login
+# ============================================================
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "admin",
+  "password": "#TempPassAdmin1#"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "broker1",
+  "password": "$TempPassBroker1$"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/auth/login
+Content-Type: application/json
+Accept: application/json
+{
+  "username": "broker3",
+  "password": "$TempPassBroker3$"
+}
+
+### Refresh Token
+POST {{InsuranceApp_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+{
+  "refreshToken": "{{refreshToken}}"
+}
+### Refresh Token New
+POST {{InsuranceApp_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Logout
+POST {{InsuranceApp_HostAddress}}/api/auth/logout
+Content-Type: application/json
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/auth/logout-all
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+
+###
+
+# ============================================================
+# Create users
+# ============================================================
+
+### Create Admin User
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "admin2",
+  "password": "#TempPassAdmin2#",
+  "role": 1,
+  "brokerId": null
+}
+
+### Create Broker User
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "broker1",
+  "password": "$TempPassBroker1$",
+  "role": 2,
+  "brokerId": "8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C"
+}
+
+###
+
+POST {{InsuranceApp_HostAddress}}/api/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "broker3",
+  "password": "$TempPassBroker3$",
+  "role": 2,
+  "brokerId": "5DA2C8F9-2BA9-4B19-58ED-08DF35BB1F19"
+}
+
+###
 
 
 ### Get countries
@@ -490,9 +600,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "brokerCode": "BR001",
-  "name": "Demo Broker",
-  "email": "broker@test.com",
+  "brokerCode": "BR003",
+  "name": "Broker 3",
+  "email": "broker3@test.com",
   "phone": "0712345678",
   "commissionPercentage": 5.25,
   "isActive": true
@@ -508,9 +618,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "brokerCode": "BR001",
-  "name": "Demo Broker Updated",
-  "email": "broker.updated@test.com",
+  "brokerCode": "BR003",
+  "name": "Broker 3 Updated",
+  "email": "broker3.updated@test.com",
   "phone": "0722345678",
   "commissionPercentage": 3.50
 }
@@ -815,100 +925,3 @@ Authorization: Bearer {{accessToken}}
 GET {{InsuranceApp_HostAddress}}/api/admin/reports/policies-by-broker
 Accept: application/json
 Authorization: Bearer {{accessToken}}
-
-###
-
-# ============================================================
-# Create users
-# ============================================================
-
-### Create Admin User
-POST {{InsuranceApp_HostAddress}}/api/admin/users
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "username": "admin2",
-  "password": "#TempPassAdmin2#",
-  "role": 1,
-  "brokerId": null
-}
-
-### Create Broker User
-POST {{InsuranceApp_HostAddress}}/api/admin/users
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "username": "broker1",
-  "password": "$TempPassBroker1$",
-  "role": 2,
-  "brokerId": "8BCE575E-8B9C-4D9B-CC7E-08DF1EC0696C"
-}
-
-###
-
-POST {{InsuranceApp_HostAddress}}/api/admin/users
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "username": "broker2",
-  "password": "$TempPassBroker2$",
-  "role": 2,
-  "brokerId": "63176400-7DC6-4678-D991-08DF1EC835C7"
-}
-
-###
-
-# ============================================================
-# Login
-# ============================================================
-
-POST {{InsuranceApp_HostAddress}}/api/auth/login
-Content-Type: application/json
-Accept: application/json
-{
-  "username": "admin",
-  "password": "#TempPassAdmin1#"
-}
-
-###
-
-POST {{InsuranceApp_HostAddress}}/api/auth/login
-Content-Type: application/json
-Accept: application/json
-{
-  "username": "broker1",
-  "password": "$TempPassBroker1$"
-}
-
-###
-
-POST {{InsuranceApp_HostAddress}}/api/auth/login
-Content-Type: application/json
-Accept: application/json
-{
-  "username": "broker2",
-  "password": "$TempPassBroker2$"
-}
-
-### Refresh Token
-POST {{InsuranceApp_HostAddress}}/api/auth/refresh
-Content-Type: application/json
-{
-  "refreshToken": "7cOrszp+osRVMCrWR3DJl1gcOBp9Vh8IPD+ncYNsMhs="
-}
-### Refresh Token New
-POST {{InsuranceApp_HostAddress}}/api/auth/refresh
-Content-Type: application/json
-{
-  "refreshToken": "4rxdJWtmPgM6ZEBzzGEFcbB3Ipewlzt8FajMKKgCIAI="
-}
-
-### Logout
-POST {{InsuranceApp_HostAddress}}/api/auth/logout
-Content-Type: application/json
-{
-  "refreshToken": "4rxdJWtmPgM6ZEBzzGEFcbB3Ipewlzt8FajMKKgCIAI="
-}
