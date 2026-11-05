@@ -9,25 +9,25 @@ namespace InsuranceManagement.API.Controllers;
 public class BuildingsController(IBuildingService buildingService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
+    public async Task<ActionResult<List<BuildingDto>>> GetAll() =>
         Ok(await buildingService.GetAllAsync());
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<ActionResult<BuildingDetailsDto>> GetById(Guid id)
     {
         var building = await buildingService.GetAsync(id);
         return building is null ? NotFound() : Ok(building);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateBuildingDto createBuilding)
+    public async Task<ActionResult<BuildingDto>> Create(CreateBuildingDto createBuilding)
     {
         var building = await buildingService.CreateAsync(createBuilding);
         return CreatedAtAction(nameof(GetById), new { id = building.Id }, building);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateBuildingDto updateBuilding)
+    public async Task<ActionResult<BuildingDto>> Update(Guid id, UpdateBuildingDto updateBuilding)
     {
         var building = await buildingService.UpdateAsync(id, updateBuilding);
         return building is null ? NotFound() : Ok(building);

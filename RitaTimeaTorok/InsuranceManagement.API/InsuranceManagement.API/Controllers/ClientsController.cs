@@ -9,27 +9,27 @@ namespace InsuranceManagement.API.Controllers;
 public class ClientsController(IClientService clientService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(
+    public async Task<ActionResult<List<ClientDto>>> GetAll(
         [FromQuery] string? name,
         [FromQuery] string? identifier) =>
         Ok(await clientService.GetAllAsync(name, identifier));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<ActionResult<ClientDetailsDto>> GetById(Guid id)
     {
         var client = await clientService.GetAsync(id);
         return client is null ? NotFound() : Ok(client);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateClientDto createClient)
+    public async Task<ActionResult<ClientDto>> Create(CreateClientDto createClient)
     {
         var client = await clientService.CreateAsync(createClient);
         return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateClientDto updateClient)
+    public async Task<ActionResult<ClientDto>> Update(Guid id, UpdateClientDto updateClient)
     {
         var client = await clientService.UpdateAsync(id, updateClient);
         return client is null ? NotFound() : Ok(client);
