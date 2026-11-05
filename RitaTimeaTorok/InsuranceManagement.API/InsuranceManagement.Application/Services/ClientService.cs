@@ -14,8 +14,8 @@ public class ClientService(
     IBuildingRepository buildingRepository,
     IMapper mapper) : IClientService
 {
-    public async Task<List<ClientDto>> GetAllAsync() =>
-        mapper.Map<List<ClientDto>>(await clientRepository.GetAllAsync());
+    public async Task<List<ClientDto>> GetAllAsync(string? name = null, string? identifier = null) =>
+        mapper.Map<List<ClientDto>>(await clientRepository.SearchAsync(name, identifier));
 
     public async Task<ClientDetailsDto?> GetAsync(Guid id)
     {

@@ -9,8 +9,10 @@ namespace InsuranceManagement.API.Controllers;
 public class ClientsController(IClientService clientService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await clientService.GetAllAsync());
+    public async Task<IActionResult> GetAll(
+        [FromQuery] string? name,
+        [FromQuery] string? identifier) =>
+        Ok(await clientService.GetAllAsync(name, identifier));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
