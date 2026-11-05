@@ -17,13 +17,9 @@ public sealed class AuthService(
 {
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(loginDto.Username))
+        if (string.IsNullOrWhiteSpace(loginDto.Username) || string.IsNullOrWhiteSpace(loginDto.Password))
         {
-            return Result<LoginResponseDto>.Failure(AuthErrors.InvalidUsername);
-        }
-        if (string.IsNullOrWhiteSpace(loginDto.Password))
-        {
-            return Result<LoginResponseDto>.Failure(AuthErrors.InvalidPassword);
+            return Result<LoginResponseDto>.Failure(AuthErrors.InvalidCredentials);
         }
 
         var username = loginDto.Username.Trim();

@@ -1,10 +1,13 @@
-﻿using InsuranceApp.Infrastructure.Persistence;
+using InsuranceApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Text;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
 
@@ -22,12 +25,10 @@ public sealed class WebApplicationFactorySqlite : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<InsuranceDbContext>();
             services.RemoveAll<DbContextOptions<InsuranceDbContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<InsuranceDbContext>>();
 
             services.AddDbContext<InsuranceDbContext>(options => options.UseSqlite(_connection));
 

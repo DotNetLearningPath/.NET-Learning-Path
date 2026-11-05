@@ -9,9 +9,11 @@ namespace InsuranceApp.Infrastructure.Persistence.Repositories;
 
 internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRepository
 {
-    public async Task<(IReadOnlyList<Policy> Items, int TotalCount)> SearchPoliciesAsync(PolicySearchDto policySearchDto, CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<Policy> Items, int TotalCount)> SearchPoliciesAsync(PolicySearchDto policySearchDto, Guid brokerId, CancellationToken cancellationToken)
     {
-        var query = dbContext.Policies.AsNoTracking();
+        var query = dbContext.Policies
+            .AsNoTracking()
+            .Where(x => x.BrokerId == brokerId);
 
         if (policySearchDto.ClientId.HasValue)
         {
@@ -50,14 +52,14 @@ internal sealed class PolicyRepository(InsuranceDbContext dbContext) : IPolicyRe
         return (policies, totalCount);
     }
 
-    public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyByIdAsync(Guid policyId, Guid brokerId, CancellationToken cancellationToken)
     {
-        return await dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
+        return await dbContext.Policies.AsNoTracking().FirstOrDefaultAsync(x => x.PolicyId == policyId && x.BrokerId == brokerId, cancellationToken);
     }
 
-    public async Task<Policy?> GetPolicyForUpdateAsync(Guid policyId, CancellationToken cancellationToken)
+    public async Task<Policy?> GetPolicyForUpdateAsync(Guid policyId, Guid brokerId, CancellationToken cancellationToken)
     {
-        return await dbContext.Policies.FirstOrDefaultAsync(x => x.PolicyId == policyId, cancellationToken);
+        return await dbContext.Policies.FirstOrDefaultAsync(x => x.PolicyId == policyId && x.BrokerId == brokerId, cancellationToken);
     }
 
     public async Task<bool> PolicyNumberExistsAsync(string policyNumber, CancellationToken cancellationToken)

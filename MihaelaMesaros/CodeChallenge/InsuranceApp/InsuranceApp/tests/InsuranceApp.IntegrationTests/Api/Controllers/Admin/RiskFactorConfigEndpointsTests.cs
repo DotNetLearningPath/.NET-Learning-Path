@@ -15,6 +15,14 @@ public sealed class RiskFactorConfigEndpointsTests(WebApplicationFactorySqlite f
 {
     private const string BaseUrl = "/api/admin/risk-factors";
 
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsAdminAsync();
+    }
+
+
     #region Create tests
 
     [Fact]

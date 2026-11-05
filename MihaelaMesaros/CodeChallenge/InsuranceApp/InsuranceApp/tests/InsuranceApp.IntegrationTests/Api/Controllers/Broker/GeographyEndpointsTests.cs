@@ -12,6 +12,14 @@ namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 public sealed class GeographyEndpointsTests(WebApplicationFactorySqlite factory)
     : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsBrokerAsync(TestData.BrokerForCreate.BrokerId);
+    }
+
+
     #region Countries
 
     [Fact]

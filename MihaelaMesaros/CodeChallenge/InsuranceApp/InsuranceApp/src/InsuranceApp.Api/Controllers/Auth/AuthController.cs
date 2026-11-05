@@ -32,9 +32,9 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         var result = await authService.LoginAsync(loginDto, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
 
         logger.LogInformation("User {Username} logged in successfully.", loginDto.Username);
@@ -57,12 +57,10 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         var result = await authService.RefreshTokenAsync(refreshTokenDto, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
-
-        Response.Headers.CacheControl = "no-store";
 
         return Ok(result.Value);
     }
@@ -89,9 +87,9 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
 
         var result = await authService.LogoutAllAsync(userId, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
 
         return NoContent();
@@ -108,9 +106,9 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         var result = await authService.LogoutAsync(refreshTokenDto, cancellationToken);
 
-        if (!result.IsSuccess && result.Error != null)
+        if (!result.IsSuccess)
         {
-            return result.Error.ToProblemResult();
+            return result.Error!.ToProblemResult();
         }
 
         return NoContent();

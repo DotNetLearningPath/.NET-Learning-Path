@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Policy;
@@ -15,11 +16,17 @@ public sealed class PolicyService(
     IPolicyReferenceService policyReferenceService,
     IPolicyNumberGeneratorService policyNumberGenerator,
     IPolicyCalculationService policyCalculationService,
+    ICurrentUserService currentUserService,
     ILogger<PolicyService> logger
     ) : IPolicyService
 {
     public async Task<Result<PagedResult<PolicyDto>>> SearchPoliciesAsync(PolicySearchDto policySearchDto, CancellationToken cancellationToken)
     {
+        if (currentUserService.BrokerId is not Guid currentBrokerId)
+        {
+            return Result<PagedResult<PolicyDto>>.Failure(AuthErrors.NotAuthorized);
+        }
+
         if (policySearchDto.ClientId == Guid.Empty)
         {
             return Result<PagedResult<PolicyDto>>.Failure(PolicyErrors.InvalidClientId);
@@ -52,7 +59,7 @@ public sealed class PolicyService(
             return Result<PagedResult<PolicyDto>>.Failure(PolicyErrors.InvalidDateRange);
         }
 
-        var (policies, totalCount) = await policyRepository.SearchPoliciesAsync(policySearchDto, cancellationToken);
+        var (policies, totalCount) = await policyRepository.SearchPoliciesAsync(policySearchDto, currentBrokerId, cancellationToken);
 
         var items = policies.Select(MapPolicyToDto).ToList();
 
@@ -67,12 +74,17 @@ public sealed class PolicyService(
 
     public async Task<Result<PolicyDto>> GetPolicyByIdAsync(Guid policyId, CancellationToken cancellationToken)
     {
+        if (currentUserService.BrokerId is not Guid currentBrokerId)
+        {
+            return Result<PolicyDto>.Failure(AuthErrors.NotAuthorized);
+        }
+
         if (policyId == Guid.Empty)
         {
             return Result<PolicyDto>.Failure(PolicyErrors.InvalidPolicyId);
         }
 
-        var policy = await policyRepository.GetPolicyByIdAsync(policyId, cancellationToken);
+        var policy = await policyRepository.GetPolicyByIdAsync(policyId, currentBrokerId, cancellationToken);
 
         if (policy is null)
         {
@@ -84,6 +96,11 @@ public sealed class PolicyService(
 
     public async Task<Result<PolicyDto>> CreatePolicyAsync(CreatePolicyDto createPolicyDto, CancellationToken cancellationToken)
     {
+        if (currentUserService.BrokerId is not Guid currentBrokerId)
+        {
+            return Result<PolicyDto>.Failure(AuthErrors.NotAuthorized);
+        }
+
         var validationPolicyInputDetails = ValidatePolicyInputDetails(createPolicyDto);
 
         if (validationPolicyInputDetails is not null)
@@ -95,7 +112,7 @@ public sealed class PolicyService(
         var validationPolicyReferences = await policyReferenceService.ValidatePolicyReferencesAsync(
             createPolicyDto.ClientId,
             createPolicyDto.BuildingId,
-            createPolicyDto.BrokerId,
+            currentBrokerId,
             createPolicyDto.CurrencyId,
             cancellationToken
         );
@@ -146,7 +163,7 @@ public sealed class PolicyService(
             PolicyNumber = generatedPolicyNumber,
             ClientId = createPolicyDto.ClientId,
             BuildingId = createPolicyDto.BuildingId,
-            BrokerId = createPolicyDto.BrokerId,
+            BrokerId = currentBrokerId,
             CurrencyId = createPolicyDto.CurrencyId,
             Status = PolicyStatus.Draft,
             StartDate = createPolicyDto.StartDate,
@@ -165,22 +182,24 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberNotGenerated);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Draft policy {PolicyId} has been created by broker {BrokerId}.", policy.PolicyId, policy.BrokerId);
-        }
+        logger.LogInformation("Draft policy {PolicyId} has been created by broker {BrokerId}.", policy.PolicyId, policy.BrokerId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
 
     public async Task<Result<PolicyDto>> ActivatePolicyAsync(Guid policyId, CancellationToken cancellationToken)
     {
+        if (currentUserService.BrokerId is not Guid currentBrokerId)
+        {
+            return Result<PolicyDto>.Failure(AuthErrors.NotAuthorized);
+        }
+
         if (policyId == Guid.Empty)
         {
             return Result<PolicyDto>.Failure(PolicyErrors.InvalidPolicyId);
         }
 
-        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, cancellationToken);
+        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, currentBrokerId, cancellationToken);
 
         if (policy is null)
         {
@@ -213,7 +232,7 @@ public sealed class PolicyService(
         var validationPolicyReferences = await policyReferenceService.ValidatePolicyReferencesAsync(
             policyDto.ClientId,
             policyDto.BuildingId,
-            policyDto.BrokerId,
+            currentBrokerId,
             policyDto.CurrencyId,
             cancellationToken
         );
@@ -242,16 +261,20 @@ public sealed class PolicyService(
 
         await policyRepository.SavePolicyChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Policy {PolicyId} has been activated.", policyId);
-        }
+        logger.LogInformation("Policy {PolicyId} has been activated.", policyId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
 
     public async Task<Result<PolicyDto>> CancelPolicyAsync(Guid policyId, CancelPolicyDto cancelPolicyDto, CancellationToken cancellationToken)
     {
+        var currentBrokerId = currentUserService.BrokerId;
+
+        if (currentBrokerId is null || currentBrokerId == Guid.Empty)
+        {
+            return Result<PolicyDto>.Failure(AuthErrors.NotAuthorized);
+        }
+
         if (policyId == Guid.Empty)
         {
             return Result<PolicyDto>.Failure(PolicyErrors.InvalidPolicyId);
@@ -267,7 +290,7 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.InvalidCancellationReasonMaxLength);
         }
 
-        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, cancellationToken);
+        var policy = await policyRepository.GetPolicyForUpdateAsync(policyId, currentBrokerId.Value, cancellationToken);
 
         if (policy is null)
         {
@@ -291,10 +314,7 @@ public sealed class PolicyService(
 
         await policyRepository.SavePolicyChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Policy {PolicyId} has been cancelled.", policyId);
-        }
+        logger.LogInformation("Policy {PolicyId} has been cancelled.", policyId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
@@ -338,11 +358,6 @@ public sealed class PolicyService(
         if (dto.BuildingId == Guid.Empty)
         {
             return PolicyErrors.InvalidBuildingId;
-        }
-
-        if (dto.BrokerId == Guid.Empty)
-        {
-            return PolicyErrors.InvalidBrokerId;
         }
 
         if (dto.CurrencyId == Guid.Empty)

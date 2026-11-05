@@ -70,10 +70,7 @@ public sealed class FeeConfigService(IFeeConfigRepository feeConfigRepository, I
 
         await feeConfigRepository.AddFeeConfigAsync(fee, cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Fee configuration {FeeConfigId} created.", fee.FeeConfigId);
-        }
+        logger.LogInformation("Fee configuration {FeeConfigId} created.", fee.FeeConfigId);
 
         return Result<FeeConfigDto>.Success(MapFeeConfigToDto(fee));
     }
@@ -120,10 +117,7 @@ public sealed class FeeConfigService(IFeeConfigRepository feeConfigRepository, I
 
         await feeConfigRepository.SaveFeeConfigChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Fee configuration {FeeConfigId} updated.", feeConfigId);
-        }
+        logger.LogInformation("Fee configuration {FeeConfigId} updated.", feeConfigId);
 
         return Result<FeeConfigDto>.Success(MapFeeConfigToDto(fee));
     }

@@ -14,6 +14,13 @@ namespace InsuranceApp.IntegrationTests.Api.Controllers.Admin;
 public sealed class FeeConfigEndpointsTests(WebApplicationFactorySqlite factory)
     : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsAdminAsync();
+    }
+
     #region Create Fee Config Tests
 
     [Fact]

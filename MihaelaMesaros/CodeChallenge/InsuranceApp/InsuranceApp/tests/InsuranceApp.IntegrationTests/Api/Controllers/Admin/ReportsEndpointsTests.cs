@@ -14,6 +14,14 @@ public sealed class ReportsEndpointsTests(WebApplicationFactorySqlServer factory
 {
     private const string BaseUrl = "/api/admin/reports";
 
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsAdminAsync();
+    }
+
+
     #region Report policies by group type
 
     [Theory]

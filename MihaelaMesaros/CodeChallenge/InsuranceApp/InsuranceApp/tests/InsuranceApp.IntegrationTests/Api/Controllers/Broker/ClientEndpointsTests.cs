@@ -13,6 +13,13 @@ namespace InsuranceApp.IntegrationTests.Api.Controllers.Broker;
 public sealed class ClientEndpointsTests(WebApplicationFactorySqlite factory)
     : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsBrokerAsync(TestData.BrokerForCreate.BrokerId);
+    }
+
     #region Create Client Tests
 
     [Fact]
