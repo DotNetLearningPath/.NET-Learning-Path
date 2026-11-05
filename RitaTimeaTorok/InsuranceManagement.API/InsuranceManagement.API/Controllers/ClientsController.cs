@@ -9,12 +9,17 @@ namespace InsuranceManagement.API.Controllers
     public class ClientsController(IClientService clientService) : ControllerBase
     {
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<ClientDto>>> GetAll(
             [FromQuery] string? name,
             [FromQuery] string? identifier) =>
             Ok(await clientService.GetAllAsync(name, identifier));
 
         [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientDetailsDto>> GetById(Guid id)
         {
             var client = await clientService.GetAsync(id);
@@ -22,6 +27,10 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientDto>> Create(CreateClientDto createClient)
         {
             var client = await clientService.CreateAsync(createClient);
@@ -29,6 +38,11 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ClientDto>> Update(Guid id, UpdateClientDto updateClient)
         {
             var client = await clientService.UpdateAsync(id, updateClient);
@@ -36,6 +50,10 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id) =>
             await clientService.DeleteAsync(id) ? NoContent() : NotFound();
     }

@@ -9,10 +9,15 @@ namespace InsuranceManagement.API.Controllers
     public class BuildingsController(IBuildingService buildingService) : ControllerBase
     {
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<BuildingDto>>> GetAll() =>
             Ok(await buildingService.GetAllAsync());
 
         [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDetailsDto>> GetById(Guid id)
         {
             var building = await buildingService.GetAsync(id);
@@ -20,6 +25,9 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDto>> Create(CreateBuildingDto createBuilding)
         {
             var building = await buildingService.CreateAsync(createBuilding);
@@ -27,6 +35,10 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDto>> Update(Guid id, UpdateBuildingDto updateBuilding)
         {
             var building = await buildingService.UpdateAsync(id, updateBuilding);
@@ -34,6 +46,9 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id) =>
             await buildingService.DeleteAsync(id) ? NoContent() : NotFound();
     }
