@@ -1,21 +1,19 @@
 ﻿using InsuranceApp.Application.Authentication;
 using InsuranceApp.Application.Authentication.Exceptions;
 using InsuranceApp.Application.Authentication.Results;
+using InsuranceApp.Application.Brokers;
 using InsuranceApp.Application.Common.Security;
-using InsuranceApp.Domain.Brokers;
-using InsuranceApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace InsuranceApp.Infrastructure.Identity;
 
 public class IdentityAccountAuthenticator(
     UserManager<ApplicationUser> userManager,
-    InsuranceDbContext context
+    IBrokerRepository brokerRepository
 ) : IAccountAuthenticator
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
-    private readonly InsuranceDbContext _context = context;
+    private readonly IBrokerRepository _brokerRepository = brokerRepository;
 
     public async Task<AuthenticatedAccount> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -62,14 +60,9 @@ public class IdentityAccountAuthenticator(
                     throw new AccountAccessDeniedException();
                 }
 
-                var isActiveBroker = await _context.Brokers
-                    .AsNoTracking()
-                    .AnyAsync(
-                        broker => broker.Id == user.BrokerId && broker.Status == BrokerStatus.Active,
-                        cancellationToken
-                    );
+                var isBrokerActive = await _brokerRepository.IsBrokerActiveAsync(user.BrokerId.Value, cancellationToken);
 
-                if (!isActiveBroker)
+                if (!isBrokerActive)
                 {
                     throw new AccountAccessDeniedException();
                 }
