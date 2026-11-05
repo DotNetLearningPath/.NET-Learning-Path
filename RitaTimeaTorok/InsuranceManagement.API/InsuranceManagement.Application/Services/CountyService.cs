@@ -5,57 +5,58 @@ using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
 
-namespace InsuranceManagement.Application.Services;
-
-public class CountyService(
-    IGenericRepository<County> countyRepository,
-    IGenericRepository<Country> countryRepository,
-    IMapper mapper) : ICountyService
+namespace InsuranceManagement.Application.Services
 {
-    public async Task<List<CountyDto>> GetAllAsync() =>
-        mapper.Map<List<CountyDto>>(await countyRepository.GetAllAsync());
-
-    public async Task<CountyDto?> GetAsync(Guid id) =>
-        mapper.Map<CountyDto?>(await countyRepository.GetAsync(id));
-
-    public async Task<CountyDto> CreateAsync(CreateCountyDto request)
+    public class CountyService(
+        IGenericRepository<County> countyRepository,
+        IGenericRepository<Country> countryRepository,
+        IMapper mapper) : ICountyService
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("County name is required.");
+        public async Task<List<CountyDto>> GetAllAsync() =>
+            mapper.Map<List<CountyDto>>(await countyRepository.GetAllAsync());
 
-        if (await countryRepository.GetAsync(request.CountryId) is null)
-            throw new ValidationException("CountryId must refer to an existing country.");
+        public async Task<CountyDto?> GetAsync(Guid id) =>
+            mapper.Map<CountyDto?>(await countyRepository.GetAsync(id));
 
-        var county = await countyRepository.AddAsync(mapper.Map<County>(request));
-        return mapper.Map<CountyDto>(county);
-    }
+        public async Task<CountyDto> CreateAsync(CreateCountyDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("County name is required.");
 
-    public async Task<CountyDto?> UpdateAsync(Guid id, UpdateCountyDto request)
-    {
-        var county = await countyRepository.GetAsync(id);
-        if (county is null) 
-            return null;
+            if (await countryRepository.GetAsync(request.CountryId) is null)
+                throw new ValidationException("CountryId must refer to an existing country.");
 
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("County name is required.");
+            var county = await countyRepository.AddAsync(mapper.Map<County>(request));
+            return mapper.Map<CountyDto>(county);
+        }
 
-        if (await countryRepository.GetAsync(request.CountryId) is null)
-            throw new ValidationException("CountryId must refer to an existing country.");
+        public async Task<CountyDto?> UpdateAsync(Guid id, UpdateCountyDto request)
+        {
+            var county = await countyRepository.GetAsync(id);
+            if (county is null)
+                return null;
 
-        mapper.Map(request, county);
-        await countyRepository.UpdateAsync(county);
-        return mapper.Map<CountyDto>(county);
-    }
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("County name is required.");
 
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var county = await countyRepository.GetAsync(id);
+            if (await countryRepository.GetAsync(request.CountryId) is null)
+                throw new ValidationException("CountryId must refer to an existing country.");
 
-        if (county is null)
-            return false;
+            mapper.Map(request, county);
+            await countyRepository.UpdateAsync(county);
+            return mapper.Map<CountyDto>(county);
+        }
 
-        await countyRepository.DeleteAsync(county);
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var county = await countyRepository.GetAsync(id);
 
-        return true;
+            if (county is null)
+                return false;
+
+            await countyRepository.DeleteAsync(county);
+
+            return true;
+        }
     }
 }

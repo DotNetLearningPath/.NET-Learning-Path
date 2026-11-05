@@ -1,12 +1,13 @@
 using InsuranceManagement.Application.DTOs.Building;
 
-namespace InsuranceManagement.Application.Interfaces.Services;
-
-public interface IBuildingService
+namespace InsuranceManagement.Application.Interfaces.Services
 {
-    Task<List<BuildingDto>> GetAllAsync();
-    Task<BuildingDetailsDto?> GetAsync(Guid id);
-    Task<BuildingDto> CreateAsync(CreateBuildingDto request);
-    Task<BuildingDto?> UpdateAsync(Guid id, UpdateBuildingDto request);
-    Task<bool> DeleteAsync(Guid id);
+    public interface IBuildingService
+    {
+        Task<List<BuildingDto>> GetAllAsync();
+        Task<BuildingDetailsDto?> GetAsync(Guid id);
+        Task<BuildingDto> CreateAsync(CreateBuildingDto request);
+        Task<BuildingDto?> UpdateAsync(Guid id, UpdateBuildingDto request);
+        Task<bool> DeleteAsync(Guid id);
+    }
 }

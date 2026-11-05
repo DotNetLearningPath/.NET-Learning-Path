@@ -5,50 +5,51 @@ using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities.Geography;
 
-namespace InsuranceManagement.Application.Services;
-
-public class CountryService(
-    IGenericRepository<Country> countryRepository,
-    IMapper mapper) : ICountryService
+namespace InsuranceManagement.Application.Services
 {
-    public async Task<List<CountryDto>> GetAllAsync() =>
-        mapper.Map<List<CountryDto>>(await countryRepository.GetAllAsync());
-
-    public async Task<CountryDto?> GetAsync(Guid id) =>
-        mapper.Map<CountryDto?>(await countryRepository.GetAsync(id));
-
-    public async Task<CountryDto> CreateAsync(CreateCountryDto request)
+    public class CountryService(
+        IGenericRepository<Country> countryRepository,
+        IMapper mapper) : ICountryService
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("Country name is required.");
+        public async Task<List<CountryDto>> GetAllAsync() =>
+            mapper.Map<List<CountryDto>>(await countryRepository.GetAllAsync());
 
-        var country = await countryRepository.AddAsync(mapper.Map<Country>(request));
-        return mapper.Map<CountryDto>(country);
-    }
+        public async Task<CountryDto?> GetAsync(Guid id) =>
+            mapper.Map<CountryDto?>(await countryRepository.GetAsync(id));
 
-    public async Task<CountryDto?> UpdateAsync(Guid id, UpdateCountryDto request)
-    {
-        var country = await countryRepository.GetAsync(id);
-        if (country is null) 
-            return null;
+        public async Task<CountryDto> CreateAsync(CreateCountryDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("Country name is required.");
 
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("Country name is required.");
+            var country = await countryRepository.AddAsync(mapper.Map<Country>(request));
+            return mapper.Map<CountryDto>(country);
+        }
 
-        mapper.Map(request, country);
-        await countryRepository.UpdateAsync(country);
-        return mapper.Map<CountryDto>(country);
-    }
+        public async Task<CountryDto?> UpdateAsync(Guid id, UpdateCountryDto request)
+        {
+            var country = await countryRepository.GetAsync(id);
+            if (country is null)
+                return null;
 
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var country = await countryRepository.GetAsync(id);
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("Country name is required.");
 
-        if (country is null)
-            return false;
+            mapper.Map(request, country);
+            await countryRepository.UpdateAsync(country);
+            return mapper.Map<CountryDto>(country);
+        }
 
-        await countryRepository.DeleteAsync(country);
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var country = await countryRepository.GetAsync(id);
 
-        return true;
+            if (country is null)
+                return false;
+
+            await countryRepository.DeleteAsync(country);
+
+            return true;
+        }
     }
 }

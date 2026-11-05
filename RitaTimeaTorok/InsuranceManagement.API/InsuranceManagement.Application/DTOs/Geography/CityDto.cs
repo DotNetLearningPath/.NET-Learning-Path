@@ -1,8 +1,9 @@
-namespace InsuranceManagement.Application.DTOs.Geography;
-
-public class CityDto
+namespace InsuranceManagement.Application.DTOs.Geography
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public Guid CountyId { get; set; }
+    public class CityDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public Guid CountyId { get; set; }
+    }
 }
