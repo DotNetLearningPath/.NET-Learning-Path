@@ -17,8 +17,13 @@ namespace InsuranceManagement.Application.Services
         public async Task<List<CityDto>> GetAllAsync() =>
             mapper.Map<List<CityDto>>(await cityRepository.GetAllAsync());
 
-        public async Task<CityDto?> GetAsync(Guid id) =>
-            mapper.Map<CityDto?>(await cityRepository.GetAsync(id));
+        public async Task<CityDto> GetAsync(Guid id)
+        {
+            var city = await cityRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"City '{id}' was not found.");
+            
+            return mapper.Map<CityDto>(city);
+        }
 
         public async Task<CityDto> CreateAsync(CreateCityDto request)
         {
@@ -32,11 +37,10 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CityDto>(city);
         }
 
-        public async Task<CityDto?> UpdateAsync(Guid id, UpdateCityDto request)
+        public async Task<CityDto> UpdateAsync(Guid id, UpdateCityDto request)
         {
-            var city = await cityRepository.GetAsync(id);
-            if (city is null)
-                return null;
+            var city = await cityRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"City '{id}' was not found.");
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ValidationException("City name is required.");
@@ -49,12 +53,10 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CityDto>(city);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var city = await cityRepository.GetAsync(id);
-
-            if (city is null)
-                return false;
+            var city = await cityRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"City '{id}' was not found.");
 
             if (await buildingRepository.ExistsByCityIdAsync(id))
                 throw new ConflictException(
@@ -62,7 +64,6 @@ namespace InsuranceManagement.Application.Services
 
             await cityRepository.DeleteAsync(city);
 
-            return true;
         }
     }
 }

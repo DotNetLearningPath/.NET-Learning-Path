@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities;
@@ -20,18 +21,17 @@ namespace InsuranceManagement.Application.Services
         public async Task<List<BuildingDto>> GetAllAsync() =>
             mapper.Map<List<BuildingDto>>(await buildingRepository.GetAllAsync());
 
-        public async Task<BuildingDetailsDto?> GetAsync(Guid id)
+        public async Task<BuildingDetailsDto> GetAsync(Guid id)
         {
-            var building = await buildingRepository.GetAsync(id);
-            if (building is null)
-                return null;
-
+            var building = await buildingRepository.GetAsync(id) 
+                ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
+            
             var city = await cityRepository.GetAsync(building.CityId)
-                ?? throw new InvalidOperationException("Building references a city that does not exist.");
+                ?? throw new EntityNotFoundException("Building references a city that does not exist.");
             var county = await countyRepository.GetAsync(city.CountyId)
-                ?? throw new InvalidOperationException("City references a county that does not exist.");
+                ?? throw new EntityNotFoundException("City references a county that does not exist.");
             var country = await countryRepository.GetAsync(county.CountryId)
-                ?? throw new InvalidOperationException("County references a country that does not exist.");
+                ?? throw new EntityNotFoundException("County references a country that does not exist.");
 
             var buildingDetails = mapper.Map<BuildingDetailsDto>(building);
             buildingDetails.City = mapper.Map<CityDto>(city);
@@ -50,11 +50,10 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<BuildingDto>(building);
         }
 
-        public async Task<BuildingDto?> UpdateAsync(Guid id, UpdateBuildingDto request)
+        public async Task<BuildingDto> UpdateAsync(Guid id, UpdateBuildingDto request)
         {
-            var building = await buildingRepository.GetAsync(id);
-            if (building is null)
-                return null;
+            var building = await buildingRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
 
             mapper.Map(request, building);
             await ValidateBuildingAsync(building);
@@ -62,14 +61,12 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<BuildingDto>(building);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var building = await buildingRepository.GetAsync(id);
-            if (building is null)
-                return false;
+            var building = await buildingRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
 
             await buildingRepository.DeleteAsync(building);
-            return true;
         }
 
         private async Task ValidateBuildingAsync(Building building)
@@ -78,7 +75,8 @@ namespace InsuranceManagement.Application.Services
                 throw new ValidationException("Building street is required.");
 
             if (building.StreetNumber <= 0)
-                throw new ValidationException("Building street number must be greater than zero.");
+                throw new ValidationException(
+                    "Building street number must be greater than zero.");
 
             if (building.ConstructionYear <= 0)
                 throw new ValidationException(

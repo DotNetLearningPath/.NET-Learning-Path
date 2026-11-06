@@ -5,9 +5,9 @@ namespace InsuranceManagement.Application.Interfaces.Services
     public interface ICountyService
     {
         Task<List<CountyDto>> GetAllAsync();
-        Task<CountyDto?> GetAsync(Guid id);
+        Task<CountyDto> GetAsync(Guid id);
         Task<CountyDto> CreateAsync(CreateCountyDto request);
-        Task<CountyDto?> UpdateAsync(Guid id, UpdateCountyDto request);
-        Task<bool> DeleteAsync(Guid id);
+        Task<CountyDto> UpdateAsync(Guid id, UpdateCountyDto request);
+        Task DeleteAsync(Guid id);
     }
 }

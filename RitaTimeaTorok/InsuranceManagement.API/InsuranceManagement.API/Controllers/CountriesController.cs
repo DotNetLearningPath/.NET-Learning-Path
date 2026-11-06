@@ -21,7 +21,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<CountryDto>> GetById(Guid id)
         {
             var country = await countryService.GetAsync(id);
-            return country is null ? NotFound() : Ok(country);
+            return Ok(country);
         }
 
         [HttpPost("/api/admin/countries")]
@@ -42,14 +42,17 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<CountryDto>> Update(Guid id, UpdateCountryDto updateCountry)
         {
             var country = await countryService.UpdateAsync(id, updateCountry);
-            return country is null ? NotFound() : Ok(country);
+            return Ok(country);
         }
 
         [HttpDelete("/api/admin/countries/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(Guid id) =>
-            await countryService.DeleteAsync(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await countryService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

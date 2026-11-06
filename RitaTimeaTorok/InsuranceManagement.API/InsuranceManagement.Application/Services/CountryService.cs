@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities.Geography;
@@ -14,8 +15,12 @@ namespace InsuranceManagement.Application.Services
         public async Task<List<CountryDto>> GetAllAsync() =>
             mapper.Map<List<CountryDto>>(await countryRepository.GetAllAsync());
 
-        public async Task<CountryDto?> GetAsync(Guid id) =>
-            mapper.Map<CountryDto?>(await countryRepository.GetAsync(id));
+        public async Task<CountryDto> GetAsync(Guid id)
+        {
+            var country = await countryRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"Country '{id}' was not found.");
+            return mapper.Map<CountryDto>(country);
+        }
 
         public async Task<CountryDto> CreateAsync(CreateCountryDto request)
         {
@@ -26,11 +31,10 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountryDto>(country);
         }
 
-        public async Task<CountryDto?> UpdateAsync(Guid id, UpdateCountryDto request)
+        public async Task<CountryDto> UpdateAsync(Guid id, UpdateCountryDto request)
         {
-            var country = await countryRepository.GetAsync(id);
-            if (country is null)
-                return null;
+            var country = await countryRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"Country '{id}' was not found.");
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ValidationException("Country name is required.");
@@ -40,16 +44,12 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountryDto>(country);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var country = await countryRepository.GetAsync(id);
-
-            if (country is null)
-                return false;
+            var country = await countryRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"Country '{id}' was not found.");
 
             await countryRepository.DeleteAsync(country);
-
-            return true;
         }
     }
 }

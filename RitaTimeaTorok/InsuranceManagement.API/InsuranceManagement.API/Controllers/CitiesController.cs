@@ -21,7 +21,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<CityDto>> GetById(Guid id)
         {
             var city = await cityService.GetAsync(id);
-            return city is null ? NotFound() : Ok(city);
+            return Ok(city);
         }
 
         [HttpPost("/api/admin/cities")]
@@ -42,7 +42,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<CityDto>> Update(Guid id, UpdateCityDto updateCity)
         {
             var city = await cityService.UpdateAsync(id, updateCity);
-            return city is null ? NotFound() : Ok(city);
+            return Ok(city);
         }
 
         [HttpDelete("/api/admin/cities/{id:guid}")]
@@ -50,7 +50,10 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(Guid id) =>
-            await cityService.DeleteAsync(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await cityService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

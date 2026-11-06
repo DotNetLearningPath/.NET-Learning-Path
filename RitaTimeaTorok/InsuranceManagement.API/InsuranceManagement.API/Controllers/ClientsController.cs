@@ -23,7 +23,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<ClientDetailsDto>> GetById(Guid id)
         {
             var client = await clientService.GetAsync(id);
-            return client is null ? NotFound() : Ok(client);
+            return Ok(client);
         }
 
         [HttpPost]
@@ -46,7 +46,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<ClientDto>> Update(Guid id, UpdateClientDto updateClient)
         {
             var client = await clientService.UpdateAsync(id, updateClient);
-            return client is null ? NotFound() : Ok(client);
+            return Ok(client);
         }
 
         [HttpDelete("{id:guid}")]
@@ -54,7 +54,10 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(Guid id) =>
-            await clientService.DeleteAsync(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await clientService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

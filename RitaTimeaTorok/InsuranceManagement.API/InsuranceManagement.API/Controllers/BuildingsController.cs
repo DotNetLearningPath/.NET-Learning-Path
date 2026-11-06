@@ -21,7 +21,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<BuildingDetailsDto>> GetById(Guid id)
         {
             var building = await buildingService.GetAsync(id);
-            return building is null ? NotFound() : Ok(building);
+            return Ok(building);
         }
 
         [HttpPost]
@@ -42,14 +42,17 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<BuildingDto>> Update(Guid id, UpdateBuildingDto updateBuilding)
         {
             var building = await buildingService.UpdateAsync(id, updateBuilding);
-            return building is null ? NotFound() : Ok(building);
+            return Ok(building);
         }
 
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(Guid id) =>
-            await buildingService.DeleteAsync(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await buildingService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

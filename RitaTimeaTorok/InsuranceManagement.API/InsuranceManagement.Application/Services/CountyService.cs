@@ -1,6 +1,7 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
@@ -15,8 +16,12 @@ namespace InsuranceManagement.Application.Services
         public async Task<List<CountyDto>> GetAllAsync() =>
             mapper.Map<List<CountyDto>>(await countyRepository.GetAllAsync());
 
-        public async Task<CountyDto?> GetAsync(Guid id) =>
-            mapper.Map<CountyDto?>(await countyRepository.GetAsync(id));
+        public async Task<CountyDto> GetAsync(Guid id)
+        {
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
+            return mapper.Map<CountyDto>(county);
+        }
 
         public async Task<CountyDto> CreateAsync(CreateCountyDto request)
         {
@@ -30,11 +35,10 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountyDto>(county);
         }
 
-        public async Task<CountyDto?> UpdateAsync(Guid id, UpdateCountyDto request)
+        public async Task<CountyDto> UpdateAsync(Guid id, UpdateCountyDto request)
         {
-            var county = await countyRepository.GetAsync(id);
-            if (county is null)
-                return null;
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ValidationException("County name is required.");
@@ -47,16 +51,12 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountyDto>(county);
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var county = await countyRepository.GetAsync(id);
-
-            if (county is null)
-                return false;
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
 
             await countyRepository.DeleteAsync(county);
-
-            return true;
         }
     }
 }
