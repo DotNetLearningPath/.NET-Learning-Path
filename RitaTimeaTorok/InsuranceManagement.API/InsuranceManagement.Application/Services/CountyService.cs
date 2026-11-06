@@ -10,8 +10,9 @@ using InsuranceManagement.Application.Interfaces.Repositories;
 namespace InsuranceManagement.Application.Services
 {
     public class CountyService(
-        IGenericRepository<County> countyRepository,
+        ICountyRepository countyRepository,
         IGenericRepository<Country> countryRepository,
+        ICityRepository cityRepository,
         IMapper mapper) : ICountyService
     {
         public async Task<PagedResult<CountyDto>> GetAllCountiesAsync(int pageNumber, int pageSize)
@@ -67,6 +68,10 @@ namespace InsuranceManagement.Application.Services
         {
             var county = await countyRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"County '{id}' was not found.");
+
+            if (await cityRepository.ExistsByCountyIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a county that contains cities.");
 
             await countyRepository.DeleteAsync(county);
         }

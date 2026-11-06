@@ -11,6 +11,7 @@ namespace InsuranceManagement.Application.Services
 {
     public class CountryService(
         IGenericRepository<Country> countryRepository,
+        ICountyRepository countyRepository,
         IMapper mapper) : ICountryService
     {
         public async Task<PagedResult<CountryDto>> GetAllCountriesAsync(int pageNumber, int pageSize)
@@ -60,6 +61,10 @@ namespace InsuranceManagement.Application.Services
         {
             var country = await countryRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Country '{id}' was not found.");
+
+            if (await countyRepository.ExistsByCountryIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a country that contains counties.");
 
             await countryRepository.DeleteAsync(country);
         }

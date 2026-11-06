@@ -10,7 +10,7 @@ using InsuranceManagement.Application.Exceptions;
 namespace InsuranceManagement.Application.Services
 {
     public class CityService(
-        IGenericRepository<City> cityRepository,
+        ICityRepository cityRepository,
         IGenericRepository<County> countyRepository,
         IBuildingRepository buildingRepository,
         IMapper mapper) : ICityService
