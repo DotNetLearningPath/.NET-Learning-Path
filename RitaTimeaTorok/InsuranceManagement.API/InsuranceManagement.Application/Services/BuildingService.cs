@@ -74,8 +74,11 @@ namespace InsuranceManagement.Application.Services
 
         private async Task ValidateBuildingAsync(Building building)
         {
-            if (string.IsNullOrWhiteSpace(building.Address))
-                throw new ValidationException("Building address is required.");
+            if (string.IsNullOrWhiteSpace(building.Street))
+                throw new ValidationException("Building street is required.");
+
+            if (building.StreetNumber <= 0)
+                throw new ValidationException("Building street number must be greater than zero.");
 
             if (building.ConstructionYear <= 0)
                 throw new ValidationException(

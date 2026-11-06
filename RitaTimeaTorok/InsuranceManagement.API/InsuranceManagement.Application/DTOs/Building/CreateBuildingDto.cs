@@ -8,7 +8,9 @@ namespace InsuranceManagement.Application.DTOs.Building
         public required Guid ClientId { get; set; }
         [Required]
         [MaxLength(250)]
-        public required string Address { get; set; }
+        public required string Street { get; set; }
+        [Range(1, int.MaxValue)]
+        public int StreetNumber { get; set; }
         public required Guid CityId { get; set; }
         public int ConstructionYear { get; set; }
         [EnumDataType(typeof(BuildingType))]

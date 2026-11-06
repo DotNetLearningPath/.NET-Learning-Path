@@ -15,5 +15,7 @@ namespace InsuranceManagement.Application.DTOs.Client
         public string Email { get; set; } = string.Empty;
         [MaxLength(30)]
         public string PhoneNumber { get; set; } = string.Empty;
+        [MaxLength(250)]
+        public string? PrimaryAddress { get; set; }
     }
 }

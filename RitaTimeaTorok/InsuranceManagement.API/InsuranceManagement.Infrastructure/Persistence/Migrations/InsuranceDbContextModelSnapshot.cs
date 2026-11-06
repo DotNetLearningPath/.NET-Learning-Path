@@ -28,11 +28,6 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<Guid>("CityId")
                         .HasColumnType("uniqueidentifier");
 
@@ -47,6 +42,14 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,3)");
 
                     b.Property<int>("NumberOfFloors")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("StreetNumber")
                         .HasColumnType("int");
 
                     b.Property<decimal>("SurfaceArea")
@@ -90,6 +93,10 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("PrimaryAddress")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -194,43 +201,35 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Building", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", "City")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)
                         .WithMany()
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("InsuranceManagement.Domain.Entities.Client", "Client")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("City");
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Geography.City", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", "County")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", null)
                         .WithMany()
                         .HasForeignKey("CountyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("County");
                 });
 
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Geography.County", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", "Country")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", null)
                         .WithMany()
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Country");
                 });
 #pragma warning restore 612, 618
         }

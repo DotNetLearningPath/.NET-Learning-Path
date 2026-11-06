@@ -9,7 +9,7 @@ namespace InsuranceManagement.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Building> builder)
         {
-            builder.Property(b => b.Address)
+            builder.Property(b => b.Street)
                 .HasMaxLength(250);
 
             builder.Property(b => b.InsuredValue)

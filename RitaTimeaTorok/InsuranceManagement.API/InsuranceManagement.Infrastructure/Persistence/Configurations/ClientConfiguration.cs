@@ -22,6 +22,9 @@ namespace InsuranceManagement.Infrastructure.Persistence.Configurations
 
             builder.Property(c => c.PhoneNumber)
                 .HasMaxLength(30);
+
+            builder.Property(c => c.PrimaryAddress)
+                .HasMaxLength(250);
         }
     }
 }
