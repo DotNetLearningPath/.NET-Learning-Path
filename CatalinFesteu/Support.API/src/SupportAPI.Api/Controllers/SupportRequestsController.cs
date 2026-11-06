@@ -10,9 +10,11 @@ namespace SupportAPI.Api.Controllers
 {
     [ApiController]
     [Route("api/requests")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public class SupportRequestsController(
-        ICommandHandler<CreateSupportRequestCommand,SupportRequestResult> commandHandler,
-        IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult> queryHandler): ControllerBase
+        ICommandHandler<CreateSupportRequestCommand, SupportRequestResult> commandHandler,
+        IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult> queryHandler) : ControllerBase
     {
         [Authorize]
         [HttpPost]
@@ -25,7 +27,7 @@ namespace SupportAPI.Api.Controllers
             var result = await commandHandler.Handle(command, cancellationToken);
             return CreatedAtAction
                 (nameof(Get),
-                new {requestId = result.RequestId},
+                new { requestId = result.RequestId },
                 result);
         }
 
@@ -38,7 +40,7 @@ namespace SupportAPI.Api.Controllers
         {
             var query = new GetSupportRequestByIdQuery(requestId);
             var result = await queryHandler.Handle(query, cancellationToken);
-            return result is null ? NotFound() : Ok(result);
+            return Ok(result);
         }
     }
 }

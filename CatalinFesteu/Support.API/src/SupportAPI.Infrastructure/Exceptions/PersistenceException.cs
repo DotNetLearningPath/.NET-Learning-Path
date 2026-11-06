@@ -1,7 +1,6 @@
 ﻿namespace SupportAPI.Infrastructure.Exceptions
 {
-    [Serializable]
-    internal class PersistenceException : Exception
+    public class PersistenceException : Exception
     {
         public PersistenceException()
         {

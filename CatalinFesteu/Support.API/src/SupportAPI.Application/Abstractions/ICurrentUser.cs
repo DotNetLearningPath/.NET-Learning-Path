@@ -2,6 +2,8 @@
 {
     public interface ICurrentUser
     {
-        public Guid UserId { get; }
+        Guid UserId { get; }
+        void SetUserId(Guid userId);
+
     }
 }

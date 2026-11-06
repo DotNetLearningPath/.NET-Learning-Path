@@ -9,14 +9,14 @@ public sealed class UserProvisioningService(IUserProvisioningRepository reposito
         string name, string issuer, string subject, CancellationToken cancellationToken)
     {
         var existingUserId = await repository.FindUserIdAsync(issuer, subject, cancellationToken);
-        
+
         if (existingUserId.HasValue)
         {
             return existingUserId.Value;
         }
 
         var user = User.Create(name, issuer, subject);
-        
+
         if (await repository.TryAddUserAsync(user, cancellationToken))
         {
             return user.Id;

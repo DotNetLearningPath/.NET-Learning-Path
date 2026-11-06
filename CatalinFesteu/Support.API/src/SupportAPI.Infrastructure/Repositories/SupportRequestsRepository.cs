@@ -18,7 +18,7 @@ namespace SupportAPI.Infrastructure.Repositories
         {
             return await dbContext.Requests
                 .AsNoTracking()
-                .SingleOrDefaultAsync(
+                .FirstOrDefaultAsync(
                     request => request.UserId == userId &&
                                request.Id == requestId,
                     cancellationToken);

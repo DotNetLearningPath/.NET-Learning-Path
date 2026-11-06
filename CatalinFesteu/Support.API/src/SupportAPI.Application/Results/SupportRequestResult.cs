@@ -1,5 +1,4 @@
-﻿using SupportAPI.Domain.Entities;
-using SupportAPI.Domain.ValueObjects;
+﻿using SupportAPI.Domain.ValueObjects;
 
 namespace SupportAPI.Application.Results
 {

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SupportAPI.Application.Abstractions;
+using SupportAPI.Application.Exceptions;
 using SupportAPI.Application.Queries;
 using SupportAPI.Application.Results;
 
@@ -17,12 +18,9 @@ namespace SupportAPI.Application.QueryHandlers
 
             var request = await requestsRepository.GetRequestByIdAsync(userId, query.RequestId, cancellationToken);
 
-            if (request != null)
-            {
-                return new SupportRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
-            }
-
-            return null;
+            return request == null
+                ? throw new EntityNotFoundException("Support request not found")
+                : new SupportRequestResult(request.Id, request.Title, request.RequestContent, request.Status);
         }
     }
 }

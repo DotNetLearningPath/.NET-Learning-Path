@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using SupportAPI.Api.ExceptionHandlers;
 using SupportAPI.Application.Abstractions;
 using SupportAPI.Application.Services;
-using System.Linq.Expressions;
 
 namespace SupportAPI.Api
 {
     public static class DependencyInjection
     {
         public static IServiceCollection AddIdentityAndAccessManagement(
-            this IServiceCollection services, 
+            this IServiceCollection services,
             IConfiguration configuration)
         {
             var keycloakConfiguration = configuration.GetKeycloakConfiguration();
@@ -27,10 +26,10 @@ namespace SupportAPI.Api
                      {
                          ValidateIssuer = true,
                          ValidIssuer = keycloakConfiguration.Issuer,
-                         
+
                          ValidateAudience = true,
                          ValidAudience = keycloakConfiguration.Audience,
-                        
+
                          ValidateLifetime = true,
                          RequireExpirationTime = true,
                          ValidateIssuerSigningKey = true
@@ -39,7 +38,7 @@ namespace SupportAPI.Api
 
             services.AddScoped<ICurrentUser, HttpCurrentUser>();
             services.AddScoped<IUserProvisioningService, UserProvisioningService>();
-           
+
             return services;
         }
 
@@ -78,6 +77,14 @@ namespace SupportAPI.Api
         {
             return configuration.GetSection(KeycloakConfiguration.SectionName).Get<KeycloakConfiguration>()
                 ?? throw new InvalidOperationException("Keycloak settings are missing");
+        }
+
+        public static IServiceCollection AddErrorHandling(this IServiceCollection services)
+        {
+            services.AddExceptionHandler<ValidationExceptionHandler>();
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+
+            return services;
         }
     }
 }
