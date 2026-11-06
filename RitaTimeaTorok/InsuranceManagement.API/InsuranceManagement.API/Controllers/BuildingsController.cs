@@ -1,6 +1,8 @@
 using InsuranceManagement.Application.DTOs.Building;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -11,8 +13,10 @@ namespace InsuranceManagement.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<BuildingDto>>> GetAll() =>
-            Ok(await buildingService.GetAllAsync());
+        public async Task<ActionResult<PagedResult<BuildingDto>>> GetAll(
+            [FromQuery, Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery, Range(1, 100)] int pageSize = 10) =>
+            Ok(await buildingService.GetAllBuildingsAsync(pageNumber, pageSize));
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -20,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDetailsDto>> GetById(Guid id)
         {
-            var building = await buildingService.GetAsync(id);
+            var building = await buildingService.GetBuildingByIdAsync(id);
             return Ok(building);
         }
 
@@ -30,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDto>> Create(CreateBuildingDto createBuilding)
         {
-            var building = await buildingService.CreateAsync(createBuilding);
+            var building = await buildingService.CreateBuildingAsync(createBuilding);
             return CreatedAtAction(nameof(GetById), new { id = building.Id }, building);
         }
 
@@ -41,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BuildingDto>> Update(Guid id, UpdateBuildingDto updateBuilding)
         {
-            var building = await buildingService.UpdateAsync(id, updateBuilding);
+            var building = await buildingService.UpdateBuildingAsync(id, updateBuilding);
             return Ok(building);
         }
 
@@ -51,7 +55,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await buildingService.DeleteAsync(id);
+            await buildingService.DeleteBuildingAsync(id);
             return NoContent();
         }
     }

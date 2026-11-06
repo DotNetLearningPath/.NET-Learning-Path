@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Application.DTOs.Client;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -14,10 +15,25 @@ namespace InsuranceManagement.Application.Services
         IBuildingRepository buildingRepository,
         IMapper mapper) : IClientService
     {
-        public async Task<List<ClientDto>> GetAllAsync(string? name = null, string? identifier = null) =>
-            mapper.Map<List<ClientDto>>(await clientRepository.SearchAsync(name, identifier));
+        public async Task<PagedResult<ClientDto>> GetAllClientsAsync(
+            int pageNumber,
+            int pageSize,
+            string? name = null,
+            string? identifier = null)
+        {
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await clientRepository.SearchAsync(name, identifier, pageNumber, pageSize);
 
-        public async Task<ClientDetailsDto> GetAsync(Guid id)
+            return new PagedResult<ClientDto>
+            {
+                Items = mapper.Map<List<ClientDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
+        }
+
+        public async Task<ClientDetailsDto> GetClientByIdAsync(Guid id)
         {
             var client = await clientRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Client '{id}' was not found.");
@@ -29,7 +45,7 @@ namespace InsuranceManagement.Application.Services
             return clientDetails;
         }
 
-        public async Task<ClientDto> CreateAsync(CreateClientDto request)
+        public async Task<ClientDto> CreateClientAsync(CreateClientDto request)
         {
             var client = mapper.Map<Client>(request);
             await ValidateClientAsync(client);
@@ -38,7 +54,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<ClientDto>(client);
         }
 
-        public async Task<ClientDto> UpdateAsync(Guid id, UpdateClientDto request)
+        public async Task<ClientDto> UpdateClientAsync(Guid id, UpdateClientDto request)
         {
             var client = await clientRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Client '{id}' was not found.");
@@ -50,7 +66,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<ClientDto>(client);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteClientAsync(Guid id)
         {
             var client = await clientRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Client '{id}' was not found.");
@@ -76,5 +92,6 @@ namespace InsuranceManagement.Application.Services
                 client.IdentificationNumber, excludeClientId))
                 throw new ConflictException("A client with this identification number already exists.");
         }
+
     }
 }

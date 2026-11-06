@@ -1,6 +1,7 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -13,17 +14,28 @@ namespace InsuranceManagement.Application.Services
         IGenericRepository<Country> countryRepository,
         IMapper mapper) : ICountyService
     {
-        public async Task<List<CountyDto>> GetAllAsync() =>
-            mapper.Map<List<CountyDto>>(await countyRepository.GetAllAsync());
+        public async Task<PagedResult<CountyDto>> GetAllCountiesAsync(int pageNumber, int pageSize)
+        {
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await countyRepository.GetPageAsync(pageNumber, pageSize);
 
-        public async Task<CountyDto> GetAsync(Guid id)
+            return new PagedResult<CountyDto>
+            {
+                Items = mapper.Map<List<CountyDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
+        }
+
+        public async Task<CountyDto> GetCountyByIdAsync(Guid id)
         {
             var county = await countyRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"County '{id}' was not found.");
             return mapper.Map<CountyDto>(county);
         }
 
-        public async Task<CountyDto> CreateAsync(CreateCountyDto request)
+        public async Task<CountyDto> CreateCountyAsync(CreateCountyDto request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ValidationException("County name is required.");
@@ -35,7 +47,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountyDto>(county);
         }
 
-        public async Task<CountyDto> UpdateAsync(Guid id, UpdateCountyDto request)
+        public async Task<CountyDto> UpdateCountyAsync(Guid id, UpdateCountyDto request)
         {
             var county = await countyRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"County '{id}' was not found.");
@@ -51,7 +63,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CountyDto>(county);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteCountyAsync(Guid id)
         {
             var county = await countyRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"County '{id}' was not found.");

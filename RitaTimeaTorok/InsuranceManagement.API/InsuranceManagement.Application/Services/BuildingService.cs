@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -18,10 +19,21 @@ namespace InsuranceManagement.Application.Services
         IGenericRepository<Country> countryRepository,
         IMapper mapper) : IBuildingService
     {
-        public async Task<List<BuildingDto>> GetAllAsync() =>
-            mapper.Map<List<BuildingDto>>(await buildingRepository.GetAllAsync());
+        public async Task<PagedResult<BuildingDto>> GetAllBuildingsAsync(int pageNumber, int pageSize)
+        {
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await buildingRepository.GetPageAsync(pageNumber, pageSize);
 
-        public async Task<BuildingDetailsDto> GetAsync(Guid id)
+            return new PagedResult<BuildingDto>
+            {
+                Items = mapper.Map<List<BuildingDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
+        }
+
+        public async Task<BuildingDetailsDto> GetBuildingByIdAsync(Guid id)
         {
             var building = await buildingRepository.GetAsync(id) 
                 ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
@@ -41,7 +53,7 @@ namespace InsuranceManagement.Application.Services
             return buildingDetails;
         }
 
-        public async Task<BuildingDto> CreateAsync(CreateBuildingDto request)
+        public async Task<BuildingDto> CreateBuildingAsync(CreateBuildingDto request)
         {
             var buildingToCreate = mapper.Map<Building>(request);
             await ValidateBuildingAsync(buildingToCreate);
@@ -50,7 +62,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<BuildingDto>(building);
         }
 
-        public async Task<BuildingDto> UpdateAsync(Guid id, UpdateBuildingDto request)
+        public async Task<BuildingDto> UpdateBuildingAsync(Guid id, UpdateBuildingDto request)
         {
             var building = await buildingRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
@@ -61,7 +73,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<BuildingDto>(building);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteBuildingAsync(Guid id)
         {
             var building = await buildingRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"Building '{id}' was not found.");
@@ -102,5 +114,6 @@ namespace InsuranceManagement.Application.Services
                 throw new ValidationException(
                     "CityId must refer to an existing city.");
         }
+
     }
 }

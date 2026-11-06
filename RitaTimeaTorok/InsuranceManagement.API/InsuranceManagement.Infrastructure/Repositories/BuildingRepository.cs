@@ -8,8 +8,8 @@ namespace InsuranceManagement.Infrastructure.Repositories
     public class BuildingRepository(InsuranceDbContext context)
     : GenericRepository<Building>(context), IBuildingRepository
     {
-        public Task<List<Building>> GetByClientIdAsync(Guid clientId) =>
-            _context.Buildings
+        public async Task<IReadOnlyList<Building>> GetByClientIdAsync(Guid clientId) =>
+            await _context.Buildings
                 .AsNoTracking()
                 .Where(building => building.ClientId == clientId)
                 .ToListAsync();

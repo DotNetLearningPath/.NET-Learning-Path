@@ -1,4 +1,5 @@
 using InsuranceManagement.Application.Interfaces.Repositories;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,27 @@ namespace InsuranceManagement.Infrastructure.Repositories
     {
         protected readonly InsuranceDbContext _context = context;
 
-        public async Task<List<TEntity>> GetAllAsync() =>
+        public async Task<IReadOnlyList<TEntity>> GetAllAsync() =>
             await _context.Set<TEntity>().AsNoTracking().ToListAsync();
+
+        public async Task<PagedResult<TEntity>> GetPageAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.Set<TEntity>().AsNoTracking();
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(entity => entity.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<TEntity>
+            {
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+        }
 
         public Task<TEntity?> GetAsync(Guid id) =>
             _context.Set<TEntity>()

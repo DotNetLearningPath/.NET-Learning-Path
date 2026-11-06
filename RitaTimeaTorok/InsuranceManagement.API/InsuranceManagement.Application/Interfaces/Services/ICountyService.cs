@@ -1,13 +1,15 @@
 using InsuranceManagement.Application.DTOs.Geography;
 
+using InsuranceManagement.Application.DTOs.Pagination;
+
 namespace InsuranceManagement.Application.Interfaces.Services
 {
     public interface ICountyService
     {
-        Task<List<CountyDto>> GetAllAsync();
-        Task<CountyDto> GetAsync(Guid id);
-        Task<CountyDto> CreateAsync(CreateCountyDto request);
-        Task<CountyDto> UpdateAsync(Guid id, UpdateCountyDto request);
-        Task DeleteAsync(Guid id);
+        Task<PagedResult<CountyDto>> GetAllCountiesAsync(int pageNumber, int pageSize);
+        Task<CountyDto> GetCountyByIdAsync(Guid id);
+        Task<CountyDto> CreateCountyAsync(CreateCountyDto request);
+        Task<CountyDto> UpdateCountyAsync(Guid id, UpdateCountyDto request);
+        Task DeleteCountyAsync(Guid id);
     }
 }

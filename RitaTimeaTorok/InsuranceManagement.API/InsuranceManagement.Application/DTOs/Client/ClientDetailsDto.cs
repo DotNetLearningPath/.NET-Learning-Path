@@ -4,6 +4,6 @@ namespace InsuranceManagement.Application.DTOs.Client
 {
     public class ClientDetailsDto : ClientDto
     {
-        public List<BuildingDto> Buildings { get; set; } = [];
+        public IReadOnlyList<BuildingDto> Buildings { get; set; } = [];
     }
 }

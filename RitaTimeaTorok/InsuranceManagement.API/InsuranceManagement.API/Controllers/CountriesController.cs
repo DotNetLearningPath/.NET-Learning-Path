@@ -1,6 +1,8 @@
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using InsuranceManagement.Application.Interfaces.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -11,8 +13,10 @@ namespace InsuranceManagement.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<CountryDto>>> GetAll() =>
-            Ok(await countryService.GetAllAsync());
+        public async Task<ActionResult<PagedResult<CountryDto>>> GetAll(
+            [FromQuery, Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery, Range(1, 100)] int pageSize = 10) =>
+            Ok(await countryService.GetAllCountriesAsync(pageNumber, pageSize));
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -20,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountryDto>> GetById(Guid id)
         {
-            var country = await countryService.GetAsync(id);
+            var country = await countryService.GetCountryByIdAsync(id);
             return Ok(country);
         }
 
@@ -30,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountryDto>> Create(CreateCountryDto createCountry)
         {
-            var country = await countryService.CreateAsync(createCountry);
+            var country = await countryService.CreateCountryAsync(createCountry);
             return CreatedAtAction(nameof(GetById), new { id = country.Id }, country);
         }
 
@@ -41,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountryDto>> Update(Guid id, UpdateCountryDto updateCountry)
         {
-            var country = await countryService.UpdateAsync(id, updateCountry);
+            var country = await countryService.UpdateCountryAsync(id, updateCountry);
             return Ok(country);
         }
 
@@ -51,7 +55,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await countryService.DeleteAsync(id);
+            await countryService.DeleteCountryAsync(id);
             return NoContent();
         }
     }

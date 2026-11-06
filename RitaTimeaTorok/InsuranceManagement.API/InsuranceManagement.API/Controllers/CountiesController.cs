@@ -1,6 +1,8 @@
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -11,8 +13,10 @@ namespace InsuranceManagement.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<CountyDto>>> GetAll() =>
-            Ok(await countyService.GetAllAsync());
+        public async Task<ActionResult<PagedResult<CountyDto>>> GetAll(
+            [FromQuery, Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery, Range(1, 100)] int pageSize = 10) =>
+            Ok(await countyService.GetAllCountiesAsync(pageNumber, pageSize));
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -20,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountyDto>> GetById(Guid id)
         {
-            var county = await countyService.GetAsync(id);
+            var county = await countyService.GetCountyByIdAsync(id);
             return Ok(county);
         }
 
@@ -30,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountyDto>> Create(CreateCountyDto createCounty)
         {
-            var county = await countyService.CreateAsync(createCounty);
+            var county = await countyService.CreateCountyAsync(createCounty);
             return CreatedAtAction(nameof(GetById), new { id = county.Id }, county);
         }
 
@@ -41,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CountyDto>> Update(Guid id, UpdateCountyDto updateCounty)
         {
-            var county = await countyService.UpdateAsync(id, updateCounty);
+            var county = await countyService.UpdateCountyAsync(id, updateCounty);
             return Ok(county);
         }
 
@@ -51,7 +55,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await countyService.DeleteAsync(id);
+            await countyService.DeleteCountyAsync(id);
             return NoContent();
         }
     }

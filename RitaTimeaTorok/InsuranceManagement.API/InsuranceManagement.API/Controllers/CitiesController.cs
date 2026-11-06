@@ -1,6 +1,8 @@
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -11,8 +13,10 @@ namespace InsuranceManagement.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<CityDto>>> GetAll() =>
-            Ok(await cityService.GetAllAsync());
+        public async Task<ActionResult<PagedResult<CityDto>>> GetAll(
+            [FromQuery, Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery, Range(1, 100)] int pageSize = 10) =>
+            Ok(await cityService.GetAllCitiesAsync(pageNumber, pageSize));
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -20,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CityDto>> GetById(Guid id)
         {
-            var city = await cityService.GetAsync(id);
+            var city = await cityService.GetCityByIdAsync(id);
             return Ok(city);
         }
 
@@ -30,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CityDto>> Create(CreateCityDto createCity)
         {
-            var city = await cityService.CreateAsync(createCity);
+            var city = await cityService.CreateCityAsync(createCity);
             return CreatedAtAction(nameof(GetById), new { id = city.Id }, city);
         }
 
@@ -41,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CityDto>> Update(Guid id, UpdateCityDto updateCity)
         {
-            var city = await cityService.UpdateAsync(id, updateCity);
+            var city = await cityService.UpdateCityAsync(id, updateCity);
             return Ok(city);
         }
 
@@ -52,7 +56,7 @@ namespace InsuranceManagement.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await cityService.DeleteAsync(id);
+            await cityService.DeleteCityAsync(id);
             return NoContent();
         }
     }

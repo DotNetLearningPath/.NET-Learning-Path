@@ -1,6 +1,7 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
@@ -14,10 +15,21 @@ namespace InsuranceManagement.Application.Services
         IBuildingRepository buildingRepository,
         IMapper mapper) : ICityService
     {
-        public async Task<List<CityDto>> GetAllAsync() =>
-            mapper.Map<List<CityDto>>(await cityRepository.GetAllAsync());
+        public async Task<PagedResult<CityDto>> GetAllCitiesAsync(int pageNumber, int pageSize)
+        {
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await cityRepository.GetPageAsync(pageNumber, pageSize);
 
-        public async Task<CityDto> GetAsync(Guid id)
+            return new PagedResult<CityDto>
+            {
+                Items = mapper.Map<List<CityDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
+        }
+
+        public async Task<CityDto> GetCityByIdAsync(Guid id)
         {
             var city = await cityRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"City '{id}' was not found.");
@@ -25,7 +37,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CityDto>(city);
         }
 
-        public async Task<CityDto> CreateAsync(CreateCityDto request)
+        public async Task<CityDto> CreateCityAsync(CreateCityDto request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ValidationException("City name is required.");
@@ -37,7 +49,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CityDto>(city);
         }
 
-        public async Task<CityDto> UpdateAsync(Guid id, UpdateCityDto request)
+        public async Task<CityDto> UpdateCityAsync(Guid id, UpdateCityDto request)
         {
             var city = await cityRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"City '{id}' was not found.");
@@ -53,7 +65,7 @@ namespace InsuranceManagement.Application.Services
             return mapper.Map<CityDto>(city);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteCityAsync(Guid id)
         {
             var city = await cityRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"City '{id}' was not found.");
