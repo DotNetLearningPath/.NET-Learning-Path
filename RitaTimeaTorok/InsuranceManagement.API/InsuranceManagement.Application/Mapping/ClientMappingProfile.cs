@@ -2,14 +2,19 @@ using AutoMapper;
 using InsuranceManagement.Application.DTOs.Client;
 using InsuranceManagement.Domain.Entities;
 
-namespace InsuranceManagement.Application.Mapping;
-
-public class ClientMappingProfile : Profile
+namespace InsuranceManagement.Application.Mapping
 {
-    public ClientMappingProfile()
+    public class ClientMappingProfile : Profile
     {
-        CreateMap<Client, ClientDto>();
-        CreateMap<CreateClientDto, Client>();
-        CreateMap<UpdateClientDto, Client>();
+        public ClientMappingProfile()
+        {
+            CreateMap<Client, ClientDto>();
+            CreateMap<Client, ClientDetailsDto>();
+            CreateMap<CreateClientDto, Client>();
+            CreateMap<UpdateClientDto, Client>()
+                .ForMember(
+                client => client.IdentificationNumber,
+                option => option.Ignore());
+        }
     }
 }

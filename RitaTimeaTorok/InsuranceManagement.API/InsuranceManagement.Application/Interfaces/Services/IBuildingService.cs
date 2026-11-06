@@ -1,12 +1,15 @@
 using InsuranceManagement.Application.DTOs.Building;
 
-namespace InsuranceManagement.Application.Interfaces.Services;
+using InsuranceManagement.Application.DTOs.Pagination;
 
-public interface IBuildingService
+namespace InsuranceManagement.Application.Interfaces.Services
 {
-    Task<List<BuildingDto>> GetAllAsync();
-    Task<BuildingDto?> GetAsync(Guid id);
-    Task<BuildingDto> CreateAsync(CreateBuildingDto request);
-    Task<BuildingDto?> UpdateAsync(Guid id, UpdateBuildingDto request);
-    Task<bool> DeleteAsync(Guid id);
+    public interface IBuildingService
+    {
+        Task<PagedResult<BuildingDto>> GetAllBuildingsAsync(int pageNumber, int pageSize);
+        Task<BuildingDetailsDto> GetBuildingByIdAsync(Guid id);
+        Task<BuildingDto> CreateBuildingAsync(CreateBuildingDto request);
+        Task<BuildingDto> UpdateBuildingAsync(Guid id, UpdateBuildingDto request);
+        Task DeleteBuildingAsync(Guid id);
+    }
 }

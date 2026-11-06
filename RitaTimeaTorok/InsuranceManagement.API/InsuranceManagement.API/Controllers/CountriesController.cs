@@ -1,39 +1,62 @@
 using InsuranceManagement.Application.DTOs.Geography;
+using InsuranceManagement.Application.DTOs.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using InsuranceManagement.Application.Interfaces.Services;
+using System.ComponentModel.DataAnnotations;
+using InsuranceManagement.Application.Constants;
 
-namespace InsuranceManagement.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class CountriesController(ICountryService countryService) : ControllerBase
+namespace InsuranceManagement.API.Controllers
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await countryService.GetAllAsync());
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [ApiController]
+    [Route("api/brokers/countries")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public class CountriesController(ICountryService countryService) : ControllerBase
     {
-        var country = await countryService.GetAsync(id);
-        return country is null ? NotFound() : Ok(country);
-    }
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<CountryDto>>> GetAll(
+            [FromQuery, Range(PaginationLimits.MinimumPageNumber, PaginationLimits.MaximumPageNumber)]
+                int pageNumber = PaginationLimits.DefaultPageNumber,
+            [FromQuery, Range(PaginationLimits.MinimumPageSize, PaginationLimits.MaximumPageSize)]
+                int pageSize = PaginationLimits.DefaultPageSize) =>
+            Ok(await countryService.GetAllCountriesAsync(pageNumber, pageSize));
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateCountryDto createCountry)
-    {
-        var country = await countryService.CreateAsync(createCountry);
-        return CreatedAtAction(nameof(GetById), new { id = country.Id }, country);
-    }
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CountryDto>> GetById(Guid id)
+        {
+            var country = await countryService.GetCountryByIdAsync(id);
+            return Ok(country);
+        }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateCountryDto updateCountry)
-    {
-        var country = await countryService.UpdateAsync(id, updateCountry);
-        return country is null ? NotFound() : Ok(country);
-    }
+        [HttpPost("/api/admin/countries")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CountryDto>> Create(CreateCountryDto createCountry)
+        {
+            var country = await countryService.CreateCountryAsync(createCountry);
+            return CreatedAtAction(nameof(GetById), new { id = country.Id }, country);
+        }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id) =>
-        await countryService.DeleteAsync(id) ? NoContent() : NotFound();
+        [HttpPut("/api/admin/countries/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CountryDto>> Update(Guid id, UpdateCountryDto updateCountry)
+        {
+            var country = await countryService.UpdateCountryAsync(id, updateCountry);
+            return Ok(country);
+        }
+
+        [HttpDelete("/api/admin/countries/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await countryService.DeleteCountryAsync(id);
+            return NoContent();
+        }
+    }
 }
