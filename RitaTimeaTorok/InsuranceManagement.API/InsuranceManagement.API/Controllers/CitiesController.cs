@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/brokers/cities")]
     public class CitiesController(ICityService cityService) : ControllerBase
     {
         [HttpGet]
@@ -24,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
             return city is null ? NotFound() : Ok(city);
         }
 
-        [HttpPost]
+        [HttpPost("/api/admin/cities")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -34,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = city.Id }, city);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("/api/admin/cities/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
             return city is null ? NotFound() : Ok(city);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("/api/admin/cities/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

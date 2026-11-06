@@ -5,7 +5,7 @@ using InsuranceManagement.Application.Interfaces.Services;
 namespace InsuranceManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/brokers/countries")]
     public class CountriesController(ICountryService countryService) : ControllerBase
     {
         [HttpGet]
@@ -24,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
             return country is null ? NotFound() : Ok(country);
         }
 
-        [HttpPost]
+        [HttpPost("/api/admin/countries")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -34,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = country.Id }, country);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("/api/admin/countries/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
             return country is null ? NotFound() : Ok(country);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("/api/admin/countries/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

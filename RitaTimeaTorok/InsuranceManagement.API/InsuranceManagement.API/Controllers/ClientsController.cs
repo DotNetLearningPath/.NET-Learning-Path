@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/brokers/clients")]
     public class ClientsController(IClientService clientService) : ControllerBase
     {
         [HttpGet]

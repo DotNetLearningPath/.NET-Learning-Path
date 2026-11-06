@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/brokers/counties")]
     public class CountiesController(ICountyService countyService) : ControllerBase
     {
         [HttpGet]
@@ -24,7 +24,7 @@ namespace InsuranceManagement.API.Controllers
             return county is null ? NotFound() : Ok(county);
         }
 
-        [HttpPost]
+        [HttpPost("/api/admin/counties")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -34,7 +34,7 @@ namespace InsuranceManagement.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = county.Id }, county);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("/api/admin/counties/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,7 +45,7 @@ namespace InsuranceManagement.API.Controllers
             return county is null ? NotFound() : Ok(county);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("/api/admin/counties/{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
