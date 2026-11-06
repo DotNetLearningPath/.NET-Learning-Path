@@ -12,6 +12,9 @@ namespace InsuranceManagement.Infrastructure.Persistence.Configurations
             builder.Property(b => b.Street)
                 .HasMaxLength(250);
 
+            builder.Property(b => b.StreetNumber)
+                .HasMaxLength(20);
+
             builder.Property(b => b.InsuredValue)
                 .HasPrecision(18, 3);
 

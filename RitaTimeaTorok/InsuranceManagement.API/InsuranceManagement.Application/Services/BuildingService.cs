@@ -86,9 +86,9 @@ namespace InsuranceManagement.Application.Services
             if (string.IsNullOrWhiteSpace(building.Street))
                 throw new ValidationException("Building street is required.");
 
-            if (building.StreetNumber <= 0)
+            if (string.IsNullOrWhiteSpace(building.StreetNumber))
                 throw new ValidationException(
-                    "Building street number must be greater than zero.");
+                    "Building street number is required.");
 
             if (building.ConstructionYear <= 0)
                 throw new ValidationException(

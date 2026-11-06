@@ -7,7 +7,7 @@ namespace InsuranceManagement.Application.DTOs.Building
         public Guid Id { get; set; }
         public Guid ClientId { get; set; }
         public string Street { get; set; } = string.Empty;
-        public int StreetNumber { get; set; }
+        public string StreetNumber { get; set; } = string.Empty;
         public Guid CityId { get; set; }
         public int ConstructionYear { get; set; }
         public BuildingType Type { get; set; }
