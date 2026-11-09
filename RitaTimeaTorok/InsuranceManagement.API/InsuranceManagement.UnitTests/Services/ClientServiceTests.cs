@@ -3,10 +3,10 @@ using InsuranceManagement.Application.DTOs.Client;
 using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
-using InsuranceManagement.Application.Mapping;
 using InsuranceManagement.Application.Services;
 using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Domain.Enums;
+using InsuranceManagement.UnitTests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -26,15 +26,8 @@ namespace InsuranceManagement.UnitTests.Services
             _clientRepository = new Mock<IClientRepository>();
             _buildingRepository = new Mock<IBuildingRepository>();
 
-            var mapperConfig = new MapperConfiguration(
-                cfg =>
-                {
-                    cfg.AddProfile<ClientMappingProfile>();
-                    cfg.AddProfile<BuildingMappingProfile>();
-                },
-                NullLoggerFactory.Instance);
+            _mapper = TestMapperFactory.Create();
 
-            _mapper = mapperConfig.CreateMapper();
             _clientService = new ClientService(
                 _clientRepository.Object,
                 _buildingRepository.Object,
@@ -57,15 +50,10 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllClients_WhenClientExists_ReturnsClient()
         {
-            var client = new Client
-            {
-                Type = ClientType.Individual,
-                Name = "John Doe",
-                IdentificationNumber = "ID-123",
-                Email = "john@example.com",
-                PhoneNumber = "555-0100",
-                PrimaryAddress = "1 Main Street"
-            };
+            var client = TestDataFactory.CreateClient(
+                email: "john@example.com",
+                phoneNumber: "555-0100",
+                primaryAddress: "1 Main Street");
             _clientRepository
                 .Setup(r => r.SearchAsync(null, null, 1, 10))
                 .ReturnsAsync(new PagedResult<Client> { Items = new List<Client> { client }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
@@ -92,16 +80,11 @@ namespace InsuranceManagement.UnitTests.Services
         public async Task GetClientByIdAsync_WhenClientExists_ReturnsClient()
         {
             var id = Guid.NewGuid();
-            var client = new Client
-            {
-                Id = id,
-                Type = ClientType.Individual,
-                Name = "John Doe",
-                IdentificationNumber = "ID-123",
-                Email = "john@example.com",
-                PhoneNumber = "555-0100",
-                PrimaryAddress = "1 Main Street"
-            };
+            var client = TestDataFactory.CreateClient(
+                id: id,
+                email: "john@example.com",
+                phoneNumber: "555-0100",
+                primaryAddress: "1 Main Street");
             _clientRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync(client);
@@ -221,12 +204,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateClientAsync_WhenValid_UpdatesClient()
         {
-            var client = new Client
-            {
-                Type = ClientType.Individual,
-                Name = "Old Name",
-                IdentificationNumber = "ID-123"
-            };
+            var client = TestDataFactory.CreateClient(name: "Old Name");
             var request = new UpdateClientDto
             {
                 Type = ClientType.Company,
@@ -265,12 +243,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteClientAsync_WhenClientHasBuildings_ThrowsConflictException()
         {
-            var client = new Client
-            {
-                Type = ClientType.Individual,
-                Name = "John Doe",
-                IdentificationNumber = "ID-123"
-            };
+            var client = TestDataFactory.CreateClient();
             _clientRepository
                 .Setup(r => r.GetAsync(client.Id))
                 .ReturnsAsync(client);
@@ -289,12 +262,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteClientAsync_WhenClientExists_CallsRepositoryDelete()
         {
-            var client = new Client
-            {
-                Type = ClientType.Individual,
-                Name = "John Doe",
-                IdentificationNumber = "ID-123"
-            };
+            var client = TestDataFactory.CreateClient();
             _clientRepository
                 .Setup(r => r.GetAsync(client.Id))
                 .ReturnsAsync(client);

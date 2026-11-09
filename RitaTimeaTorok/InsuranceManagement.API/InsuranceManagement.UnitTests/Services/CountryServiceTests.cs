@@ -3,12 +3,12 @@ using AutoMapper;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.Interfaces.Repositories;
-using InsuranceManagement.Application.Mapping;
 using InsuranceManagement.Application.Services;
 using InsuranceManagement.Domain.Entities.Geography;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.UnitTests.Helpers;
 
 namespace InsuranceManagement.UnitTests.Services
 {
@@ -24,11 +24,7 @@ namespace InsuranceManagement.UnitTests.Services
         {
             _countryRepository = new Mock<IGenericRepository<Country>>();
 
-            var configuration = new MapperConfiguration(
-                cfg => cfg.AddProfile<GeographyMappingProfile>(),
-                NullLoggerFactory.Instance);
-
-            _mapper = configuration.CreateMapper();
+            _mapper = TestMapperFactory.Create();
 
             _countryService = new CountryService(
                 _countryRepository.Object,
@@ -52,7 +48,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllCountries_WhenCountryExists_ReturnsCountry()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetPageAsync(1, 10))
@@ -81,7 +77,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetCountryByIdAsync_WhenCountryExists_ReturnsCountry()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetAsync(country.Id))
@@ -147,7 +143,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountryAsync_WhenNameIsEmpty_ThrowsValidationException()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
             var request = new UpdateCountryDto { Name = "" };
 
             _countryRepository
@@ -165,7 +161,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountryAsync_WhenValid_UpdatesCountry()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
             var request = new UpdateCountryDto { Name = "Updated Romania" };
 
             _countryRepository
@@ -202,7 +198,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCountryAsync_WhenCountryExists_CallsRepositoryDelete()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetAsync(country.Id))

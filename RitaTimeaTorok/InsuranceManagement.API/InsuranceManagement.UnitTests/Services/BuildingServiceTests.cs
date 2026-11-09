@@ -2,15 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.DTOs.Building;
-using InsuranceManagement.Application.Mapping;
 using InsuranceManagement.Application.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Domain.Entities.Geography;
-using InsuranceManagement.Domain.Enums;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.UnitTests.Helpers;
 
 namespace InsuranceManagement.UnitTests.Services
 {
@@ -34,14 +33,7 @@ namespace InsuranceManagement.UnitTests.Services
             _countyRepository = new Mock<IGenericRepository<County>>();
             _countryRepository = new Mock<IGenericRepository<Country>>();
 
-            var mapperConfig = new MapperConfiguration(
-                cfg =>
-                {
-                    cfg.AddProfile<BuildingMappingProfile>();
-                    cfg.AddProfile<GeographyMappingProfile>();
-                },
-                NullLoggerFactory.Instance);
-            _mapper = mapperConfig.CreateMapper();
+            _mapper = TestMapperFactory.Create();
 
             _buildingService = new BuildingService(
                 _buildingRepository.Object,
@@ -68,7 +60,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllBuildings_WhenBuildingExists_ReturnsBuilding()
         {
-            var building = CreateBuilding();
+            var building = TestDataFactory.CreateBuilding();
             _buildingRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<Building> { Items = new List<Building> { building }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
@@ -93,12 +85,12 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetBuildingByIdAsync_WhenBuildingExists_ReturnsBuilding()
         {
-            var building = CreateBuilding();
-            var city = new City { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
-            var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
-            var country = new Country { Name = "Romania" };
-            city.CountyId = county.Id;
-            county.CountryId = country.Id;
+            var building = TestDataFactory.CreateBuilding();
+            var country = TestDataFactory.CreateCountry();
+            var county = TestDataFactory.CreateCounty(countryId: country.Id);
+            var city = TestDataFactory.CreateCity(
+                countyId: county.Id,
+                id: building.CityId);
 
             _buildingRepository
                 .Setup(r => r.GetAsync(building.Id))
@@ -125,7 +117,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateBuildingAsync_WhenStreetIsEmpty_ThrowsValidationException()
         {
-            var request = CreateRequest();
+            var request = TestDataFactory.CreateBuildingRequest();
             request.Street = "";
 
             await Assert.ThrowsExceptionAsync<ValidationException>(
@@ -139,7 +131,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateBuildingAsync_WhenClientDoesNotExist_ThrowsValidationException()
         {
-            var request = CreateRequest();
+            var request = TestDataFactory.CreateBuildingRequest();
             _clientRepository
                 .Setup(r => r.GetAsync(request.ClientId))
                 .ReturnsAsync((Client?)null);
@@ -155,16 +147,10 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateBuildingAsync_WhenCityDoesNotExist_ThrowsValidationException()
         {
-            var request = CreateRequest();
+            var request = TestDataFactory.CreateBuildingRequest();
             _clientRepository
                 .Setup(r => r.GetAsync(request.ClientId))
-                .ReturnsAsync(new Client
-                {
-                    Id = request.ClientId,
-                    Type = ClientType.Individual,
-                    Name = "John Doe",
-                    IdentificationNumber = "ID-123"
-                });
+                .ReturnsAsync(TestDataFactory.CreateClient(id: request.ClientId));
             _cityRepository
                 .Setup(r => r.GetAsync(request.CityId))
                 .ReturnsAsync((City?)null);
@@ -180,19 +166,13 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateBuildingAsync_WhenValid_CreatesBuilding()
         {
-            var request = CreateRequest();
+            var request = TestDataFactory.CreateBuildingRequest();
             _clientRepository
                 .Setup(r => r.GetAsync(request.ClientId))
-                .ReturnsAsync(new Client
-                {
-                    Id = request.ClientId,
-                    Type = ClientType.Individual,
-                    Name = "John Doe",
-                    IdentificationNumber = "ID-123"
-                });
+                .ReturnsAsync(TestDataFactory.CreateClient(id: request.ClientId));
             _cityRepository
                 .Setup(r => r.GetAsync(request.CityId))
-                .ReturnsAsync(new City { Id = request.CityId, Name = "Cluj-Napoca", CountyId = Guid.NewGuid() });
+                .ReturnsAsync(TestDataFactory.CreateCity(id: request.CityId));
             Building? createdBuilding = null;
             _buildingRepository
                 .Setup(r => r.AddAsync(It.IsAny<Building>()))
@@ -211,7 +191,7 @@ namespace InsuranceManagement.UnitTests.Services
         public async Task UpdateBuildingAsync_WhenBuildingDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
-            var request = CreateUpdateRequest();
+            var request = TestDataFactory.CreateUpdateBuildingRequest();
             _buildingRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Building?)null);
@@ -225,23 +205,17 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateBuildingAsync_WhenValid_UpdatesBuilding()
         {
-            var building = CreateBuilding();
-            var request = CreateUpdateRequest();
+            var building = TestDataFactory.CreateBuilding();
+            var request = TestDataFactory.CreateUpdateBuildingRequest();
             _buildingRepository
                 .Setup(r => r.GetAsync(building.Id))
                 .ReturnsAsync(building);
             _clientRepository
                 .Setup(r => r.GetAsync(building.ClientId))
-                .ReturnsAsync(new Client
-                {
-                    Id = building.ClientId,
-                    Type = ClientType.Individual,
-                    Name = "John Doe",
-                    IdentificationNumber = "ID-123"
-                });
+                .ReturnsAsync(TestDataFactory.CreateClient(id: building.ClientId));
             _cityRepository
                 .Setup(r => r.GetAsync(request.CityId))
-                .ReturnsAsync(new City { Id = request.CityId, Name = "Cluj-Napoca", CountyId = Guid.NewGuid() });
+                .ReturnsAsync(TestDataFactory.CreateCity(id: request.CityId));
 
             var result = await _buildingService.UpdateBuildingAsync(building.Id, request);
 
@@ -269,7 +243,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteBuildingAsync_WhenBuildingExists_CallsRepositoryDelete()
         {
-            var building = CreateBuilding();
+            var building = TestDataFactory.CreateBuilding();
             _buildingRepository
                 .Setup(r => r.GetAsync(building.Id))
                 .ReturnsAsync(building);
@@ -279,19 +253,6 @@ namespace InsuranceManagement.UnitTests.Services
                 r => r.DeleteAsync(building),
                 Times.Once);
         }
-
-        private static Building CreateBuilding() => new()
-        {
-            ClientId = Guid.NewGuid(),
-            Street = "Main Street",
-            StreetNumber = "10",
-            CityId = Guid.NewGuid(),
-            ConstructionYear = 2000,
-            Type = BuildingType.Residential,
-            NumberOfFloors = 2,
-            SurfaceArea = 120,
-            InsuredValue = 100000
-        };
 
         private static void AssertBuildingDtoMatches(
             Building expectedBuilding, 
@@ -308,30 +269,5 @@ namespace InsuranceManagement.UnitTests.Services
             Assert.AreEqual(expectedBuilding.SurfaceArea, actualBuilding.SurfaceArea);
             Assert.AreEqual(expectedBuilding.InsuredValue, actualBuilding.InsuredValue);
         }
-
-        private static CreateBuildingDto CreateRequest() => new()
-        {
-            ClientId = Guid.NewGuid(),
-            Street = "Main Street",
-            StreetNumber = "10",
-            CityId = Guid.NewGuid(),
-            ConstructionYear = 2000,
-            Type = BuildingType.Residential,
-            NumberOfFloors = 2,
-            SurfaceArea = 120,
-            InsuredValue = 100000
-        };
-
-        private static UpdateBuildingDto CreateUpdateRequest() => new()
-        {
-            Street = "Updated Street",
-            StreetNumber = "20A",
-            CityId = Guid.NewGuid(),
-            ConstructionYear = 2001,
-            Type = BuildingType.Office,
-            NumberOfFloors = 3,
-            SurfaceArea = 150,
-            InsuredValue = 150000
-        };
     }
 }

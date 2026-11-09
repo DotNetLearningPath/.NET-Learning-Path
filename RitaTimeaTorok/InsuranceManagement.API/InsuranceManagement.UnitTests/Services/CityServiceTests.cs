@@ -4,9 +4,9 @@ using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
-using InsuranceManagement.Application.Mapping;
 using InsuranceManagement.Application.Services;
 using InsuranceManagement.Domain.Entities.Geography;
+using InsuranceManagement.UnitTests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -28,11 +28,7 @@ namespace InsuranceManagement.UnitTests.Services
             _countyRepository = new Mock<IGenericRepository<County>>();
             _buildingRepository = new Mock<IBuildingRepository>();
 
-            var mapperConfig = new MapperConfiguration(
-                cfg => cfg.AddProfile<GeographyMappingProfile>(),
-                NullLoggerFactory.Instance);
-
-            _mapper = mapperConfig.CreateMapper();
+            _mapper = TestMapperFactory.Create();
 
             _cityService = new CityService(
                 _cityRepository.Object,
@@ -57,7 +53,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllCities_WhenCityExists_ReturnsCity()
         {
-            var city = new City { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
+            var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<City> { Items = new List<City> { city }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
@@ -84,7 +80,7 @@ namespace InsuranceManagement.UnitTests.Services
         public async Task GetCityByIdAsync_WhenCityExists_ReturnsCity()
         {
             var id = Guid.NewGuid();
-            var city = new City { Id = id, Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
+            var city = TestDataFactory.CreateCity(id: id);
             _cityRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((City?)city);
@@ -128,7 +124,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCityAsync_WhenValid_CreatesCity()
         {
-            var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
+            var county = TestDataFactory.CreateCounty();
             var request = new CreateCityDto { Name = "Cluj-Napoca", CountyId = county.Id };
             _countyRepository
                 .Setup(r => r.GetAsync(county.Id))
@@ -163,8 +159,8 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCityAsync_WhenValid_UpdatesCity()
         {
-            var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
-            var city = new City { Name = "Old City", CountyId = county.Id };
+            var county = TestDataFactory.CreateCounty();
+            var city = TestDataFactory.CreateCity(name: "Old City", countyId: county.Id);
             var request = new UpdateCityDto { Name = "Cluj-Napoca", CountyId = county.Id };
             _cityRepository
                 .Setup(r => r.GetAsync(city.Id))
@@ -199,7 +195,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCityAsync_WhenCityHasBuildings_ThrowsConflictException()
         {
-            var city = new City { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
+            var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetAsync(city.Id))
                 .ReturnsAsync(city);
@@ -218,7 +214,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCityAsync_WhenCityExists_CallsRepositoryDelete()
         {
-            var city = new City { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
+            var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetAsync(city.Id))
                 .ReturnsAsync(city);

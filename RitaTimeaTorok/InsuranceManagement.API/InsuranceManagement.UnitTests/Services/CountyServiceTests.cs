@@ -3,12 +3,12 @@ using AutoMapper;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.Interfaces.Repositories;
-using InsuranceManagement.Application.Mapping;
 using InsuranceManagement.Application.Services;
 using InsuranceManagement.Domain.Entities.Geography;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.UnitTests.Helpers;
 
 namespace InsuranceManagement.UnitTests.Services
 {
@@ -28,11 +28,7 @@ namespace InsuranceManagement.UnitTests.Services
             _countryRepository = new Mock<IGenericRepository<Country>>();
             _cityRepository = new Mock<ICityRepository>();
 
-            var mapperConfig = new MapperConfiguration(
-                cfg => cfg.AddProfile<GeographyMappingProfile>(),
-                NullLoggerFactory.Instance);
-
-            _mapper = mapperConfig.CreateMapper();
+            _mapper = TestMapperFactory.Create();
 
             _countyService = new CountyService(
                 _countyRepository.Object,
@@ -57,7 +53,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllCounties_WhenCountyExists_ReturnsCounty()
         {
-            var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
+            var county = TestDataFactory.CreateCounty();
             _countyRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<County> { Items = new List<County> { county }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
@@ -84,7 +80,7 @@ namespace InsuranceManagement.UnitTests.Services
         public async Task GetCountyByIdAsync_WhenCountyExists_ReturnsCounty()
         {
             var id = Guid.NewGuid();
-            var county = new County { Id = id, Name = "Cluj", CountryId = Guid.NewGuid() };
+            var county = TestDataFactory.CreateCounty(id: id);
             _countyRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((County?)county);
@@ -128,7 +124,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCountyAsync_WhenValid_CreatesCounty()
         {
-            var country = new Country { Name = "Romania" };
+            var country = TestDataFactory.CreateCountry();
             var request = new CreateCountyDto { Name = "Cluj", CountryId = country.Id };
             _countryRepository
                 .Setup(r => r.GetAsync(country.Id))
@@ -163,8 +159,8 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountyAsync_WhenValid_UpdatesCounty()
         {
-            var country = new Country { Name = "Romania" };
-            var county = new County { Name = "Old Cluj", CountryId = country.Id };
+            var country = TestDataFactory.CreateCountry();
+            var county = TestDataFactory.CreateCounty(name: "Old Cluj", countryId: country.Id);
             var request = new UpdateCountyDto { Name = "Cluj", CountryId = country.Id };
             _countyRepository
                 .Setup(r => r.GetAsync(county.Id))
@@ -199,7 +195,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCountyAsync_WhenCountyExists_CallsRepositoryDelete()
         {
-            var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
+            var county = TestDataFactory.CreateCounty();
             _countyRepository
                 .Setup(r => r.GetAsync(county.Id))
                 .ReturnsAsync(county);
