@@ -200,7 +200,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteCountryAsync_WhenCountryExists_DeletesCountry()
+        public async Task DeleteCountryAsync_WhenCountryExists_CallsRepositoryDelete()
         {
             var country = new Country { Name = "Romania" };
 

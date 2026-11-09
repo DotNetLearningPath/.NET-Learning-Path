@@ -267,7 +267,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteBuildingAsync_WhenBuildingExists_ReturnsTrue()
+        public async Task DeleteBuildingAsync_WhenBuildingExists_CallsRepositoryDelete()
         {
             var building = CreateBuilding();
             _buildingRepository

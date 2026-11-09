@@ -287,7 +287,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteClientAsync_WhenClientExists_ReturnsTrue()
+        public async Task DeleteClientAsync_WhenClientExists_CallsRepositoryDelete()
         {
             var client = new Client
             {

@@ -216,7 +216,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteCityAsync_WhenCityExists_ReturnsTrue()
+        public async Task DeleteCityAsync_WhenCityExists_CallsRepositoryDelete()
         {
             var city = new City { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
             _cityRepository

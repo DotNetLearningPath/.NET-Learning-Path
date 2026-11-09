@@ -197,7 +197,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteCountyAsync_WhenCountyExists_ReturnsTrue()
+        public async Task DeleteCountyAsync_WhenCountyExists_CallsRepositoryDelete()
         {
             var county = new County { Name = "Cluj", CountryId = Guid.NewGuid() };
             _countyRepository
