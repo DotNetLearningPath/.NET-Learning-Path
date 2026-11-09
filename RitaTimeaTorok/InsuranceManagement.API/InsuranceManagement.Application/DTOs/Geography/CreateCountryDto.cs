@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace InsuranceManagement.Application.DTOs.Geography;
-
-public class CreateCountryDto
+namespace InsuranceManagement.Application.DTOs.Geography
 {
-    [Required]
-    [MaxLength(100)]
-    public required string Name { get; set; }
+    public class CreateCountryDto
+    {
+        [Required]
+        [MaxLength(100)]
+        public required string Name { get; set; }
+    }
 }

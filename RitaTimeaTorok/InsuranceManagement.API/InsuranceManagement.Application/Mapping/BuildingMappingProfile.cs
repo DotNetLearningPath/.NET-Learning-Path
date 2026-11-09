@@ -2,14 +2,17 @@ using AutoMapper;
 using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Domain.Entities;
 
-namespace InsuranceManagement.Application.Mapping;
-
-public class BuildingMappingProfile : Profile
+namespace InsuranceManagement.Application.Mapping
 {
-    public BuildingMappingProfile()
+    public class BuildingMappingProfile : Profile
     {
-        CreateMap<Building, BuildingDto>();
-        CreateMap<CreateBuildingDto, Building>();
-        CreateMap<UpdateBuildingDto, Building>();
+        public BuildingMappingProfile()
+        {
+            CreateMap<Building, BuildingDto>();
+            CreateMap<Building, BuildingDetailsDto>();
+            CreateMap<CreateBuildingDto, Building>();
+            CreateMap<UpdateBuildingDto, Building>()
+                .ForMember(building => building.ClientId, option => option.Ignore());
+        }
     }
 }

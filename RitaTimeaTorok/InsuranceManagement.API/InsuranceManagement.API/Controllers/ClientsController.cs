@@ -1,39 +1,66 @@
 using InsuranceManagement.Application.DTOs.Client;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using InsuranceManagement.Application.Constants;
 
-namespace InsuranceManagement.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ClientsController(IClientService clientService) : ControllerBase
+namespace InsuranceManagement.API.Controllers
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await clientService.GetAllAsync());
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [ApiController]
+    [Route("api/brokers/clients")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public class ClientsController(IClientService clientService) : ControllerBase
     {
-        var client = await clientService.GetAsync(id);
-        return client is null ? NotFound() : Ok(client);
-    }
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<ClientDto>>> GetAll(
+            [FromQuery, Range(PaginationLimits.MinimumPageNumber, PaginationLimits.MaximumPageNumber)]
+                int pageNumber = PaginationLimits.DefaultPageNumber,
+            [FromQuery, Range(PaginationLimits.MinimumPageSize, PaginationLimits.MaximumPageSize)]
+                int pageSize = PaginationLimits.DefaultPageSize,
+            [FromQuery] string? name = null,
+            [FromQuery] string? identifier = null) =>
+            Ok(await clientService.GetAllClientsAsync(pageNumber, pageSize, name, identifier));
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateClientDto createClient)
-    {
-        var client = await clientService.CreateAsync(createClient);
-        return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
-    }
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ClientDetailsDto>> GetById(Guid id)
+        {
+            var client = await clientService.GetClientByIdAsync(id);
+            return Ok(client);
+        }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateClientDto updateClient)
-    {
-        var client = await clientService.UpdateAsync(id, updateClient);
-        return client is null ? NotFound() : Ok(client);
-    }
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ClientDto>> Create(CreateClientDto createClient)
+        {
+            var client = await clientService.CreateClientAsync(createClient);
+            return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
+        }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id) =>
-        await clientService.DeleteAsync(id) ? NoContent() : NotFound();
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ClientDto>> Update(Guid id, UpdateClientDto updateClient)
+        {
+            var client = await clientService.UpdateClientAsync(id, updateClient);
+            return Ok(client);
+        }
+
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await clientService.DeleteClientAsync(id);
+            return NoContent();
+        }
+    }
 }

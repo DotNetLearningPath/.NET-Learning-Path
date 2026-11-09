@@ -27,6 +27,11 @@ namespace InsuranceManagement.API.Middleware
                     message = exception.Message;
                     break;
 
+                case EntityNotFoundException:
+                    statusCode = StatusCodes.Status404NotFound;
+                    message = exception.Message;
+                    break;
+
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     message = "An unexpected error occurred.";

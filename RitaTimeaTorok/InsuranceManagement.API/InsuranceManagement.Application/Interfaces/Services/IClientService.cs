@@ -1,12 +1,19 @@
 using InsuranceManagement.Application.DTOs.Client;
 
-namespace InsuranceManagement.Application.Interfaces.Services;
+using InsuranceManagement.Application.DTOs.Pagination;
 
-public interface IClientService
+namespace InsuranceManagement.Application.Interfaces.Services
 {
-    Task<List<ClientDto>> GetAllAsync();
-    Task<ClientDto?> GetAsync(Guid id);
-    Task<ClientDto> CreateAsync(CreateClientDto request);
-    Task<ClientDto?> UpdateAsync(Guid id, UpdateClientDto request);
-    Task<bool> DeleteAsync(Guid id);
+    public interface IClientService
+    {
+        Task<PagedResult<ClientDto>> GetAllClientsAsync(
+            int pageNumber,
+            int pageSize,
+            string? name = null,
+            string? identifier = null);
+        Task<ClientDetailsDto> GetClientByIdAsync(Guid id);
+        Task<ClientDto> CreateClientAsync(CreateClientDto request);
+        Task<ClientDto> UpdateClientAsync(Guid id, UpdateClientDto request);
+        Task DeleteClientAsync(Guid id);
+    }
 }
