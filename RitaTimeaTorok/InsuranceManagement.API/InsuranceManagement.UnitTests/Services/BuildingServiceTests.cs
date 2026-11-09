@@ -80,7 +80,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetBuildingByIdAsync_WhenBuildingDoesNotExist_ReturnsNull()
+        public async Task GetBuildingByIdAsync_WhenBuildingDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _buildingRepository
@@ -208,7 +208,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task UpdateBuildingAsync_WhenBuildingDoesNotExist_ReturnsNull()
+        public async Task UpdateBuildingAsync_WhenBuildingDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             var request = CreateUpdateRequest();
@@ -253,7 +253,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteBuildingAsync_WhenBuildingDoesNotExist_ReturnsFalse()
+        public async Task DeleteBuildingAsync_WhenBuildingDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _buildingRepository

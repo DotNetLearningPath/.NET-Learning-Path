@@ -70,7 +70,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetCityByIdAsync_WhenCityDoesNotExist_ReturnsNull()
+        public async Task GetCityByIdAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _cityRepository
@@ -81,7 +81,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetCityByIdAsync_WhenCityDoesExists_ReturnsCity()
+        public async Task GetCityByIdAsync_WhenCityExists_ReturnsCity()
         {
             var id = Guid.NewGuid();
             var city = new City { Id = id, Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
@@ -146,7 +146,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task UpdateCityAsync_WhenCityDoesNotExist_ReturnsNull()
+        public async Task UpdateCityAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             var request = new UpdateCityDto { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
@@ -183,7 +183,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteCityAsync_WhenCityDoesNotExist_ReturnsFalse()
+        public async Task DeleteCityAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _cityRepository

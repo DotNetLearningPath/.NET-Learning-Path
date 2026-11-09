@@ -200,7 +200,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task UpdateClientAsync_WhenClientDoesNotExist_ReturnsNull()
+        public async Task UpdateClientAsync_WhenClientDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             var request = new UpdateClientDto
@@ -249,7 +249,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteClientAsync_WhenClientDoesNotExist_ReturnsFalse()
+        public async Task DeleteClientAsync_WhenClientDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _clientRepository

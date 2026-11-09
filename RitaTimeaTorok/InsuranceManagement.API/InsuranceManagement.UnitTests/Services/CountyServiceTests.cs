@@ -70,7 +70,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetCountyByIdAsync_WhenCountyDoesNotExist_ReturnsNull()
+        public async Task GetCountyByIdAsync_WhenCountyDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _countyRepository
@@ -81,7 +81,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetCountyByIdAsync_WhenCountyDoesExists_ReturnsCounty()
+        public async Task GetCountyByIdAsync_WhenCountyExists_ReturnsCounty()
         {
             var id = Guid.NewGuid();
             var county = new County { Id = id, Name = "Cluj", CountryId = Guid.NewGuid() };
@@ -146,7 +146,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task UpdateCountyAsync_WhenCountyDoesNotExist_ReturnsNull()
+        public async Task UpdateCountyAsync_WhenCountyDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             var request = new UpdateCountyDto { Name = "Cluj", CountryId = Guid.NewGuid() };
@@ -183,7 +183,7 @@ namespace InsuranceManagement.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task DeleteCountyAsync_WhenCountyDoesNotExist_ReturnsFalse()
+        public async Task DeleteCountyAsync_WhenCountyDoesNotExist_ThrowsEntityNotFoundException()
         {
             var id = Guid.NewGuid();
             _countyRepository
