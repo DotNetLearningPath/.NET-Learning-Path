@@ -38,18 +38,22 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllClients_WhenNoClients_ReturnsEmptyPage()
         {
+            // Arrange
             _clientRepository
                 .Setup(r => r.SearchAsync(null, null, 1, 10))
                 .ReturnsAsync(new PagedResult<Client> { Items = new List<Client>(), PageNumber = 1, PageSize = 10, TotalCount = 0 });
 
+            // Act
             var result = await _clientService.GetAllClientsAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(0, result.Items.Count);
         }
 
         [TestMethod]
         public async Task GetAllClients_WhenClientExists_ReturnsClient()
         {
+            // Arrange
             var client = TestDataFactory.CreateClient(
                 email: "john@example.com",
                 phoneNumber: "555-0100",
@@ -58,8 +62,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.SearchAsync(null, null, 1, 10))
                 .ReturnsAsync(new PagedResult<Client> { Items = new List<Client> { client }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
 
+            // Act
             var result = await _clientService.GetAllClientsAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(1, result.Items.Count);
             AssertClientDtoMatches(client, result.Items[0]);
         }
@@ -67,11 +73,13 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetClientByIdAsync_WhenClientDoesNotExist_ThrowsNotFound()
         {
+            // Arrange
             var id = Guid.NewGuid();
             _clientRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Client?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(
                 () => _clientService.GetClientByIdAsync(id));
         }
@@ -79,6 +87,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetClientByIdAsync_WhenClientExists_ReturnsClient()
         {
+            // Arrange
             var id = Guid.NewGuid();
             var client = TestDataFactory.CreateClient(
                 id: id,
@@ -92,8 +101,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetByClientIdAsync(id))
                 .ReturnsAsync(new List<Building>());
 
+            // Act
             var result = await _clientService.GetClientByIdAsync(id);
 
+            // Assert
             Assert.IsNotNull(result);
             AssertClientDtoMatches(client, result);
             Assert.AreEqual(0, result.Buildings.Count);
@@ -102,6 +113,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateClientAsync_WhenNameIsEmpty_ThrowsValidationException()
         {
+            // Arrange
             var request = new CreateClientDto
             {
                 Type = ClientType.Individual,
@@ -109,6 +121,7 @@ namespace InsuranceManagement.UnitTests.Services
                 IdentificationNumber = "ID-123"
             };
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<System.ComponentModel.DataAnnotations.ValidationException>(
                 () => _clientService.CreateClientAsync(request));
 
@@ -120,6 +133,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateClientAsync_WhenIdentificationNumberIsEmpty_ThrowsValidationException()
         {
+            // Arrange
             var request = new CreateClientDto
             {
                 Type = ClientType.Individual,
@@ -127,6 +141,7 @@ namespace InsuranceManagement.UnitTests.Services
                 IdentificationNumber = ""
             };
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<System.ComponentModel.DataAnnotations.ValidationException>(
                 () => _clientService.CreateClientAsync(request));
 
@@ -138,6 +153,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateClientAsync_WhenIdentificationNumberAlreadyExists_ThrowsConflictException()
         {
+            // Arrange
             var request = new CreateClientDto
             {
                 Type = ClientType.Individual,
@@ -151,6 +167,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.ExistsByIdentificationNumberAsync("ID-123", null))
                 .ReturnsAsync(true);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ConflictException>(
                 () => _clientService.CreateClientAsync(request));
 
@@ -162,6 +179,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateClientAsync_WhenValid_CreatesClient()
         {
+            // Arrange
             var request = new CreateClientDto
             {
                 Type = ClientType.Individual,
@@ -173,8 +191,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.AddAsync(It.IsAny<Client>()))
                 .ReturnsAsync((Client client) => createdClient = client);
 
+            // Act
             var result = await _clientService.CreateClientAsync(request);
 
+            // Assert
             Assert.IsNotNull(createdClient);
             AssertClientDtoMatches(createdClient!, result);
             _clientRepository.Verify(
@@ -185,6 +205,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateClientAsync_WhenClientDoesNotExist_ThrowsEntityNotFoundException()
         {
+            // Arrange
             var id = Guid.NewGuid();
             var request = new UpdateClientDto
             {
@@ -195,6 +216,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Client?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(() => _clientService.UpdateClientAsync(id, request));
             _clientRepository.Verify(
                 r => r.UpdateAsync(It.IsAny<Client>()),
@@ -204,6 +226,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateClientAsync_WhenValid_UpdatesClient()
         {
+            // Arrange
             var client = TestDataFactory.CreateClient(name: "Old Name");
             var request = new UpdateClientDto
             {
@@ -217,8 +240,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(client.Id))
                 .ReturnsAsync(client);
 
+            // Act
             var result = await _clientService.UpdateClientAsync(client.Id, request);
 
+            // Assert
             Assert.IsNotNull(result);
             AssertClientDtoMatches(client, result);
             _clientRepository.Verify(
@@ -229,11 +254,13 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteClientAsync_WhenClientDoesNotExist_ThrowsEntityNotFoundException()
         {
+            // Arrange
             var id = Guid.NewGuid();
             _clientRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Client?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(() => _clientService.DeleteClientAsync(id));
             _clientRepository.Verify(
                 r => r.DeleteAsync(It.IsAny<Client>()),
@@ -243,6 +270,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteClientAsync_WhenClientHasBuildings_ThrowsConflictException()
         {
+            // Arrange
             var client = TestDataFactory.CreateClient();
             _clientRepository
                 .Setup(r => r.GetAsync(client.Id))
@@ -251,6 +279,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.ExistsByClientIdAsync(client.Id))
                 .ReturnsAsync(true);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ConflictException>(
                 () => _clientService.DeleteClientAsync(client.Id));
 
@@ -262,6 +291,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteClientAsync_WhenClientExists_CallsRepositoryDelete()
         {
+            // Arrange
             var client = TestDataFactory.CreateClient();
             _clientRepository
                 .Setup(r => r.GetAsync(client.Id))
@@ -270,7 +300,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.ExistsByClientIdAsync(client.Id))
                 .ReturnsAsync(false);
 
+            // Act
             await _clientService.DeleteClientAsync(client.Id);
+
+            // Assert
             _clientRepository.Verify(
                 r => r.DeleteAsync(client),
                 Times.Once);

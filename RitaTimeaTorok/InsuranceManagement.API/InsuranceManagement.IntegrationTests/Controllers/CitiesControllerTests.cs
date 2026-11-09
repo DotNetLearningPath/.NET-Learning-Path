@@ -24,8 +24,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetAll_ReturnsSeededCities()
         {
+            // Act
             using var response = await HttpClient.GetAsync(BrokerRoute);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var result = await response.Content.ReadFromJsonAsync<PagedResult<CityDto>>();
@@ -40,8 +42,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCityExists_ReturnsCity()
         {
+            // Act
             using var response = await HttpClient.GetAsync($"{BrokerRoute}/{SeededCityId}");
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var city = await response.Content.ReadFromJsonAsync<CityDto>();
@@ -55,28 +59,34 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCityDoesNotExist_ReturnsNotFound()
         {
-            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{Guid.NewGuid()}");
+            // Arrange
+            var id = Guid.NewGuid();
 
+            // Act
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{id}");
+
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Create_WhenValid_ReturnsCreatedCity()
         {
+            // Act
             var city = await CreateCityAsync(TestCityName);
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
+            // Assert
             Assert.AreNotEqual(Guid.Empty, city.Id);
             Assert.AreEqual(TestCityName, city.Name);
             Assert.AreEqual(SeededCountyId, city.CountyId);
-
-            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Update_WhenCityExists_ReturnsUpdatedCity()
         {
+            // Arrange
             var city = await CreateCityAsync(TestCityName);
             var request = new UpdateCityDto
             {
@@ -84,13 +94,14 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 CountyId = SeededCountyId
             };
 
+            // Act
             using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{city.Id}", request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-
             using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
             var updatedCity = await getResponse.Content.ReadFromJsonAsync<CityDto>();
@@ -104,37 +115,47 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Update_WhenCityDoesNotExist_ReturnsNotFound()
         {
+            // Arrange
             var request = new UpdateCityDto
             {
                 Name = "Updated City",
                 CountyId = SeededCountyId
             };
 
+            // Act
             using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{Guid.NewGuid()}", request);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Delete_WhenCityExists_ReturnsNoContent()
         {
+            // Arrange
             var city = await CreateCityAsync(TestCityName);
 
+            // Act
             using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{city.Id}");
-
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
             using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
+            // Assert
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
 
         [TestMethod]
         public async Task Delete_WhenCityDoesNotExist_ReturnsNotFound()
         {
-            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{Guid.NewGuid()}");
+            // Arrange
+            var id = Guid.NewGuid();
 
+            // Act
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{id}");
+
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 

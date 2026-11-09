@@ -36,26 +36,32 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllCountries_WhenNoCountries_ReturnsEmptyList()
         {
+            // Arrange
             _countryRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<Country> { Items = new List<Country>(), PageNumber = 1, PageSize = 10, TotalCount = 0 });
 
+            // Act
             var result = await _countryService.GetAllCountriesAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(0, result.Items.Count);
         }
 
         [TestMethod]
         public async Task GetAllCountries_WhenCountryExists_ReturnsCountry()
         {
+            // Arrange
             var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<Country> { Items = new List<Country> { country }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
 
+            // Act
             var result = await _countryService.GetAllCountriesAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(1, result.Items.Count);
             Assert.AreEqual("Romania", result.Items[0].Name);
             Assert.AreEqual(country.Id, result.Items[0].Id);
@@ -64,12 +70,14 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetCountryByIdAsync_WhenCountryDoesNotExist_ThrowsNotFound()
         {
+            // Arrange
             var id = Guid.NewGuid();
 
             _countryRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Country?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(
                 () => _countryService.GetCountryByIdAsync(id));
         }
@@ -77,14 +85,17 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetCountryByIdAsync_WhenCountryExists_ReturnsCountry()
         {
+            // Arrange
             var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetAsync(country.Id))
                 .ReturnsAsync(country);
 
+            // Act
             var result = await _countryService.GetCountryByIdAsync(country.Id);
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(country.Id, result.Id);
             Assert.AreEqual("Romania", result.Name);
@@ -93,8 +104,10 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCountryAsync_WhenNameIsEmpty_ThrowsValidationException()
         {
+            // Arrange
             var request = new CreateCountryDto { Name = "" };
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ValidationException>(
                 () => _countryService.CreateCountryAsync(request));
 
@@ -106,14 +119,17 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCountryAsync_WhenValid_CreatesCountry()
         {
+            // Arrange
             var request = new CreateCountryDto { Name = "Romania" };
 
             _countryRepository
                 .Setup(r => r.AddAsync(It.IsAny<Country>()))
                 .ReturnsAsync((Country country) => country);
 
+            // Act
             var result = await _countryService.CreateCountryAsync(request);
 
+            // Assert
             Assert.AreEqual("Romania", result.Name);
             Assert.AreNotEqual(Guid.Empty, result.Id);
 
@@ -125,6 +141,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountryAsync_WhenCountryDoesNotExist_ThrowsNotFound()
         {
+            // Arrange
             var id = Guid.NewGuid();
             var request = new UpdateCountryDto { Name = "Romania" };
 
@@ -132,6 +149,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Country?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(
                 () => _countryService.UpdateCountryAsync(id, request));
 
@@ -143,6 +161,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountryAsync_WhenNameIsEmpty_ThrowsValidationException()
         {
+            // Arrange
             var country = TestDataFactory.CreateCountry();
             var request = new UpdateCountryDto { Name = "" };
 
@@ -150,6 +169,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(country.Id))
                 .ReturnsAsync(country);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ValidationException>(
                 () => _countryService.UpdateCountryAsync(country.Id, request));
 
@@ -161,6 +181,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCountryAsync_WhenValid_UpdatesCountry()
         {
+            // Arrange
             var country = TestDataFactory.CreateCountry();
             var request = new UpdateCountryDto { Name = "Updated Romania" };
 
@@ -168,8 +189,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(country.Id))
                 .ReturnsAsync(country);
 
+            // Act
             var result = await _countryService.UpdateCountryAsync(country.Id, request);
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Updated Romania", result.Name);
 
@@ -181,12 +204,14 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCountryAsync_WhenCountryDoesNotExist_ThrowsNotFound()
         {
+            // Arrange
             var id = Guid.NewGuid();
 
             _countryRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((Country?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(
                 () => _countryService.DeleteCountryAsync(id));
 
@@ -198,14 +223,17 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCountryAsync_WhenCountryExists_CallsRepositoryDelete()
         {
+            // Arrange
             var country = TestDataFactory.CreateCountry();
 
             _countryRepository
                 .Setup(r => r.GetAsync(country.Id))
                 .ReturnsAsync(country);
 
+            // Act
             await _countryService.DeleteCountryAsync(country.Id);
 
+            // Assert
             _countryRepository.Verify(
                 r => r.DeleteAsync(country),
                 Times.Once);

@@ -28,10 +28,13 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetAll_ReturnsCreatedBuilding()
         {
+            // Arrange
             var building = await CreateBuildingAsync();
 
+            // Act
             using var response = await HttpClient.GetAsync(BuildingRoute);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var result = await response.Content.ReadFromJsonAsync<PagedResult<BuildingDto>>();
@@ -45,10 +48,13 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenBuildingExists_ReturnsBuilding()
         {
+            // Arrange
             var building = await CreateBuildingAsync();
 
+            // Act
             using var response = await HttpClient.GetAsync($"{BuildingRoute}/{building.Id}");
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var details = await response.Content.ReadFromJsonAsync<BuildingDetailsDto>();
@@ -65,50 +71,61 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenBuildingDoesNotExist_ReturnsNotFound()
         {
-            using var response = await HttpClient.GetAsync($"{BuildingRoute}/{Guid.NewGuid()}");
+            // Arrange
+            var id = Guid.NewGuid();
 
+            // Act
+            using var response = await HttpClient.GetAsync($"{BuildingRoute}/{id}");
+
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Create_WhenValid_ReturnsCreatedBuilding()
         {
+            // Act
             var building = await CreateBuildingAsync();
+            using var response = await HttpClient.GetAsync($"{BuildingRoute}/{building.Id}");
 
+            // Assert
             Assert.AreNotEqual(Guid.Empty, building.Id);
             Assert.AreEqual(TestDataFactory.MainStreet, building.Street);
             Assert.AreEqual(TestDataFactory.MainStreetNumber, building.StreetNumber);
             Assert.AreEqual(SeededCityId, building.CityId);
-
-            using var response = await HttpClient.GetAsync($"{BuildingRoute}/{building.Id}");
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Create_WhenStreetIsMissing_ReturnsBadRequest()
         {
+            // Arrange
             var client = await CreateClientAsync();
             var request = TestDataFactory.CreateBuildingRequest(client.Id, SeededCityId);
             request.Street = string.Empty;
 
+            // Act
             using var response = await HttpClient.PostAsJsonAsync(BuildingRoute, request);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Update_WhenBuildingExists_ReturnsUpdatedBuilding()
         {
+            // Arrange
             var building = await CreateBuildingAsync();
             var request = CreateUpdateBuildingRequest();
 
+            // Act
             using var response = await HttpClient.PutAsJsonAsync(
                 $"{BuildingRoute}/{building.Id}", request);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-
             using var getResponse = await HttpClient.GetAsync($"{BuildingRoute}/{building.Id}");
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
             var updatedBuilding = await getResponse.Content
@@ -128,32 +145,43 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Update_WhenBuildingDoesNotExist_ReturnsNotFound()
         {
+            // Arrange
             var request = CreateUpdateBuildingRequest();
 
+            // Act
             using var response = await HttpClient.PutAsJsonAsync(
                 $"{BuildingRoute}/{Guid.NewGuid()}", request);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [TestMethod]
         public async Task Delete_WhenBuildingExists_ReturnsNoContent()
         {
+            // Arrange
             var building = await CreateBuildingAsync();
 
+            // Act
             using var response = await HttpClient.DeleteAsync($"{BuildingRoute}/{building.Id}");
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-
             using var getResponse = await HttpClient.GetAsync($"{BuildingRoute}/{building.Id}");
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
 
         [TestMethod]
         public async Task Delete_WhenBuildingDoesNotExist_ReturnsNotFound()
         {
-            using var response = await HttpClient.DeleteAsync($"{BuildingRoute}/{Guid.NewGuid()}");
+            // Arrange
+            var id = Guid.NewGuid();
 
+            // Act
+            using var response = await HttpClient.DeleteAsync($"{BuildingRoute}/{id}");
+
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 

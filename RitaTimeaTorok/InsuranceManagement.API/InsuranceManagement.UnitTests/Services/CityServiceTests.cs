@@ -41,25 +41,31 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetAllCities_WhenNoCities_ReturnsEmptyList()
         {
+            // Arrange
             _cityRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<City> { Items = new List<City>(), PageNumber = 1, PageSize = 10, TotalCount = 0 });
 
+            // Act
             var result = await _cityService.GetAllCitiesAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(0, result.Items.Count);
         }
 
         [TestMethod]
         public async Task GetAllCities_WhenCityExists_ReturnsCity()
         {
+            // Arrange
             var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetPageAsync(1, 10))
                 .ReturnsAsync(new PagedResult<City> { Items = new List<City> { city }, PageNumber = 1, PageSize = 10, TotalCount = 1 });
 
+            // Act
             var result = await _cityService.GetAllCitiesAsync(1, 10);
 
+            // Assert
             Assert.AreEqual(1, result.Items.Count);
             Assert.AreEqual("Cluj-Napoca", result.Items[0].Name);
             Assert.AreEqual(city.Id, result.Items[0].Id);
@@ -68,25 +74,30 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task GetCityByIdAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
+            // Arrange
             var id = Guid.NewGuid();
             _cityRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((City?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(() => _cityService.GetCityByIdAsync(id));
         }
 
         [TestMethod]
         public async Task GetCityByIdAsync_WhenCityExists_ReturnsCity()
         {
+            // Arrange
             var id = Guid.NewGuid();
             var city = TestDataFactory.CreateCity(id: id);
             _cityRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((City?)city);
 
+            // Act
             var result = await _cityService.GetCityByIdAsync(id);
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Cluj-Napoca", result.Name);
             Assert.AreEqual(city.Id, result.Id);
@@ -95,8 +106,10 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCityAsync_WhenNameIsEmpty_ThrowsValidationException()
         {
+            // Arrange
             var request = new CreateCityDto { Name = "", CountyId = Guid.NewGuid() };
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ValidationException>(
                 () => _cityService.CreateCityAsync(request));
 
@@ -108,11 +121,13 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCityAsync_WhenCountyDoesNotExist_ThrowsValidationException()
         {
+            // Arrange
             var request = new CreateCityDto { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
             _countyRepository
                 .Setup(r => r.GetAsync(request.CountyId))
                 .ReturnsAsync((County?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ValidationException>(
                 () => _cityService.CreateCityAsync(request));
 
@@ -124,6 +139,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task CreateCityAsync_WhenValid_CreatesCity()
         {
+            // Arrange
             var county = TestDataFactory.CreateCounty();
             var request = new CreateCityDto { Name = "Cluj-Napoca", CountyId = county.Id };
             _countyRepository
@@ -133,8 +149,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.AddAsync(It.IsAny<City>()))
                 .ReturnsAsync((City city) => city);
 
+            // Act
             var result = await _cityService.CreateCityAsync(request);
 
+            // Assert
             Assert.AreEqual("Cluj-Napoca", result.Name);
             _cityRepository.Verify(
                 r => r.AddAsync(It.Is<City>(c => c.Name == "Cluj-Napoca" && c.CountyId == county.Id)),
@@ -144,12 +162,14 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCityAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
+            // Arrange
             var id = Guid.NewGuid();
             var request = new UpdateCityDto { Name = "Cluj-Napoca", CountyId = Guid.NewGuid() };
             _cityRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((City?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(() => _cityService.UpdateCityAsync(id, request));
             _cityRepository.Verify(
                 r => r.UpdateAsync(It.IsAny<City>()),
@@ -159,6 +179,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task UpdateCityAsync_WhenValid_UpdatesCity()
         {
+            // Arrange
             var county = TestDataFactory.CreateCounty();
             var city = TestDataFactory.CreateCity(name: "Old City", countyId: county.Id);
             var request = new UpdateCityDto { Name = "Cluj-Napoca", CountyId = county.Id };
@@ -169,8 +190,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.GetAsync(county.Id))
                 .ReturnsAsync(county);
 
+            // Act
             var result = await _cityService.UpdateCityAsync(city.Id, request);
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Cluj-Napoca", result.Name);
             _cityRepository.Verify(
@@ -181,11 +204,13 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCityAsync_WhenCityDoesNotExist_ThrowsEntityNotFoundException()
         {
+            // Arrange
             var id = Guid.NewGuid();
             _cityRepository
                 .Setup(r => r.GetAsync(id))
                 .ReturnsAsync((City?)null);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<EntityNotFoundException>(() => _cityService.DeleteCityAsync(id));
             _cityRepository.Verify(
                 r => r.DeleteAsync(It.IsAny<City>()),
@@ -195,6 +220,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCityAsync_WhenCityHasBuildings_ThrowsConflictException()
         {
+            // Arrange
             var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetAsync(city.Id))
@@ -203,6 +229,7 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.ExistsByCityIdAsync(city.Id))
                 .ReturnsAsync(true);
 
+            // Act & Assert
             await Assert.ThrowsExceptionAsync<ConflictException>(
                 () => _cityService.DeleteCityAsync(city.Id));
 
@@ -214,6 +241,7 @@ namespace InsuranceManagement.UnitTests.Services
         [TestMethod]
         public async Task DeleteCityAsync_WhenCityExists_CallsRepositoryDelete()
         {
+            // Arrange
             var city = TestDataFactory.CreateCity();
             _cityRepository
                 .Setup(r => r.GetAsync(city.Id))
@@ -222,7 +250,10 @@ namespace InsuranceManagement.UnitTests.Services
                 .Setup(r => r.ExistsByCityIdAsync(city.Id))
                 .ReturnsAsync(false);
 
+            // Act
             await _cityService.DeleteCityAsync(city.Id);
+
+            // Assert
             _cityRepository.Verify(
                 r => r.DeleteAsync(city),
                 Times.Once);
