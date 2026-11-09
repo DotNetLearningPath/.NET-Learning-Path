@@ -6,6 +6,7 @@ using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace InsuranceManagement.Application.Services
 {
@@ -13,12 +14,16 @@ namespace InsuranceManagement.Application.Services
         ICountyRepository countyRepository,
         IGenericRepository<Country> countryRepository,
         ICityRepository cityRepository,
-        IMapper mapper) : ICountyService
+        IMapper mapper,
+        ILogger<CountyService> logger) : ICountyService
     {
         public async Task<PagedResult<CountyDto>> GetAllCountiesAsync(int pageNumber, int pageSize)
         {
             PaginationValidator.Validate(pageNumber, pageSize);
             var page = await countyRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved counties page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} counties",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
 
             return new PagedResult<CountyDto>
             {
@@ -33,6 +38,7 @@ namespace InsuranceManagement.Application.Services
         {
             var county = await countyRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"County '{id}' was not found.");
+            logger.LogInformation("Retrieved county {CountyId}", id);
             return mapper.Map<CountyDto>(county);
         }
 
@@ -45,6 +51,7 @@ namespace InsuranceManagement.Application.Services
                 throw new ValidationException("CountryId must refer to an existing country.");
 
             var county = await countyRepository.AddAsync(mapper.Map<County>(request));
+            logger.LogInformation("Created county {CountyId}", county.Id);
             return mapper.Map<CountyDto>(county);
         }
 
@@ -61,6 +68,7 @@ namespace InsuranceManagement.Application.Services
 
             mapper.Map(request, county);
             await countyRepository.UpdateAsync(county);
+            logger.LogInformation("Updated county {CountyId}", county.Id);
             return mapper.Map<CountyDto>(county);
         }
 
@@ -74,6 +82,7 @@ namespace InsuranceManagement.Application.Services
                     "Cannot delete a county that contains cities.");
 
             await countyRepository.DeleteAsync(county);
+            logger.LogInformation("Deleted county {CountyId}", id);
         }
     }
 }

@@ -6,6 +6,7 @@ using InsuranceManagement.Domain.Entities.Geography;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace InsuranceManagement.Application.Services
 {
@@ -13,12 +14,16 @@ namespace InsuranceManagement.Application.Services
         ICityRepository cityRepository,
         IGenericRepository<County> countyRepository,
         IBuildingRepository buildingRepository,
-        IMapper mapper) : ICityService
+        IMapper mapper,
+        ILogger<CityService> logger) : ICityService
     {
         public async Task<PagedResult<CityDto>> GetAllCitiesAsync(int pageNumber, int pageSize)
         {
             PaginationValidator.Validate(pageNumber, pageSize);
             var page = await cityRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved cities page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} cities",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
 
             return new PagedResult<CityDto>
             {
@@ -33,7 +38,7 @@ namespace InsuranceManagement.Application.Services
         {
             var city = await cityRepository.GetAsync(id)
                 ?? throw new EntityNotFoundException($"City '{id}' was not found.");
-            
+            logger.LogInformation("Retrieved city {CityId}", id);
             return mapper.Map<CityDto>(city);
         }
 
@@ -46,6 +51,8 @@ namespace InsuranceManagement.Application.Services
                 throw new ValidationException("CountyId must refer to an existing county.");
 
             var city = await cityRepository.AddAsync(mapper.Map<City>(request));
+            
+            logger.LogInformation("Created city {CityId}", city.Id);
             return mapper.Map<CityDto>(city);
         }
 
@@ -62,6 +69,8 @@ namespace InsuranceManagement.Application.Services
 
             mapper.Map(request, city);
             await cityRepository.UpdateAsync(city);
+
+            logger.LogInformation("Updated city {CityId}", city.Id);
             return mapper.Map<CityDto>(city);
         }
 
@@ -75,7 +84,7 @@ namespace InsuranceManagement.Application.Services
                     "Cannot delete a city that contains buildings.");
 
             await cityRepository.DeleteAsync(city);
-
+            logger.LogInformation("Deleted city {CityId}", id);
         }
     }
 }
