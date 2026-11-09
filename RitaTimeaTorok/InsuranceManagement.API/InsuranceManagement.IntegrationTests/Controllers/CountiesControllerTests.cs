@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.IntegrationTests.Helpers;
 
 namespace InsuranceManagement.IntegrationTests.Controllers
 {
     [TestClass]
-    public class CountiesControllerTests
+    public class CountiesControllerTests : IntegrationTestBase
     {
         private static readonly Guid SeededCountryId =
             Guid.Parse("11111111-1111-4111-8111-111111111111");
@@ -20,27 +21,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         private const string BucurestiCountyName = "Bucuresti";
         private const string TestCountyName = "Test County";
 
-        private CustomWebApplicationFactory _factory = null!;
-        private HttpClient _client = null!;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            _factory = new CustomWebApplicationFactory();
-            _client = _factory.CreateClient();
-        }
-
-        [TestCleanup]
-        public async Task CleanUp()
-        {
-            _client.Dispose();
-            await _factory.DisposeAsync();
-        }
-
         [TestMethod]
         public async Task GetAll_ReturnsSeededCounties()
         {
-            using var response = await _client.GetAsync(BrokerRoute);
+            using var response = await HttpClient.GetAsync(BrokerRoute);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -56,7 +40,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCountyExists_ReturnsCounty()
         {
-            using var response = await _client.GetAsync($"{BrokerRoute}/{SeededCountyId}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{SeededCountyId}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -71,7 +55,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCountyDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.GetAsync($"{BrokerRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -85,7 +69,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             Assert.AreEqual(TestCountyName, county.Name);
             Assert.AreEqual(SeededCountryId, county.CountryId);
 
-            using var response = await _client.GetAsync($"{BrokerRoute}/{county.Id}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{county.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
@@ -100,12 +84,12 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 CountryId = SeededCountryId
             };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{county.Id}", request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{BrokerRoute}/{county.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{county.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
@@ -126,7 +110,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 CountryId = SeededCountryId
             };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{Guid.NewGuid()}", request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -137,11 +121,11 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var county = await CreateCountyAsync(TestCountyName);
 
-            using var response = await _client.DeleteAsync($"{AdminRoute}/{county.Id}");
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{county.Id}");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{BrokerRoute}/{county.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{county.Id}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
@@ -149,7 +133,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Delete_WhenCountyDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.DeleteAsync($"{AdminRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -157,20 +141,16 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Delete_WhenCountyHasCities_ReturnsConflict()
         {
-            using var response = await _client.DeleteAsync($"{AdminRoute}/{SeededCountyId}");
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{SeededCountyId}");
 
             Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
         }
 
         private async Task<CountyDto> CreateCountyAsync(string name)
         {
-            var request = new CreateCountyDto
-            {
-                Name = name,
-                CountryId = SeededCountryId
-            };
-
-            using var response = await _client.PostAsJsonAsync(AdminRoute, request);
+            using var response = await HttpClient.PostAsJsonAsync(
+                AdminRoute,
+                TestDataFactory.CreateCountyRequest(SeededCountryId, name));
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 

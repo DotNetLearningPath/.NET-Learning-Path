@@ -1,14 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
-using InsuranceManagement.Application.DTOs.Building;
 using InsuranceManagement.Application.DTOs.Client;
 using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Domain.Enums;
+using InsuranceManagement.IntegrationTests.Helpers;
 
 namespace InsuranceManagement.IntegrationTests.Controllers
 {
     [TestClass]
-    public class ClientsControllerTests
+    public class ClientsControllerTests : IntegrationTestBase
     {
         private static readonly Guid SeededCityId =
             Guid.Parse("44444444-4444-4444-8444-444444444444");
@@ -26,29 +26,12 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         private const string UpdatedClientPhoneNumber = "555-0101";
         private const string UpdatedClientAddress = "2 Main Street";
 
-        private CustomWebApplicationFactory _factory = null!;
-        private HttpClient _client = null!;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            _factory = new CustomWebApplicationFactory();
-            _client = _factory.CreateClient();
-        }
-
-        [TestCleanup]
-        public async Task CleanUp()
-        {
-            _client.Dispose();
-            await _factory.DisposeAsync();
-        }
-
         [TestMethod]
         public async Task GetAll_ReturnsCreatedClient()
         {
             var createdClient = await CreateClientAsync(TestClientName, TestClientIdentifier);
 
-            using var response = await _client.GetAsync(ClientRoute);
+            using var response = await HttpClient.GetAsync(ClientRoute);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -65,7 +48,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var createdClient = await CreateClientAsync(TestClientName, TestClientIdentifier);
 
-            using var response = await _client.GetAsync($"{ClientRoute}/{createdClient.Id}");
+            using var response = await HttpClient.GetAsync($"{ClientRoute}/{createdClient.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -81,7 +64,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenClientDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.GetAsync($"{ClientRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.GetAsync($"{ClientRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -95,7 +78,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             Assert.AreEqual(TestClientName, client.Name);
             Assert.AreEqual(TestClientIdentifier, client.IdentificationNumber);
 
-            using var response = await _client.GetAsync($"{ClientRoute}/{client.Id}");
+            using var response = await HttpClient.GetAsync($"{ClientRoute}/{client.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
@@ -104,9 +87,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         public async Task Create_WhenIdentifierAlreadyExists_ReturnsConflict()
         {
             await CreateClientAsync(FirstClientName, TestClientIdentifier);
-            var request = CreateClientRequest(SecondClientName, TestClientIdentifier);
+            var request = TestDataFactory.CreateClientRequest(
+                SecondClientName, TestClientIdentifier, ClientEmail);
 
-            using var response = await _client.PostAsJsonAsync(ClientRoute, request);
+            using var response = await HttpClient.PostAsJsonAsync(ClientRoute, request);
 
             Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
         }
@@ -114,9 +98,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Create_WhenNameIsMissing_ReturnsBadRequest()
         {
-            var request = CreateClientRequest(string.Empty, TestClientIdentifier);
+            var request = TestDataFactory.CreateClientRequest(
+                string.Empty, TestClientIdentifier, ClientEmail);
 
-            using var response = await _client.PostAsJsonAsync(ClientRoute, request);
+            using var response = await HttpClient.PostAsJsonAsync(ClientRoute, request);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -134,11 +119,11 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 PrimaryAddress = UpdatedClientAddress
             };
 
-            using var response = await _client.PutAsJsonAsync($"{ClientRoute}/{client.Id}", request);
+            using var response = await HttpClient.PutAsJsonAsync($"{ClientRoute}/{client.Id}", request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{ClientRoute}/{client.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{ClientRoute}/{client.Id}");
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
             var updatedClient = await getResponse.Content.ReadFromJsonAsync<ClientDetailsDto>();
@@ -163,7 +148,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 Email = UpdatedClientEmail
             };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{ClientRoute}/{Guid.NewGuid()}", request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -174,18 +159,18 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var client = await CreateClientAsync(TestClientName, TestClientIdentifier);
 
-            using var response = await _client.DeleteAsync($"{ClientRoute}/{client.Id}");
+            using var response = await HttpClient.DeleteAsync($"{ClientRoute}/{client.Id}");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{ClientRoute}/{client.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{ClientRoute}/{client.Id}");
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
 
         [TestMethod]
         public async Task Delete_WhenClientDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.DeleteAsync($"{ClientRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.DeleteAsync($"{ClientRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -194,20 +179,11 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         public async Task Delete_WhenClientOwnsBuilding_ReturnsConflict()
         {
             var client = await CreateClientAsync(TestClientName, TestClientIdentifier);
-            var buildingRequest = new CreateBuildingDto
-            {
-                ClientId = client.Id,
-                Street = "Main Street",
-                StreetNumber = "10",
-                CityId = SeededCityId,
-                ConstructionYear = 2000,
-                Type = BuildingType.Residential,
-                NumberOfFloors = 2,
-                SurfaceArea = 120,
-                InsuredValue = 100000
-            };
+            var buildingRequest = TestDataFactory.CreateBuildingRequest(
+                client.Id,
+                SeededCityId);
 
-            using var buildingResponse = await _client.PostAsJsonAsync(
+            using var buildingResponse = await HttpClient.PostAsJsonAsync(
                 BuildingRoute, buildingRequest);
 
             Assert.AreEqual(
@@ -215,7 +191,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 buildingResponse.StatusCode,
                 await buildingResponse.Content.ReadAsStringAsync());
 
-            using var deleteResponse = await _client.DeleteAsync(
+            using var deleteResponse = await HttpClient.DeleteAsync(
                 $"{ClientRoute}/{client.Id}");
 
             Assert.AreEqual(HttpStatusCode.Conflict, deleteResponse.StatusCode);
@@ -223,8 +199,9 @@ namespace InsuranceManagement.IntegrationTests.Controllers
 
         private async Task<ClientDto> CreateClientAsync(string name, string identifier)
         {
-            using var response = await _client.PostAsJsonAsync(
-                ClientRoute, CreateClientRequest(name, identifier));
+            using var response = await HttpClient.PostAsJsonAsync(
+                ClientRoute,
+                TestDataFactory.CreateClientRequest(name, identifier, ClientEmail));
 
             Assert.AreEqual(
                 HttpStatusCode.Created,
@@ -236,14 +213,6 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             Assert.IsNotNull(client);
             return client;
         }
-
-        private static CreateClientDto CreateClientRequest(string name, string identifier) => new()
-        {
-            Type = ClientType.Individual,
-            Name = name,
-            IdentificationNumber = identifier,
-            Email = ClientEmail
-        };
     }
 
 }

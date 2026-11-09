@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.IntegrationTests.Helpers;
 
 namespace InsuranceManagement.IntegrationTests.Controllers
 {
     [TestClass]
-    public class CountriesControllerTests
+    public class CountriesControllerTests : IntegrationTestBase
     {
         private static readonly Guid SeededCountryId =
             Guid.Parse("11111111-1111-4111-8111-111111111111");
@@ -17,27 +18,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         private const string SeededCountryName = "Romania";
         private const string TestCountryName = "Testland";
 
-        private CustomWebApplicationFactory _factory = null!;
-        private HttpClient _client = null!;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            _factory = new CustomWebApplicationFactory();
-            _client = _factory.CreateClient();
-        }
-
-        [TestCleanup]
-        public async Task CleanUp()
-        {
-            _client.Dispose();
-            await _factory.DisposeAsync();
-        }
-
         [TestMethod]
         public async Task GetAll_ReturnsSeededCountries()
         {
-            using var response = await _client.GetAsync(BrokerRoute);
+            using var response = await HttpClient.GetAsync(BrokerRoute);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -52,7 +36,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCountryExists_ReturnsCountry()
         {
-            using var response = await _client.GetAsync(
+            using var response = await HttpClient.GetAsync(
                 $"{BrokerRoute}/{SeededCountryId}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -67,7 +51,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCountryDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.GetAsync(
+            using var response = await HttpClient.GetAsync(
                 $"{BrokerRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -81,7 +65,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             Assert.AreNotEqual(Guid.Empty, country.Id);
             Assert.AreEqual(TestCountryName, country.Name);
 
-            using var response = await _client.GetAsync(
+            using var response = await HttpClient.GetAsync(
                 $"{BrokerRoute}/{country.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -93,12 +77,12 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             var country = await CreateCountryAsync(TestCountryName);
             var request = new UpdateCountryDto { Name = $"Updated {TestCountryName}" };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{country.Id}", request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync(
+            using var getResponse = await HttpClient.GetAsync(
                 $"{BrokerRoute}/{country.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
@@ -116,7 +100,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var request = new UpdateCountryDto { Name = "Updated Country" };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{Guid.NewGuid()}", request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -127,12 +111,12 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var country = await CreateCountryAsync("Country to delete");
 
-            using var response = await _client.DeleteAsync(
+            using var response = await HttpClient.DeleteAsync(
                 $"{AdminRoute}/{country.Id}");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync(
+            using var getResponse = await HttpClient.GetAsync(
                 $"{BrokerRoute}/{country.Id}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
@@ -141,7 +125,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Delete_WhenCountryDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.DeleteAsync(
+            using var response = await HttpClient.DeleteAsync(
                 $"{AdminRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -150,7 +134,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Delete_WhenCountryHasCounties_ReturnsConflict()
         {
-            using var response = await _client.DeleteAsync(
+            using var response = await HttpClient.DeleteAsync(
                 $"{AdminRoute}/{SeededCountryId}");
 
             Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
@@ -158,12 +142,14 @@ namespace InsuranceManagement.IntegrationTests.Controllers
 
         private async Task<CountryDto> CreateCountryAsync(string name)
         {
-            var request = new CreateCountryDto { Name = name };
+            using var response = await HttpClient.PostAsJsonAsync(
+                AdminRoute,
+                TestDataFactory.CreateCountryRequest(name));
 
-            using var response = await _client.PostAsJsonAsync(
-                AdminRoute, request);
-
-            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.AreEqual(
+                HttpStatusCode.Created,
+                response.StatusCode,
+                await response.Content.ReadAsStringAsync());
 
             var country = await response.Content.ReadFromJsonAsync<CountryDto>();
 

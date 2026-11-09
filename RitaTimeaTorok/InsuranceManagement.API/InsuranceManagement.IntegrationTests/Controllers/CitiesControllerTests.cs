@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using InsuranceManagement.Application.DTOs.Geography;
 using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.IntegrationTests.Helpers;
 
 namespace InsuranceManagement.IntegrationTests.Controllers
 {
     [TestClass]
-    public class CitiesControllerTests
+    public class CitiesControllerTests : IntegrationTestBase
     {
         private static readonly Guid SeededCountyId =
             Guid.Parse("22222222-2222-4222-8222-222222222222");
@@ -20,27 +21,10 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         private const string BucurestiCityName = "Bucuresti";
         private const string TestCityName = "Test City";
 
-        private CustomWebApplicationFactory _factory = null!;
-        private HttpClient _client = null!;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            _factory = new CustomWebApplicationFactory();
-            _client = _factory.CreateClient();
-        }
-
-        [TestCleanup]
-        public async Task CleanUp()
-        {
-            _client.Dispose();
-            await _factory.DisposeAsync();
-        }
-
         [TestMethod]
         public async Task GetAll_ReturnsSeededCities()
         {
-            using var response = await _client.GetAsync(BrokerRoute);
+            using var response = await HttpClient.GetAsync(BrokerRoute);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -56,7 +40,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCityExists_ReturnsCity()
         {
-            using var response = await _client.GetAsync($"{BrokerRoute}/{SeededCityId}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{SeededCityId}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
@@ -71,7 +55,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task GetById_WhenCityDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.GetAsync($"{BrokerRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -85,7 +69,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
             Assert.AreEqual(TestCityName, city.Name);
             Assert.AreEqual(SeededCountyId, city.CountyId);
 
-            using var response = await _client.GetAsync($"{BrokerRoute}/{city.Id}");
+            using var response = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
@@ -100,12 +84,12 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 CountyId = SeededCountyId
             };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{city.Id}", request);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{BrokerRoute}/{city.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
@@ -126,7 +110,7 @@ namespace InsuranceManagement.IntegrationTests.Controllers
                 CountyId = SeededCountyId
             };
 
-            using var response = await _client.PutAsJsonAsync(
+            using var response = await HttpClient.PutAsJsonAsync(
                 $"{AdminRoute}/{Guid.NewGuid()}", request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -137,11 +121,11 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         {
             var city = await CreateCityAsync(TestCityName);
 
-            using var response = await _client.DeleteAsync($"{AdminRoute}/{city.Id}");
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{city.Id}");
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
-            using var getResponse = await _client.GetAsync($"{BrokerRoute}/{city.Id}");
+            using var getResponse = await HttpClient.GetAsync($"{BrokerRoute}/{city.Id}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
         }
@@ -149,20 +133,16 @@ namespace InsuranceManagement.IntegrationTests.Controllers
         [TestMethod]
         public async Task Delete_WhenCityDoesNotExist_ReturnsNotFound()
         {
-            using var response = await _client.DeleteAsync($"{AdminRoute}/{Guid.NewGuid()}");
+            using var response = await HttpClient.DeleteAsync($"{AdminRoute}/{Guid.NewGuid()}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         private async Task<CityDto> CreateCityAsync(string name)
         {
-            var request = new CreateCityDto
-            {
-                Name = name,
-                CountyId = SeededCountyId
-            };
-
-            using var response = await _client.PostAsJsonAsync(AdminRoute, request);
+            using var response = await HttpClient.PostAsJsonAsync(
+                AdminRoute,
+                TestDataFactory.CreateCityRequest(SeededCountyId, name));
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 
