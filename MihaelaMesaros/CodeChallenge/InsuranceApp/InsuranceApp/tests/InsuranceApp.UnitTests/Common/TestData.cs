@@ -53,6 +53,8 @@ internal static class TestData
     public const string PolicyCancellationReason = "Requested by client";
     public const decimal PolicyFinalPremium = 1000m;
 
+    public static readonly Guid BrokerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
 
     #region Geography
     public static Country CreateCountry1()
