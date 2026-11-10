@@ -258,6 +258,60 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.FeeConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Percentage")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeeConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-9999-4999-8999-999999999991"),
+                            EffectiveFrom = new DateOnly(2026, 1, 1),
+                            IsActive = true,
+                            Name = "Standard broker fee",
+                            Percentage = 5m,
+                            Type = "BrokerCommission"
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-9999-4999-8999-999999999992"),
+                            EffectiveFrom = new DateOnly(2026, 1, 1),
+                            IsActive = true,
+                            Name = "Standard admin fee",
+                            Percentage = 2m,
+                            Type = "AdminFee"
+                        });
+                });
+
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Building", b =>
                 {
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)

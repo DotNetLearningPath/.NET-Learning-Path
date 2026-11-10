@@ -38,13 +38,15 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 
 builder.Services.AddAutoMapper(
     config => { },
     typeof(GeographyMappingProfile),
     typeof(ClientMappingProfile),
     typeof(BuildingMappingProfile),
-    typeof(CurrencyMappingProfile));
+    typeof(CurrencyMappingProfile),
+    typeof(FeeConfigurationMappingProfile));
 
 builder.Services.AddControllers();
 
