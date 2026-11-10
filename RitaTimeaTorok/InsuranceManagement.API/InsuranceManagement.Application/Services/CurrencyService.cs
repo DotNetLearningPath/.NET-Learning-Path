@@ -25,7 +25,7 @@ namespace InsuranceManagement.Application.Services
         {
             ValidateCreateCurrency(request.Code, request.Name, request.ExchangeRateToBase);
             
-            var code = request.Code.Trim().ToUpper();
+            var code = request.Code.Trim().ToUpperInvariant();
             if (await currencyRepository.ExistsByCodeAsync(code))
                 throw new ConflictException($"Currency code '{code}' is already in use.");
 
