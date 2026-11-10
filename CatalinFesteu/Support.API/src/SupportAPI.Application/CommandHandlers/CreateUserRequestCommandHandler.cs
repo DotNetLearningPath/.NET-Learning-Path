@@ -11,7 +11,7 @@ namespace SupportAPI.Application.CommandHandlers
         IValidator<CreateUserRequestCommand> validator,
         IUserRequestsRepository requestsRepository) : ICommandHandler<CreateUserRequestCommand, UserRequestResult>
     {
-        public async Task<UserRequestResult> Handle(CreateUserRequestCommand command, CancellationToken cancellationToken)
+        public async Task<UserRequestResult> HandleAsync(CreateUserRequestCommand command, CancellationToken cancellationToken)
         {
             await validator.ValidateAndThrowAsync(command, cancellationToken);
 

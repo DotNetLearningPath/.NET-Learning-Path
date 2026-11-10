@@ -2,6 +2,6 @@
 {
     public interface IQueryHandler<TQuery, TResult>
     {
-        Task<TResult?> Handle(TQuery query, CancellationToken cancellationToken);
+        Task<TResult?> HandleAsync(TQuery query, CancellationToken cancellationToken);
     }
 }
