@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SupportAPI.Domain.Entities;
+using SupportAPI.Infrastructure.Constants;
 
 namespace SupportAPI.Infrastructure.Configurations
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        private const string UniqueIdentityIndex = "UX_Users_IdentityIssuer_IdentitySubject";
-
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(u => u.Id);
@@ -32,7 +31,7 @@ namespace SupportAPI.Infrastructure.Configurations
                 u.IdentitySubject
             })
             .IsUnique()
-            .HasDatabaseName(UniqueIdentityIndex);
+            .HasDatabaseName(UserIndexNames.UniqueIdentityIndex);
         }
     }
 }
