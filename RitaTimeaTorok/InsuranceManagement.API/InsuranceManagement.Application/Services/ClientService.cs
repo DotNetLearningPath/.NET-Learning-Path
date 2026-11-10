@@ -7,13 +7,15 @@ using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
 using InsuranceManagement.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace InsuranceManagement.Application.Services
 {
     public class ClientService(
         IClientRepository clientRepository,
         IBuildingRepository buildingRepository,
-        IMapper mapper) : IClientService
+        IMapper mapper,
+        ILogger<ClientService> logger) : IClientService
     {
         public async Task<PagedResult<ClientDto>> GetAllClientsAsync(
             int pageNumber,
@@ -23,6 +25,9 @@ namespace InsuranceManagement.Application.Services
         {
             PaginationValidator.Validate(pageNumber, pageSize);
             var page = await clientRepository.SearchAsync(name, identifier, pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved clients page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} clients",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
 
             return new PagedResult<ClientDto>
             {
@@ -41,6 +46,9 @@ namespace InsuranceManagement.Application.Services
             var clientDetails = mapper.Map<ClientDetailsDto>(client);
             var buildings = await buildingRepository.GetByClientIdAsync(id);
             clientDetails.Buildings = mapper.Map<List<BuildingDto>>(buildings);
+            logger.LogInformation(
+                "Retrieved client {ClientId} with {BuildingCount} associated buildings",
+                id, buildings.Count);
 
             return clientDetails;
         }
@@ -51,6 +59,8 @@ namespace InsuranceManagement.Application.Services
             await ValidateClientAsync(client);
 
             client = await clientRepository.AddAsync(client);
+
+            logger.LogInformation("Created client {ClientId}", client.Id);
             return mapper.Map<ClientDto>(client);
         }
 
@@ -63,6 +73,7 @@ namespace InsuranceManagement.Application.Services
             await ValidateClientAsync(client, id);
 
             await clientRepository.UpdateAsync(client);
+            logger.LogInformation("Updated client {ClientId}", client.Id);
             return mapper.Map<ClientDto>(client);
         }
 
@@ -76,6 +87,7 @@ namespace InsuranceManagement.Application.Services
                     "Cannot delete a client that owns buildings.");
 
             await clientRepository.DeleteAsync(client);
+            logger.LogInformation("Deleted client {ClientId}", id);
         }
 
         private async Task ValidateClientAsync(
@@ -92,6 +104,5 @@ namespace InsuranceManagement.Application.Services
                 client.IdentificationNumber, excludeClientId))
                 throw new ConflictException("A client with this identification number already exists.");
         }
-
     }
 }
