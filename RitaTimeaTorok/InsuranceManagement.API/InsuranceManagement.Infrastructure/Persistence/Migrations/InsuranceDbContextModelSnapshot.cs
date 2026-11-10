@@ -201,6 +201,63 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.Currency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<decimal>("ExchangeRateToBase")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("decimal(18,8)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Currencies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("66666666-6666-4666-8666-666666666666"),
+                            Code = "RON",
+                            ExchangeRateToBase = 1.00m,
+                            IsActive = true,
+                            Name = "Romanian Leu"
+                        },
+                        new
+                        {
+                            Id = new Guid("77777777-7777-4777-8777-777777777777"),
+                            Code = "EUR",
+                            ExchangeRateToBase = 5.00m,
+                            IsActive = true,
+                            Name = "Euro"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-4888-8888-888888888888"),
+                            Code = "USD",
+                            ExchangeRateToBase = 4.50m,
+                            IsActive = true,
+                            Name = "US Dollar"
+                        });
+                });
+
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Building", b =>
                 {
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)

@@ -30,18 +30,21 @@ builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICountyRepository, CountyRepository>();
+builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICountyService, CountyService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 
 builder.Services.AddAutoMapper(
     config => { },
     typeof(GeographyMappingProfile),
     typeof(ClientMappingProfile),
-    typeof(BuildingMappingProfile));
+    typeof(BuildingMappingProfile),
+    typeof(CurrencyMappingProfile));
 
 builder.Services.AddControllers();
 
