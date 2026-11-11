@@ -1,4 +1,4 @@
-@SupportAPI_HostAddress = http://localhost:8080
+@SupportAPI_HostAddress = https://localhost:8080
 @accessToken = paste-access-token-here
 @requestId = 00000000-0000-0000-0000-000000000000
 

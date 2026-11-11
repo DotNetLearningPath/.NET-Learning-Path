@@ -19,21 +19,30 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.8.1
-    command: ["start-dev", "--import-realm"]
+    command: ["start-dev", "--import-realm", "--https-port=8443", "--server-async-bootstrap=false"]
     environment:
       KC_HEALTH_ENABLED: "true"
-      KC_HOSTNAME: "http://localhost:8180"
+      KC_HOSTNAME: "https://localhost:8180"
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HTTP_ENABLED: "false"
+      KC_HTTPS_CERTIFICATE_FILE: "/certs/localhost.crt"
+      KC_HTTPS_CERTIFICATE_KEY_FILE: "/certs/localhost.key"
+      KC_HTTPS_CERTIFICATE_KEY_FILE_PASSWORD: ${LOCAL_TLS_CERT_PASSWORD}
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
     ports:
-      - "8180:8080"
+      - "8180:8443"
     volumes:
       - keycloak-data:/opt/keycloak/data
       - ./keycloak:/opt/keycloak/data/import:ro
       - ./keycloak/themes/support:/opt/keycloak/themes/support:ro
+      - ./.certs:/certs:ro
+    networks:
+      default:
+        aliases:
+          - keycloak.dev.localhost
     healthcheck:
-      test: ["CMD", "bash", "-ec", "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
+      test: ["CMD-SHELL", "bash -ec 'exec 3<>/dev/tcp/localhost/9000'"]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -55,9 +64,16 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Keycloak__MetadataAddress: "http://keycloak:8080/realms/support/.well-known/openid-configuration"
-      Keycloak__RealmUrl: "http://localhost:8180/realms/support"
-      Keycloak__Issuer: "http://localhost:8180/realms/support"
+      ASPNETCORE_URLS: "https://+:8080"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/certs/localhost.crt"
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: "/certs/localhost.key"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${LOCAL_TLS_CERT_PASSWORD}
+      SSL_CERT_FILE: "/certs/localhost.crt"
+      Keycloak__MetadataAddress: "https://keycloak.dev.localhost:8443/realms/support/.well-known/openid-configuration"
+      Keycloak__RealmUrl: "https://localhost:8180/realms/support"
+      Keycloak__Issuer: "https://localhost:8180/realms/support"
+    volumes:
+      - ./.certs:/certs:ro
     secrets:
       - source: supportdb_connection_string
         target: ConnectionStrings__SupportDb
@@ -69,8 +85,8 @@ services:
       context: ${FRONTEND_PATH:-../frontend}
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: "http://localhost:8080"
-        VITE_KEYCLOAK_URL: "http://localhost:8180"
+        VITE_API_BASE_URL: "https://localhost:8080"
+        VITE_KEYCLOAK_URL: "https://localhost:8180"
         VITE_KEYCLOAK_REALM: "support"
         VITE_KEYCLOAK_CLIENT_ID: "support-frontend"
     ports:

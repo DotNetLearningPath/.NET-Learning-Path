@@ -20,7 +20,7 @@ namespace SupportAPI.Api
                 .AddJwtBearer(options =>
                  {
                      options.MetadataAddress = keycloakConfiguration.MetadataAddress;
-                     options.RequireHttpsMetadata = false;
+                     options.RequireHttpsMetadata = true;
                      options.MapInboundClaims = false;
                      options.TokenValidationParameters = new TokenValidationParameters
                      {

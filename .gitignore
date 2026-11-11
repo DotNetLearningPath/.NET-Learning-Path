@@ -39,6 +39,9 @@ ScaffoldingReadMe.txt
 # dotenv environment variables file
 .env
 
+# Local development TLS certificate
+CatalinFesteu/Support.API/.certs/
+
 # Others
 ~$*
 *~
