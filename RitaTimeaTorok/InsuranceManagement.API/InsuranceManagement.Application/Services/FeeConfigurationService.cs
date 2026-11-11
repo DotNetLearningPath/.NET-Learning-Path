@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Metadata;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -14,11 +15,21 @@ namespace InsuranceManagement.Application.Services
         IMapper mapper,
         ILogger<FeeConfigurationService> logger) : IFeeConfigurationService
     {
-        public async Task<IReadOnlyList<FeeConfigurationDto>> GetAllFeeConfigurationsAsync()
+        public async Task<PagedResult<FeeConfigurationDto>> GetAllFeeConfigurationsAsync(int pageNumber, int pageSize)
         {
-            var configurations = await feeConfigurationRepository.GetAllAsync();
-            logger.LogInformation("Retrieved {ConfigurationCount} fee configurations", configurations.Count);
-            return mapper.Map<List<FeeConfigurationDto>>(configurations);
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await feeConfigurationRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved fee configurations page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} configurations",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
+
+            return new PagedResult<FeeConfigurationDto>
+            {
+                Items = mapper.Map<List<FeeConfigurationDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
         }
 
         public async Task<FeeConfigurationDto> CreateFeeConfigurationAsync(CreateFeeConfigurationDto request)

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Metadata;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -14,11 +15,21 @@ namespace InsuranceManagement.Application.Services
         IMapper mapper,
         ILogger<CurrencyService> logger) : ICurrencyService
     {
-        public async Task<IReadOnlyList<CurrencyDto>> GetAllCurrenciesAsync()
+        public async Task<PagedResult<CurrencyDto>> GetAllCurrenciesAsync(int pageNumber, int pageSize)
         {
-            var currencies = await currencyRepository.GetAllAsync();
-            logger.LogInformation("Retrieved {CurrencyCount} currencies", currencies.Count);
-            return mapper.Map<List<CurrencyDto>>(currencies);
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await currencyRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved currencies page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} currencies",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
+
+            return new PagedResult<CurrencyDto>
+            {
+                Items = mapper.Map<List<CurrencyDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
         }
 
         public async Task<CurrencyDto> CreateCurrencyAsync(CreateCurrencyDto request)
@@ -90,11 +101,14 @@ namespace InsuranceManagement.Application.Services
                     request.ExchangeRateToBase.Value <= 0)
                     throw new ValidationException("Exchange rate to base must be greater than zero.");
 
-                if (request.IsActive.HasValue &&
-                    currency.IsActive == request.IsActive.Value)
+                var isActiveUnchanged = !request.IsActive.HasValue ||
+                    currency.IsActive == request.IsActive.Value;
+                var exchangeRateUnchanged = !request.ExchangeRateToBase.HasValue ||
+                    currency.ExchangeRateToBase == request.ExchangeRateToBase.Value;
+
+                if (isActiveUnchanged && exchangeRateUnchanged)
                 {
-                    var status = currency.IsActive ? "active" : "inactive";
-                    throw new ConflictException($"Currency '{currency.Code}' is already {status}.");
+                    throw new ConflictException($"Currency '{currency.Code}' already has the requested values.");
                 }
             }
     }

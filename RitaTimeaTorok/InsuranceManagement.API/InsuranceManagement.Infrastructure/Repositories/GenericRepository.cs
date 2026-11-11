@@ -10,11 +10,6 @@ namespace InsuranceManagement.Infrastructure.Repositories
         where TEntity : class, IEntity
     {
         protected readonly InsuranceDbContext _context = context;
-        public Task<List<TEntity>> GetAllAsync() =>
-            _context.Set<TEntity>()
-                .AsNoTracking()
-                .OrderBy(entity => entity.Id)
-                .ToListAsync();
 
         public async Task<PagedResult<TEntity>> GetPageAsync(int pageNumber, int pageSize)
         {

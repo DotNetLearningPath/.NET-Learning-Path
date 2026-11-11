@@ -1,6 +1,9 @@
 using InsuranceManagement.Application.DTOs.Metadata;
+using InsuranceManagement.Application.Constants;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -11,9 +14,13 @@ namespace InsuranceManagement.API.Controllers
     {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IReadOnlyList<CurrencyDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<CurrencyDto>>> GetAll(
+            [FromQuery, Range(PaginationLimits.MinimumPageNumber, PaginationLimits.MaximumPageNumber)]
+                int pageNumber = PaginationLimits.DefaultPageNumber,
+            [FromQuery, Range(PaginationLimits.MinimumPageSize, PaginationLimits.MaximumPageSize)]
+                int pageSize = PaginationLimits.DefaultPageSize)
         {
-            return Ok(await currencyService.GetAllCurrenciesAsync());
+            return Ok(await currencyService.GetAllCurrenciesAsync(pageNumber, pageSize));
         }
 
         [HttpPost]
@@ -23,7 +30,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<CurrencyDto>> Create(CreateCurrencyDto request)
         {
             var currency = await currencyService.CreateCurrencyAsync(request);
-            return CreatedAtAction(nameof(GetAll), currency);
+            return StatusCode(StatusCodes.Status201Created, currency);
         }
 
         [HttpPut("{id:guid}")]

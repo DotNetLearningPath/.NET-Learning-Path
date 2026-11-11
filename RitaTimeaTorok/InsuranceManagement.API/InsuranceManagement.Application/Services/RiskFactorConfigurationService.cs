@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using InsuranceManagement.Application.DTOs.Metadata;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Application.Interfaces.Repositories;
 using InsuranceManagement.Application.Interfaces.Services;
@@ -19,11 +20,23 @@ namespace InsuranceManagement.Application.Services
         IMapper mapper,
         ILogger<RiskFactorConfigurationService> logger) : IRiskFactorConfigurationService
     {
-        public async Task<IReadOnlyList<RiskFactorConfigurationDto>> GetAllRiskFactorConfigurationsAsync()
+        public async Task<PagedResult<RiskFactorConfigurationDto>> GetAllRiskFactorConfigurationsAsync(
+            int pageNumber,
+            int pageSize)
         {
-            var configurations = await riskFactorConfigurationRepository.GetAllAsync();
-            logger.LogInformation("Retrieved {ConfigurationCount} risk factor configurations", configurations.Count);
-            return mapper.Map<List<RiskFactorConfigurationDto>>(configurations);
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await riskFactorConfigurationRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved risk factor configurations page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} configurations",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
+
+            return new PagedResult<RiskFactorConfigurationDto>
+            {
+                Items = mapper.Map<List<RiskFactorConfigurationDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
         }
 
         public async Task<RiskFactorConfigurationDto> CreateRiskFactorConfigurationAsync(

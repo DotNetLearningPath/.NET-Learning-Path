@@ -1,6 +1,9 @@
 using InsuranceManagement.Application.DTOs.Metadata;
+using InsuranceManagement.Application.Constants;
+using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceManagement.API.Controllers
 {
@@ -12,9 +15,13 @@ namespace InsuranceManagement.API.Controllers
     {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IReadOnlyList<RiskFactorConfigurationDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<RiskFactorConfigurationDto>>> GetAll(
+            [FromQuery, Range(PaginationLimits.MinimumPageNumber, PaginationLimits.MaximumPageNumber)]
+                int pageNumber = PaginationLimits.DefaultPageNumber,
+            [FromQuery, Range(PaginationLimits.MinimumPageSize, PaginationLimits.MaximumPageSize)]
+                int pageSize = PaginationLimits.DefaultPageSize)
         {
-            return Ok(await riskFactorConfigurationService.GetAllRiskFactorConfigurationsAsync());
+            return Ok(await riskFactorConfigurationService.GetAllRiskFactorConfigurationsAsync(pageNumber, pageSize));
         }
 
         [HttpPost]
@@ -24,7 +31,7 @@ namespace InsuranceManagement.API.Controllers
         public async Task<ActionResult<RiskFactorConfigurationDto>> Create(CreateRiskFactorConfigurationDto request)
         {
             var configuration = await riskFactorConfigurationService.CreateRiskFactorConfigurationAsync(request);
-            return CreatedAtAction(nameof(GetAll), configuration);
+            return StatusCode(StatusCodes.Status201Created, configuration);
         }
 
         [HttpPut("{id:guid}")]
