@@ -10,7 +10,9 @@ public interface IBrokerRepository
     Task<PagedResult<Broker>> GetBrokersAsync(PageQuery query, CancellationToken cancellationToken);
     
     Task<bool> BrokerExistsByCodeAsync(string code, CancellationToken cancellationToken);
-    
+
+    Task<bool> IsBrokerActiveAsync(Guid brokerId, CancellationToken cancellationToken);
+
     Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken);
     
     Task UpdateBrokerAsync(Broker broker, CancellationToken cancellationToken);

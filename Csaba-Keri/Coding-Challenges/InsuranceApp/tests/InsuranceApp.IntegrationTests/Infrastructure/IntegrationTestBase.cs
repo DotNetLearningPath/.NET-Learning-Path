@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Infrastructure.Persistence;
+﻿using InsuranceApp.Application.Common.Security;
+using InsuranceApp.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
@@ -10,17 +11,24 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 {
     private readonly IntegrationTestFixture _fixture = fixture;
 
-    private protected HttpClient HttpClient { get; private set; } = null!;
+    private protected HttpClient AdminHttpClient { get; private set; } = null!;
+    private protected HttpClient BrokerHttpClient { get; private set; } = null!;
+    private protected HttpClient AnonymousHttpClient { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-        HttpClient = _fixture.CreateHttpClient();
+
+        AdminHttpClient = _fixture.CreateAuthenticatedHttpClient(ApplicationRoles.Admin);
+        BrokerHttpClient = _fixture.CreateAuthenticatedHttpClient(ApplicationRoles.Broker);
+        AnonymousHttpClient = _fixture.CreateHttpClient();
     }
 
     public Task DisposeAsync()
     {
-        HttpClient?.Dispose();
+        AdminHttpClient?.Dispose();
+        BrokerHttpClient?.Dispose();
+        AnonymousHttpClient?.Dispose();
 
         return Task.CompletedTask;
     }
@@ -37,7 +45,7 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 
     private protected async Task<JsonObject> CreateClientAsync(JsonObject? request = null)
     {
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: "/api/brokers/clients",
             value: request ?? TestData.Client()
         );
@@ -49,7 +57,7 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 
     private protected async Task<JsonObject> CreateBuildingAsync(Guid clientId, JsonObject? request = null)
     {
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await BrokerHttpClient.PostAsJsonAsync(
             requestUri: $"/api/brokers/clients/{clientId}/buildings",
             value: request ?? TestData.Building()
         );
@@ -61,7 +69,7 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 
     private protected async Task<JsonObject> CreateBrokerAsync(JsonObject? request = null)
     {
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/brokers",
             value: request ?? TestData.Broker()
         );
@@ -73,7 +81,7 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 
     private protected async Task<JsonObject> CreateCurrencyAsync(JsonObject? request = null)
     {
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
             value: request ?? TestData.Currency()
         );
@@ -85,7 +93,7 @@ public abstract class IntegrationTestBase(IntegrationTestFixture fixture) : IAsy
 
     private protected async Task<JsonObject> CreateFeeAsync(JsonObject? request = null)
     {
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/fees",
             value: request ?? TestData.Fee()
         );

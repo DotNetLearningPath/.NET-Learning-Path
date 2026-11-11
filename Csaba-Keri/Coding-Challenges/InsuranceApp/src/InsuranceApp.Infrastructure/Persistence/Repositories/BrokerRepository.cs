@@ -39,6 +39,16 @@ public class BrokerRepository(InsuranceDbContext context) : IBrokerRepository
         );
     }
 
+    public Task<bool> IsBrokerActiveAsync(Guid brokerId, CancellationToken cancellationToken)
+    {
+        return _context.Brokers
+            .AsNoTracking()
+            .AnyAsync(
+                broker => broker.Id == brokerId && broker.Status == BrokerStatus.Active,
+                cancellationToken
+            );
+    }
+
     public async Task AddBrokerAsync(Broker broker, CancellationToken cancellationToken)
     {
         _context.Brokers.Add(broker.ToEntity());

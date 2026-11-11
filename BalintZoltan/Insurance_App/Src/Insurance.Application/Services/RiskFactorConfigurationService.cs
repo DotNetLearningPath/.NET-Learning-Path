@@ -23,6 +23,14 @@ public sealed class RiskFactorConfigurationService(
         };
     }
 
+    public async Task<RiskFactorConfigurationDto> GetRiskFactorByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var configuration = await GetByIdAsync(id, cancellationToken);
+        return MapToRiskFactorDto(configuration);
+    }
+
     public async Task<RiskFactorConfigurationDto> CreateRiskFactorAsync(
         SaveRiskFactorConfigurationRequest request,
         CancellationToken cancellationToken)
