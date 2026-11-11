@@ -15,32 +15,6 @@ public sealed class AuthEndpointsTests(WebApplicationFactorySqlServer factory) :
 {
     private const string BaseUrl = "/api/auth";
 
-    private async Task<User> SeedUserAsync(User user)
-    {
-        var passwordService = factory.Services.GetRequiredService<IPasswordService>();
-
-        user.PasswordHash = passwordService.HashPassword(user, TestData.TestPassword);
-
-        await SeedAsync(user);
-
-        return user;
-    }
-
-    private async Task<LoginResponseDto> LoginAsync(string username)
-    {
-        // Act
-        var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/login", new LoginDto { Username = username, Password = TestData.TestPassword });
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
-
-        Assert.NotNull(result);
-
-        return result;
-    }
-
     #region Login
 
     [Fact]
