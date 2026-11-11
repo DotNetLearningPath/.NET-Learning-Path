@@ -1,7 +1,7 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
-using InsuranceApp.Application.Models.Services;
+using InsuranceApp.Application.Models.Policy;
 
 namespace InsuranceApp.Application.Services;
 

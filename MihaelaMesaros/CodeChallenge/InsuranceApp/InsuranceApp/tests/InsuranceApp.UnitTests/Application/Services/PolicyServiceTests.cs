@@ -3,7 +3,7 @@ using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.Exceptions;
-using InsuranceApp.Application.Models.Services;
+using InsuranceApp.Application.Models.Policy;
 using InsuranceApp.Application.Services;
 using InsuranceApp.Domain.Constants;
 using InsuranceApp.Domain.Entities;

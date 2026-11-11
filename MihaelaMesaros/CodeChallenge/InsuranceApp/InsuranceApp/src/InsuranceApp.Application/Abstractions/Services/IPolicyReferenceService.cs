@@ -1,5 +1,5 @@
 ﻿using InsuranceApp.Application.Common;
-using InsuranceApp.Application.Models.Services;
+using InsuranceApp.Application.Models.Policy;
 
 namespace InsuranceApp.Application.Abstractions.Services;
 

@@ -1,5 +1,8 @@
+using InsuranceApp.Api.Configurations;
 using InsuranceApp.Api.ExceptionHandling;
+using InsuranceApp.Api.Security;
 using InsuranceApp.Application;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Infrastructure;
 using InsuranceApp.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +21,12 @@ builder.Services.AddControllers();
 builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IRefreshTokenCookieService, RefreshTokenCookieService>();
+
+builder.Services.AddScoped<ValidateOriginFilter>();
 #endregion
 
 
@@ -109,6 +118,20 @@ builder.Services.AddAuthorization();
 #endregion
 
 
+builder.Services.Configure<CorsSettings>(builder.Configuration.GetSection(CorsSettings.SectionName));
+var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>() ?? throw new InvalidOperationException("CORS settings are missing.");
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(corsSettings.PolicyName, policy =>
+    {
+        policy.WithOrigins(corsSettings.AllowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 
@@ -139,11 +162,14 @@ app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
+app.UseCors(corsSettings.PolicyName);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 #endregion
+
 
 await app.RunAsync();

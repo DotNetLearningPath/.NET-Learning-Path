@@ -1,5 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
-using InsuranceApp.Application.Models.Persistence;
+using InsuranceApp.Application.Models.Geography;
 using InsuranceApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Data;

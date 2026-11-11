@@ -1,5 +1,6 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Common;
+using InsuranceApp.Application.Models.Policy;
 using InsuranceApp.Application.Services;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.UnitTests.Common;
@@ -211,7 +212,7 @@ public sealed class PolicyReferenceServiceTests
 
     #region Helpers
 
-    private void SetupValidReferences(InsuranceApp.Application.Models.Services.PolicyReferences references)
+    private void SetupValidReferences(PolicyReferences references)
     {
         _clientRepositoryMock.Setup(x => x.GetClientByIdAsync(references.Client.ClientId, It.IsAny<CancellationToken>())).ReturnsAsync(references.Client);
         _buildingRepositoryMock.Setup(x => x.GetBuildingByIdAsync(references.Building.BuildingId, It.IsAny<CancellationToken>())).ReturnsAsync(references.Building);

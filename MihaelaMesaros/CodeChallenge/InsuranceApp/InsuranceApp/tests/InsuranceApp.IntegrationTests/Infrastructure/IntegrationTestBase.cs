@@ -19,6 +19,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     {
         HttpClient = factory.CreateClient();
 
+        HttpClient.DefaultRequestHeaders.Add("Origin", "https://localhost:56453");
+
         _scope = factory.Services.CreateScope();
 
         DbContext = _scope.ServiceProvider.GetRequiredService<InsuranceDbContext>();

@@ -43,6 +43,7 @@ ScaffoldingReadMe.txt
 ~$*
 *~
 CodeCoverage/
+**/CoverageReport/
 
 # MSBuild Binary and Structured Log
 *.binlog
@@ -71,3 +72,5 @@ MihaelaMesaros/CodeChallenge/InsuranceApp/InsuranceApp/CODE_REVIEW.md
 *.md
 /BalintZoltan/Insurance_App/.sonarqube
 /BalintZoltan/Insurance_App/Resources/Insurance_app_demo.pptx
+MihaelaMesaros/CodeChallenge/InsuranceApp/_temp/
+MihaelaMesaros/CodeChallenge/InsuranceApp/InsuranceApp/node_modules/

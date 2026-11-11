@@ -1,4 +1,4 @@
-﻿using InsuranceApp.Application.Models.Persistence;
+﻿using InsuranceApp.Application.Models.Geography;
 using InsuranceApp.Domain.Entities;
 
 namespace InsuranceApp.Application.Abstractions.Persistence;

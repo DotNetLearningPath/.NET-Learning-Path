@@ -1,6 +1,6 @@
 ﻿using InsuranceApp.Domain.Entities;
 
-namespace InsuranceApp.Application.Models.Services;
+namespace InsuranceApp.Application.Models.Policy;
 
 public sealed record PolicyReferences(
     Client Client,

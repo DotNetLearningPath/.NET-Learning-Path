@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InsuranceApp.Infrastructure.Security;
+﻿namespace InsuranceApp.Infrastructure.Security;
 
 public sealed class JwtSettings
 {

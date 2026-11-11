@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\InsuranceApp.Api\\InsuranceApp.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\InsuranceApp.UI\\insuranceapp.ui.ts.esproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,6 +1,6 @@
 ﻿using InsuranceApp.Application.Abstractions.Persistence;
 using InsuranceApp.Application.Common;
-using InsuranceApp.Application.Models.Persistence;
+using InsuranceApp.Application.Models.Geography;
 using InsuranceApp.Application.Services;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.UnitTests.Common;

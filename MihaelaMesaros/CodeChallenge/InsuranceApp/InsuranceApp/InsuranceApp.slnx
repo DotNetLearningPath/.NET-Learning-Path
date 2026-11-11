@@ -4,6 +4,10 @@
     <Project Path="src/InsuranceApp.Application/InsuranceApp.Application.csproj" />
     <Project Path="src/InsuranceApp.Domain/InsuranceApp.Domain.csproj" />
     <Project Path="src/InsuranceApp.Infrastructure/InsuranceApp.Infrastructure.csproj" />
+    <Project Path="src/InsuranceApp.UI/insuranceapp.ui.ts.esproj">
+      <Build />
+      <Deploy />
+    </Project>
   </Folder>
 
   <Folder Name="/tests/">

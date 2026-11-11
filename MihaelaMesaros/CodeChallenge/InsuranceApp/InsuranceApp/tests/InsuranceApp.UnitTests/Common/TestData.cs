@@ -6,8 +6,8 @@ using InsuranceApp.Application.DTOs.FeeConfig;
 using InsuranceApp.Application.DTOs.Policy;
 using InsuranceApp.Application.DTOs.Reports;
 using InsuranceApp.Application.DTOs.RiskFactorConfig;
-using InsuranceApp.Application.Models.Persistence;
-using InsuranceApp.Application.Models.Services;
+using InsuranceApp.Application.Models.Geography;
+using InsuranceApp.Application.Models.Policy;
 using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
 
