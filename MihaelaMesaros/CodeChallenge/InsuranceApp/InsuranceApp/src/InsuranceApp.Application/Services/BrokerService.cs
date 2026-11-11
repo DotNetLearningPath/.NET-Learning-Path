@@ -103,10 +103,7 @@ public sealed class BrokerService(IBrokerRepository brokerRepository, ILogger<Br
             return Result<BrokerDto>.Failure(BrokerErrors.DuplicateBrokerCode(createBrokerDto.BrokerCode));
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Broker {BrokerId} created.", broker.BrokerId);
-        }
+        logger.LogInformation("Broker {BrokerId} created.", broker.BrokerId);
 
         return Result<BrokerDto>.Success(MapBrokerToDto(broker));
     }
@@ -184,10 +181,7 @@ public sealed class BrokerService(IBrokerRepository brokerRepository, ILogger<Br
             return Result<BrokerDto>.Failure(BrokerErrors.DuplicateBrokerCode(updateBrokerDto.BrokerCode));
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Broker {BrokerId} updated.", brokerId);
-        }
+        logger.LogInformation("Broker {BrokerId} updated.", brokerId);
 
         return Result<BrokerDto>.Success(MapBrokerToDto(broker));
     }
@@ -211,10 +205,7 @@ public sealed class BrokerService(IBrokerRepository brokerRepository, ILogger<Br
 
         await brokerRepository.SaveBrokerChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Broker {BrokerId} activated.", brokerId);
-        }
+        logger.LogInformation("Broker {BrokerId} activated.", brokerId);
 
         return Result<BrokerDto>.Success(MapBrokerToDto(broker));
     }
@@ -237,11 +228,8 @@ public sealed class BrokerService(IBrokerRepository brokerRepository, ILogger<Br
         broker.ModifiedAt = DateTime.UtcNow;
 
         await brokerRepository.SaveBrokerChangesAsync(cancellationToken);
-
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Broker {BrokerId} deactivated.", brokerId);
-        }
+        
+        logger.LogInformation("Broker {BrokerId} deactivated.", brokerId);
 
         return Result<BrokerDto>.Success(MapBrokerToDto(broker));
     }

@@ -1,4 +1,7 @@
 ﻿using FluentValidation;
+using InsuranceApp.Application.Authentication;
+using InsuranceApp.Application.Authentication.Commands;
+using InsuranceApp.Application.Authentication.Validation;
 using InsuranceApp.Application.Brokers;
 using InsuranceApp.Application.Brokers.Commands;
 using InsuranceApp.Application.Brokers.Validation;
@@ -40,6 +43,7 @@ public static class DependencyInjection
 
         services.AddSingleton<TimeProvider>(TimeProvider.System);
 
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IGeographyService, GeographyService>();
         services.AddScoped<IBuildingService, BuildingService>();
@@ -54,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<IPolicyQueryService, PolicyQueryService>();
         services.AddScoped<IPolicyReportService, PolicyReportService>();
 
+        services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<CreateClientCommand>, CreateClientCommandValidator>();
         services.AddScoped<IValidator<UpdateClientCommand>, UpdateClientCommandValidator>();
         services.AddScoped<IValidator<SearchClientsQuery>, SearchClientsQueryValidator>();

@@ -1,8 +1,11 @@
-﻿using InsuranceApp.Infrastructure.Persistence;
+﻿using InsuranceApp.Application.Authentication;
+using InsuranceApp.Infrastructure.Persistence;
+using InsuranceApp.IntegrationTests.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Respawn;
+using System.Net.Http.Headers;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
 
@@ -41,7 +44,8 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
                     new("public", "__EFMigrationsHistory"),
                     new("public", "countries"),
                     new("public", "counties"),
-                    new("public", "cities")
+                    new("public", "cities"),
+                    new("public", "AspNetRoles")
                 ]
             });
         }
@@ -53,6 +57,21 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
     }
 
     internal HttpClient CreateHttpClient() => _apiFactory!.CreateClient();
+
+    internal HttpClient CreateAuthenticatedHttpClient(string role)
+    {
+        using var scope = Services.CreateScope();
+        
+        var token = scope.ServiceProvider
+            .GetRequiredService<IAccessTokenGenerator>()
+            .Generate(AuthenticationTestData.Account(role));
+        
+        var httpClient = CreateHttpClient();
+        
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+        
+        return httpClient;
+    }
 
     internal async Task ResetDatabaseAsync()
     {

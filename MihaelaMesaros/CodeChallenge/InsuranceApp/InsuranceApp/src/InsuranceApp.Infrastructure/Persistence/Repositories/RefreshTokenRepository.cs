@@ -24,7 +24,7 @@ internal sealed class RefreshTokenRepository(InsuranceDbContext dbContext) : IRe
     public async Task RevokeAllUserTokensAsync(Guid userId, DateTime revokedAt, CancellationToken cancellationToken)
     {
         await dbContext.UserRefreshTokens
-            .Where(x =>x.UserId == userId && x.RevokedAt == null && x.ExpiresAt > revokedAt)
+            .Where(x => x.UserId == userId && x.RevokedAt == null && x.ExpiresAt > revokedAt)
             .ExecuteUpdateAsync(x => x.SetProperty(x => x.RevokedAt, revokedAt), cancellationToken);
     }
 
@@ -32,9 +32,7 @@ internal sealed class RefreshTokenRepository(InsuranceDbContext dbContext) : IRe
     {
         var affectedRows = await dbContext.UserRefreshTokens
             .Where(x => x.TokenHash == tokenHash && x.RevokedAt == null && x.ExpiresAt > revokedAt)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.RevokedAt, revokedAt),
-                cancellationToken);
+            .ExecuteUpdateAsync(x => x.SetProperty(x => x.RevokedAt, revokedAt), cancellationToken);
 
         return affectedRows == 1;
     }

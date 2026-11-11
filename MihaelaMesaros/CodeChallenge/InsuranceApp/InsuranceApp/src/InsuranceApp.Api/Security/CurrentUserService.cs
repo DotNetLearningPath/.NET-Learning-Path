@@ -1,4 +1,5 @@
 ﻿using InsuranceApp.Application.Abstractions.Security;
+using InsuranceApp.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace InsuranceApp.Api.Security;

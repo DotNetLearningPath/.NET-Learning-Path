@@ -28,11 +28,6 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<Guid>("CityId")
                         .HasColumnType("uniqueidentifier");
 
@@ -48,6 +43,16 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("NumberOfFloors")
                         .HasColumnType("int");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("StreetNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("SurfaceArea")
                         .HasPrecision(18, 3)
@@ -90,6 +95,10 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("PrimaryAddress")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -192,45 +201,148 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.Currency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<decimal>("ExchangeRateToBase")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("decimal(18,8)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Currencies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("66666666-6666-4666-8666-666666666666"),
+                            Code = "RON",
+                            ExchangeRateToBase = 1.00m,
+                            IsActive = true,
+                            Name = "Romanian Leu"
+                        },
+                        new
+                        {
+                            Id = new Guid("77777777-7777-4777-8777-777777777777"),
+                            Code = "EUR",
+                            ExchangeRateToBase = 5.00m,
+                            IsActive = true,
+                            Name = "Euro"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-4888-8888-888888888888"),
+                            Code = "USD",
+                            ExchangeRateToBase = 4.50m,
+                            IsActive = true,
+                            Name = "US Dollar"
+                        });
+                });
+
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.FeeConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Percentage")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeeConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-9999-4999-8999-999999999991"),
+                            EffectiveFrom = new DateOnly(2026, 1, 1),
+                            IsActive = true,
+                            Name = "Standard broker fee",
+                            Percentage = 5m,
+                            Type = "BrokerCommission"
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-9999-4999-8999-999999999992"),
+                            EffectiveFrom = new DateOnly(2026, 1, 1),
+                            IsActive = true,
+                            Name = "Standard admin fee",
+                            Percentage = 2m,
+                            Type = "AdminFee"
+                        });
+                });
+
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Building", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", "City")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)
                         .WithMany()
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("InsuranceManagement.Domain.Entities.Client", "Client")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Client", null)
                         .WithMany()
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("City");
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Geography.City", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", "County")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", null)
                         .WithMany()
                         .HasForeignKey("CountyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("County");
                 });
 
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Geography.County", b =>
                 {
-                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", "Country")
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", null)
                         .WithMany()
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Country");
                 });
 #pragma warning restore 612, 618
         }

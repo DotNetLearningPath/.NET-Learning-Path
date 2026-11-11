@@ -113,10 +113,7 @@ public sealed class BuildingService(
 
         await buildingRepository.AddBuildingAsync(building, cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Building {BuildingId} created.", building.BuildingId);
-        }
+        logger.LogInformation("Building {BuildingId} created.", building.BuildingId);
 
         return Result<BuildingDto>.Success(MapBuildingToDto(building));
     }
@@ -177,10 +174,7 @@ public sealed class BuildingService(
 
         await buildingRepository.SaveBuildingChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Building {BuildingId} updated.", buildingId);
-        }
+        logger.LogInformation("Building {BuildingId} updated.", buildingId);
 
         return Result<BuildingDto>.Success(MapBuildingToDto(building));
     }

@@ -1,6 +1,4 @@
 ﻿using InsuranceApp.Api.Common;
-using InsuranceApp.Api.Security;
-using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +11,10 @@ namespace InsuranceApp.Api.Controllers.Auth;
 /// Provides API endpoints for user authentication.
 /// </summary>
 /// <param name="authService">Handles authentication operations and credential validation.</param>
-/// <param name="refreshTokenCookieService">Handles operations for refresh token cookie.</param>
 /// <param name="logger">Logs authentication requests, outcomes, and operational events.</param>
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService, IRefreshTokenCookieService refreshTokenCookieService, ILogger<AuthController> logger) : ControllerBase
+public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns login details when the credentials are valid.
@@ -26,14 +23,12 @@ public class AuthController(IAuthService authService, IRefreshTokenCookieService
     /// <param name="cancellationToken">Token when cancelling the authentication operation.</param>
     /// <returns>The bearer token when authentication succeeds; otherwise a ProblemDetails response for unauthorized or forbidden access.</returns>
     [AllowAnonymous]
-    [ServiceFilter(typeof(ValidateOriginFilter))]
     [HttpPost("login")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    [ProducesResponseType(typeof(AuthTokenResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<AuthTokenResponseDto>> Login([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
     {
         var result = await authService.LoginAsync(loginDto, cancellationToken);
 
@@ -42,44 +37,32 @@ public class AuthController(IAuthService authService, IRefreshTokenCookieService
             return result.Error!.ToProblemResult();
         }
 
-        refreshTokenCookieService.SetRefreshTokenCookie(result.Value!.RefreshToken, result.Value.RefreshTokenExpiresAt);
-
         logger.LogInformation("User {Username} logged in successfully.", loginDto.Username);
 
-        return Ok(new AuthTokenResponseDto(result.Value.AccessToken, result.Value.ExpiresAt));
+        return Ok(result.Value);
     }
 
     /// <summary>
-    /// Refreshes authentication tokens using the refresh token stored in an HttpOnly cookie.
+    /// Refreshes authentication tokens using the provided refresh token.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A new access token when refresh succeeds.</returns>
+    /// <param name="refreshTokenDto">Refresh token request data used to validate and issue new authentication tokens.</param>
+    /// <param name="cancellationToken">Token that propagates notification that the request should be canceled.</param>
+    /// <returns>An ActionResult containing a LoginResponseDto when refresh succeeds; otherwise an error response for unauthorized or forbidden access.</returns>
     [AllowAnonymous]
-    [ServiceFilter(typeof(ValidateOriginFilter))]
     [HttpPost("refresh")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    [ProducesResponseType(typeof(AuthTokenResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<AuthTokenResponseDto>> RefreshToken(CancellationToken cancellationToken)
+    public async Task<ActionResult<LoginResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto, CancellationToken cancellationToken)
     {
-        var refreshToken = refreshTokenCookieService.GetRefreshTokenCookie();
-
-        if (string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return Unauthorized();
-        }
-
-        var result = await authService.RefreshTokenAsync(new RefreshTokenDto(refreshToken), cancellationToken);
+        var result = await authService.RefreshTokenAsync(refreshTokenDto, cancellationToken);
 
         if (!result.IsSuccess)
         {
             return result.Error!.ToProblemResult();
         }
 
-        refreshTokenCookieService.SetRefreshTokenCookie(result.Value!.RefreshToken, result.Value.RefreshTokenExpiresAt);
-
-        return Ok(new AuthTokenResponseDto(result.Value.AccessToken, result.Value.ExpiresAt));
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -89,12 +72,11 @@ public class AuthController(IAuthService authService, IRefreshTokenCookieService
     /// <returns>An <see cref="IActionResult"/> that returns 204 No Content when logout succeeds, 401 Unauthorized when the user
     /// identifier is invalid, or an error response when logout fails.</returns>
     [Authorize]
-    [ServiceFilter(typeof(ValidateOriginFilter))]
     [HttpPost("logout-all")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> LogoutAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAll(
+    CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
@@ -110,8 +92,6 @@ public class AuthController(IAuthService authService, IRefreshTokenCookieService
             return result.Error!.ToProblemResult();
         }
 
-        refreshTokenCookieService.DeleteRefreshTokenCookie();
-
         return NoContent();
     }
 
@@ -119,28 +99,17 @@ public class AuthController(IAuthService authService, IRefreshTokenCookieService
     /// Revokes a refresh token to end the associated session.
     /// </summary>
     [AllowAnonymous]
-    [ServiceFilter(typeof(ValidateOriginFilter))]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenDto refreshTokenDto, CancellationToken cancellationToken)
     {
-        var refreshToken = refreshTokenCookieService.GetRefreshTokenCookie();
-
-        if (string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return Unauthorized();
-        }
-
-        var result = await authService.LogoutAsync(new RefreshTokenDto(refreshToken), cancellationToken);
+        var result = await authService.LogoutAsync(refreshTokenDto, cancellationToken);
 
         if (!result.IsSuccess)
         {
             return result.Error!.ToProblemResult();
         }
-
-        refreshTokenCookieService.DeleteRefreshTokenCookie();
 
         return NoContent();
     }

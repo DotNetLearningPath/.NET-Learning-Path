@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Persistence;
+using InsuranceApp.Application.Abstractions.Security;
 using InsuranceApp.Application.Abstractions.Services;
 using InsuranceApp.Application.Common;
 using InsuranceApp.Application.DTOs.Policy;
@@ -20,6 +21,7 @@ public sealed class PolicyServiceTests
     private readonly Mock<IPolicyReferenceService> _referenceServiceMock;
     private readonly Mock<IPolicyNumberGeneratorService> _numberGeneratorMock;
     private readonly Mock<IPolicyCalculationService> _calculationServiceMock;
+    private readonly Mock<ICurrentUserService> _currentUserMock;
     private readonly Mock<ILogger<PolicyService>> _loggerMock;
     private readonly PolicyService _service;
 
@@ -29,6 +31,8 @@ public sealed class PolicyServiceTests
         _referenceServiceMock = new Mock<IPolicyReferenceService>();
         _numberGeneratorMock = new Mock<IPolicyNumberGeneratorService>();
         _calculationServiceMock = new Mock<IPolicyCalculationService>();
+        _currentUserMock = new Mock<ICurrentUserService>();
+        _currentUserMock.Setup(x => x.BrokerId).Returns(TestData.BrokerId);
         _loggerMock = new Mock<ILogger<PolicyService>>();
 
         _service = new PolicyService(
@@ -36,6 +40,7 @@ public sealed class PolicyServiceTests
             _referenceServiceMock.Object,
             _numberGeneratorMock.Object,
             _calculationServiceMock.Object,
+            _currentUserMock.Object,
             _loggerMock.Object);
     }
 
@@ -47,7 +52,7 @@ public sealed class PolicyServiceTests
         // Arrange
         var policy = TestData.CreateDraftPolicy1();
 
-        _repositoryMock.Setup(x => x.GetPolicyByIdAsync(policy.PolicyId, It.IsAny<CancellationToken>())).ReturnsAsync(policy);
+        _repositoryMock.Setup(x => x.GetPolicyByIdAsync(policy.PolicyId, TestData.BrokerId, It.IsAny<CancellationToken>())).ReturnsAsync(policy);
 
         // Act
         var result = await _service.GetPolicyByIdAsync(policy.PolicyId, CancellationToken.None);
@@ -73,8 +78,9 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = TestData.NonExistingId;
+        var brokerId = TestData.BrokerId;
 
-        _repositoryMock.Setup(x => x.GetPolicyByIdAsync(policyId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
+        _repositoryMock.Setup(x => x.GetPolicyByIdAsync(policyId, brokerId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
 
         // Act
         var result = await _service.GetPolicyByIdAsync(policyId, CancellationToken.None);
@@ -85,7 +91,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.NotFound, result.Error.Type);
         Assert.Equal(PolicyErrors.NotFound(policyId).Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.GetPolicyByIdAsync(policyId, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.GetPolicyByIdAsync(policyId, brokerId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -93,6 +99,7 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = Guid.Empty;
+        var brokerId = TestData.BrokerId;
 
         // Act
         var result = await _service.GetPolicyByIdAsync(policyId, CancellationToken.None);
@@ -103,7 +110,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidPolicyId.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.GetPolicyByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetPolicyByIdAsync(It.IsAny<Guid>(), brokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
@@ -119,7 +126,7 @@ public sealed class PolicyServiceTests
         var policies = new List<Policy> { policy1, policy2 };
         var search = new PolicySearchDto(null, null, null, null, null, 1, 20);
 
-        _repositoryMock.Setup(x => x.SearchPoliciesAsync(search, It.IsAny<CancellationToken>())).ReturnsAsync((policies, policies.Count));
+        _repositoryMock.Setup(x => x.SearchPoliciesAsync(search, TestData.BrokerId, It.IsAny<CancellationToken>())).ReturnsAsync((policies, policies.Count));
 
         // Act
         var result = await _service.SearchPoliciesAsync(search, CancellationToken.None);
@@ -134,7 +141,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(policy1.PolicyNumber, result.Value.Items[0].PolicyNumber);
         Assert.Equal(policy2.PolicyNumber, result.Value.Items[1].PolicyNumber);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(search, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(search, TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -154,7 +161,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidPageNumber.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -175,7 +182,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidPageSize.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -193,7 +200,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidStatus.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -213,7 +220,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidDateRange.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -246,12 +253,28 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(expectedError.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.SearchPoliciesAsync(It.IsAny<PolicySearchDto>(), TestData.BrokerId, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
 
     #region Create Policy Tests
+
+    [Fact]
+    public async Task CreatePolicyAsync_MissingCurrentBroker_ReturnsNotAuthorized()
+    {
+        // Arrange
+        var policyDto = TestData.CreatePolicyDto();
+
+        _currentUserMock.Setup(x => x.BrokerId).Returns((Guid?)null);
+
+        // Act
+        var result = await _service.CreatePolicyAsync(policyDto, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(AuthErrors.NotAuthorized.Code, result.Error?.Code);
+    }
 
     [Fact]
     public async Task CreatePolicyAsync_ValidPolicy_ReturnsSuccess()
@@ -274,7 +297,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(TestData.PolicyNumber, result.Value.PolicyNumber);
         Assert.Equal(policyDto.ClientId, result.Value.ClientId);
         Assert.Equal(policyDto.BuildingId, result.Value.BuildingId);
-        Assert.Equal(policyDto.BrokerId, result.Value.BrokerId);
+        Assert.Equal(TestData.BrokerId, result.Value.BrokerId);
         Assert.Equal(policyDto.CurrencyId, result.Value.CurrencyId);
         Assert.Equal(PolicyStatus.Draft, result.Value.Status);
         Assert.Equal(policyDto.StartDate, result.Value.StartDate);
@@ -283,7 +306,14 @@ public sealed class PolicyServiceTests
         Assert.Equal(expectedFinalPremium, result.Value.FinalPremium);
 
         _repositoryMock.Verify(x => x.PolicyNumberExistsAsync(TestData.PolicyNumber, It.IsAny<CancellationToken>()), Times.Once);
-        _repositoryMock.Verify(x => x.AddPolicyAsync(It.Is<Policy>(policy => policy.PolicyNumber == TestData.PolicyNumber && policy.Status == PolicyStatus.Draft && policy.FinalPremium == expectedFinalPremium), It.IsAny<CancellationToken>()), Times.Once);
+        
+        _repositoryMock.Verify(x => x.AddPolicyAsync(It.Is<Policy>(policy => 
+            policy.PolicyNumber == TestData.PolicyNumber 
+            && policy.Status == PolicyStatus.Draft 
+            && policy.FinalPremium == expectedFinalPremium
+            && policy.BrokerId == TestData.BrokerId
+        ), It.IsAny<CancellationToken>()), Times.Once);
+
         _calculationServiceMock.Verify(x => x.CalculateFinalPremiumAsync(policyDto.BasePremium, references.Building, policyDto.StartDate, It.IsAny<CancellationToken>()), Times.Once);
         _numberGeneratorMock.Verify(x => x.GeneratePolicyNumber(), Times.Once);
     }
@@ -291,7 +321,6 @@ public sealed class PolicyServiceTests
     [Theory]
     [InlineData("client")]
     [InlineData("building")]
-    [InlineData("broker")]
     [InlineData("currency")]
     public async Task CreatePolicyAsync_EmptyReferenceId_ReturnsValidationError(string field)
     {
@@ -302,7 +331,6 @@ public sealed class PolicyServiceTests
         {
             "client" => PolicyErrors.InvalidClientId,
             "building" => PolicyErrors.InvalidBuildingId,
-            "broker" => PolicyErrors.InvalidBrokerId,
             _ => PolicyErrors.InvalidCurrencyId
         };
 
@@ -310,7 +338,6 @@ public sealed class PolicyServiceTests
         {
             "client" => policyDto with { ClientId = Guid.Empty },
             "building" => policyDto with { BuildingId = Guid.Empty },
-            "broker" => policyDto with { BrokerId = Guid.Empty },
             _ => policyDto with { CurrencyId = Guid.Empty }
         };
 
@@ -334,7 +361,7 @@ public sealed class PolicyServiceTests
         // Arrange
         var policyDto = TestData.CreatePolicyDto();
 
-        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policyDto.ClientId, policyDto.BuildingId, policyDto.BrokerId, policyDto.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Failure(PolicyErrors.InactiveBroker));
+        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policyDto.ClientId, policyDto.BuildingId, TestData.BrokerId, policyDto.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Failure(PolicyErrors.InactiveBroker));
 
         // Act
         var result = await _service.CreatePolicyAsync(policyDto, CancellationToken.None);
@@ -445,6 +472,32 @@ public sealed class PolicyServiceTests
         // Act & Assert
         await AssertInvalidCreatePolicyAsync(policyDto, PolicyErrors.InvalidBasePremiumDecimalPlaces);
     }
+
+    [Fact]
+    public async Task CreatePolicyAsync_DifferentBrokerIdInDto_UsesCurrentBroker()
+    {
+        // Arrange
+        var policyDto = TestData.CreatePolicyDto() with
+        {
+            BrokerId = Guid.NewGuid()
+        };
+
+        var references = TestData.CreatePolicyReferences(policyDto);
+
+        SetupValidPolicyReferences(policyDto, references);
+        SetupPolicyNumberDoesNotExist();
+        SetupCalculatedPremium(policyDto, references.Building, TestData.PolicyFinalPremium);
+
+        // Act
+        var result = await _service.CreatePolicyAsync(policyDto, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Value);
+        Assert.Equal(TestData.BrokerId, result.Value.BrokerId);
+
+        _repositoryMock.Verify(x => x.AddPolicyAsync(It.Is<Policy>(policy => policy.BrokerId == TestData.BrokerId), It.IsAny<CancellationToken>()), Times.Once);
+    }
     #endregion
 
     #region Activate Policy Tests
@@ -483,6 +536,7 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = Guid.Empty;
+        var brokerId = TestData.BrokerId;
 
         // Act
         var result = await _service.ActivatePolicyAsync(policyId, CancellationToken.None);
@@ -493,7 +547,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidPolicyId.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), brokerId, It.IsAny<CancellationToken>()), Times.Never);
         _repositoryMock.Verify(x => x.SavePolicyChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -502,8 +556,9 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = TestData.NonExistingId;
+        var brokerId = TestData.BrokerId;
 
-        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policyId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
+        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policyId, brokerId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
 
         // Act
         var result = await _service.ActivatePolicyAsync(policyId, CancellationToken.None);
@@ -567,7 +622,7 @@ public sealed class PolicyServiceTests
 
         SetupExistingPolicyForUpdate(policy);
 
-        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policy.ClientId, policy.BuildingId, policy.BrokerId, policy.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Failure(PolicyErrors.InactiveBroker));
+        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policy.ClientId, policy.BuildingId, TestData.BrokerId, policy.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Failure(PolicyErrors.InactiveBroker));
 
         // Act
         var result = await _service.ActivatePolicyAsync(policy.PolicyId, CancellationToken.None);
@@ -639,6 +694,7 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = Guid.Empty;
+        var brokerId = TestData.BrokerId;
         var cancelPolicyDto = TestData.CreateCancelPolicyDto();
 
         // Act
@@ -650,7 +706,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(PolicyErrors.InvalidPolicyId.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), brokerId, It.IsAny<CancellationToken>()), Times.Never);
         _repositoryMock.Verify(x => x.SavePolicyChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -754,9 +810,10 @@ public sealed class PolicyServiceTests
     {
         // Arrange
         var policyId = TestData.NonExistingId;
+        var brokerId = TestData.BrokerId;
         var cancelPolicyDto = TestData.CreateCancelPolicyDto();
 
-        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policyId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
+        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policyId, brokerId, It.IsAny<CancellationToken>())).ReturnsAsync((Policy?)null);
 
         // Act
         var result = await _service.CancelPolicyAsync(policyId, cancelPolicyDto, CancellationToken.None);
@@ -775,12 +832,12 @@ public sealed class PolicyServiceTests
 
     private void SetupExistingPolicyForUpdate(Policy policy)
     {
-        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policy.PolicyId, It.IsAny<CancellationToken>())).ReturnsAsync(policy);
+        _repositoryMock.Setup(x => x.GetPolicyForUpdateAsync(policy.PolicyId, TestData.BrokerId, It.IsAny<CancellationToken>())).ReturnsAsync(policy);
     }
 
     private void SetupValidPolicyReferences(CreatePolicyDto policyDto, PolicyReferences references)
     {
-        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policyDto.ClientId, policyDto.BuildingId, policyDto.BrokerId, policyDto.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Success(references));
+        _referenceServiceMock.Setup(x => x.ValidatePolicyReferencesAsync(policyDto.ClientId, policyDto.BuildingId, TestData.BrokerId, policyDto.CurrencyId, It.IsAny<CancellationToken>())).ReturnsAsync(Result<PolicyReferences>.Success(references));
     }
 
     private void SetupPolicyNumberDoesNotExist()
@@ -810,6 +867,7 @@ public sealed class PolicyServiceTests
     private async Task AssertInvalidCancelPolicyAsync(CancelPolicyDto cancelPolicyDto, Error expectedError)
     {
         var policy = TestData.CreateDraftPolicy1();
+        var brokerId = TestData.BrokerId;
 
         var result = await _service.CancelPolicyAsync(policy.PolicyId, cancelPolicyDto, CancellationToken.None);
 
@@ -818,7 +876,7 @@ public sealed class PolicyServiceTests
         Assert.Equal(ErrorType.Validation, result.Error.Type);
         Assert.Equal(expectedError.Code, result.Error.Code);
 
-        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetPolicyForUpdateAsync(It.IsAny<Guid>(), brokerId, It.IsAny<CancellationToken>()), Times.Never);
         _repositoryMock.Verify(x => x.SavePolicyChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
     #endregion

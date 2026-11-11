@@ -1,60 +1,88 @@
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using InsuranceManagement.Application.DTOs.Geography;
-using InsuranceManagement.Application.Interfaces;
+using InsuranceManagement.Application.DTOs.Pagination;
+using InsuranceManagement.Application.Exceptions;
 using InsuranceManagement.Domain.Entities.Geography;
+using InsuranceManagement.Application.Interfaces.Services;
+using InsuranceManagement.Application.Interfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
-namespace InsuranceManagement.Application.Services;
-
-public class CountyService(
-    IGenericRepository<County> countyRepository,
-    IGenericRepository<Country> countryRepository,
-    IMapper mapper) : ICountyService
+namespace InsuranceManagement.Application.Services
 {
-    public async Task<List<CountyDto>> GetAllAsync() =>
-        mapper.Map<List<CountyDto>>(await countyRepository.GetAllAsync());
-
-    public async Task<CountyDto?> GetAsync(Guid id) =>
-        mapper.Map<CountyDto?>(await countyRepository.GetAsync(id));
-
-    public async Task<CountyDto> CreateAsync(CreateCountyDto request)
+    public class CountyService(
+        ICountyRepository countyRepository,
+        IGenericRepository<Country> countryRepository,
+        ICityRepository cityRepository,
+        IMapper mapper,
+        ILogger<CountyService> logger) : ICountyService
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("County name is required.");
+        public async Task<PagedResult<CountyDto>> GetAllCountiesAsync(int pageNumber, int pageSize)
+        {
+            PaginationValidator.Validate(pageNumber, pageSize);
+            var page = await countyRepository.GetPageAsync(pageNumber, pageSize);
+            logger.LogInformation(
+                "Retrieved counties page {PageNumber} with page size {PageSize}; returned {ResultCount} of {TotalCount} counties",
+                page.PageNumber, page.PageSize, page.Items.Count, page.TotalCount);
 
-        if (await countryRepository.GetAsync(request.CountryId) is null)
-            throw new ValidationException("CountryId must refer to an existing country.");
+            return new PagedResult<CountyDto>
+            {
+                Items = mapper.Map<List<CountyDto>>(page.Items),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = page.TotalCount
+            };
+        }
 
-        var county = await countyRepository.AddAsync(mapper.Map<County>(request));
-        return mapper.Map<CountyDto>(county);
-    }
+        public async Task<CountyDto> GetCountyByIdAsync(Guid id)
+        {
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
+            logger.LogInformation("Retrieved county {CountyId}", id);
+            return mapper.Map<CountyDto>(county);
+        }
 
-    public async Task<CountyDto?> UpdateAsync(Guid id, UpdateCountyDto request)
-    {
-        var county = await countyRepository.GetAsync(id);
-        if (county is null) 
-            return null;
+        public async Task<CountyDto> CreateCountyAsync(CreateCountyDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("County name is required.");
 
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("County name is required.");
+            if (await countryRepository.GetAsync(request.CountryId) is null)
+                throw new ValidationException("CountryId must refer to an existing country.");
 
-        if (await countryRepository.GetAsync(request.CountryId) is null)
-            throw new ValidationException("CountryId must refer to an existing country.");
+            var county = await countyRepository.AddAsync(mapper.Map<County>(request));
+            logger.LogInformation("Created county {CountyId}", county.Id);
+            return mapper.Map<CountyDto>(county);
+        }
 
-        mapper.Map(request, county);
-        await countyRepository.UpdateAsync(county);
-        return mapper.Map<CountyDto>(county);
-    }
+        public async Task<CountyDto> UpdateCountyAsync(Guid id, UpdateCountyDto request)
+        {
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
 
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var county = await countyRepository.GetAsync(id);
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("County name is required.");
 
-        if (county is null)
-            return false;
+            if (await countryRepository.GetAsync(request.CountryId) is null)
+                throw new ValidationException("CountryId must refer to an existing country.");
 
-        await countyRepository.DeleteAsync(county);
+            mapper.Map(request, county);
+            await countyRepository.UpdateAsync(county);
+            logger.LogInformation("Updated county {CountyId}", county.Id);
+            return mapper.Map<CountyDto>(county);
+        }
 
-        return true;
+        public async Task DeleteCountyAsync(Guid id)
+        {
+            var county = await countyRepository.GetAsync(id)
+                ?? throw new EntityNotFoundException($"County '{id}' was not found.");
+
+            if (await cityRepository.ExistsByCountyIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a county that contains cities.");
+
+            await countyRepository.DeleteAsync(county);
+            logger.LogInformation("Deleted county {CountyId}", id);
+        }
     }
 }

@@ -1,20 +1,35 @@
-﻿using InsuranceManagement.Domain.Entities;
+using InsuranceManagement.Domain.Entities;
+using InsuranceManagement.Domain.Entities.Geography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace InsuranceManagement.Infrastructure.Persistence.Configurations;
-
-public class BuildingConfiguration : IEntityTypeConfiguration<Building>
+namespace InsuranceManagement.Infrastructure.Persistence.Configurations
 {
-    public void Configure(EntityTypeBuilder<Building> builder)
+    public class BuildingConfiguration : IEntityTypeConfiguration<Building>
     {
-        builder.Property(b => b.Address)
-            .HasMaxLength(250);
+        public void Configure(EntityTypeBuilder<Building> builder)
+        {
+            builder.Property(b => b.Street)
+                .HasMaxLength(250);
 
-        builder.Property(b => b.InsuredValue)
-            .HasPrecision(18, 3);
+            builder.Property(b => b.StreetNumber)
+                .HasMaxLength(20);
 
-        builder.Property(b => b.SurfaceArea)
-            .HasPrecision(18, 3);
+            builder.Property(b => b.InsuredValue)
+                .HasPrecision(18, 3);
+
+            builder.Property(b => b.SurfaceArea)
+                .HasPrecision(18, 3);
+
+            builder.HasOne<Client>()
+                .WithMany()
+                .HasForeignKey(b => b.ClientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne<City>()
+                .WithMany()
+                .HasForeignKey(b => b.CityId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }
