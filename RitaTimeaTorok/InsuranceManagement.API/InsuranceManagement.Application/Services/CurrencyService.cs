@@ -24,7 +24,7 @@ namespace InsuranceManagement.Application.Services
         public async Task<CurrencyDto> CreateCurrencyAsync(CreateCurrencyDto request)
         {
             ValidateCreateCurrency(request.Code, request.Name, request.ExchangeRateToBase);
-            
+
             var code = request.Code.Trim().ToUpperInvariant();
             if (await currencyRepository.ExistsByCodeAsync(code))
                 throw new ConflictException($"Currency code '{code}' is already in use.");
@@ -32,14 +32,13 @@ namespace InsuranceManagement.Application.Services
             var currency = mapper.Map<Currency>(request);
             currency.Code = code;
             currency.Name = request.Name.Trim();
-            currency.IsActive = true;
+            currency.IsActive = request.IsActive ?? true;
             var createdCurrency = await currencyRepository.AddAsync(currency);
 
             logger.LogInformation("Created currency {CurrencyId} with code {CurrencyCode}",
                 createdCurrency.Id, createdCurrency.Code);
             return mapper.Map<CurrencyDto>(createdCurrency);
         }
-
 
         public async Task<CurrencyDto> UpdateCurrencyAsync(Guid id, UpdateCurrencyDto request)
         {
@@ -64,7 +63,6 @@ namespace InsuranceManagement.Application.Services
 
             return mapper.Map<CurrencyDto>(currency);
         }
-
 
         private static void ValidateCreateCurrency(string code, string name, decimal exchangeRateToBase)
         {
