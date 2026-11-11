@@ -62,30 +62,6 @@ services:
       - source: supportdb_connection_string
         target: ConnectionStrings__SupportDb
 
-  frontend:
-    profiles: ["frontend"]
-    container_name: support-frontend
-    build:
-      context: ${FRONTEND_PATH:-../frontend}
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: "http://localhost:8080"
-        VITE_KEYCLOAK_URL: "http://localhost:8180"
-        VITE_KEYCLOAK_REALM: "support"
-        VITE_KEYCLOAK_CLIENT_ID: "support-frontend"
-    ports:
-      - "5173:80"
-    depends_on:
-      api:
-        condition: service_started
-      keycloak:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
-      interval: 15s
-      timeout: 3s
-      start_period: 5s
-
 secrets:
   supportdb_connection_string:
     file: ./secrets/supportdb-connection-string
