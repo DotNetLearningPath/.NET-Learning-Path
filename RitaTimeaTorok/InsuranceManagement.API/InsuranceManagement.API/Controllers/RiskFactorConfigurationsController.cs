@@ -11,14 +11,14 @@ namespace InsuranceManagement.API.Controllers
         IRiskFactorConfigurationService riskFactorConfigurationService) : ControllerBase
     {
         [HttpGet]
-        [ProducesResponseType(typeof(IReadOnlyList<RiskFactorConfigurationDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IReadOnlyList<RiskFactorConfigurationDto>>> GetAll()
         {
             return Ok(await riskFactorConfigurationService.GetAllRiskFactorConfigurationsAsync());
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(RiskFactorConfigurationDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RiskFactorConfigurationDto>> Create(CreateRiskFactorConfigurationDto request)
@@ -28,7 +28,7 @@ namespace InsuranceManagement.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(RiskFactorConfigurationDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RiskFactorConfigurationDto>> Update(
