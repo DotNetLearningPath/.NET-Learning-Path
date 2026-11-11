@@ -8,6 +8,10 @@ public interface IFeeConfigurationService
         PaginationRequest pagination,
         CancellationToken cancellationToken);
 
+    Task<FeeConfigurationDto> GetFeeByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+
     Task<FeeConfigurationDto> CreateFeeAsync(
         SaveFeeConfigurationRequest request,
         CancellationToken cancellationToken);

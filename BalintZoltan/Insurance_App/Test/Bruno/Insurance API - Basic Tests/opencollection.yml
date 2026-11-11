@@ -19,9 +19,9 @@ request:
     - name: baseUrl
       value: http://localhost:8000
     - name: clientId
-      value: 56c829e9-7feb-42b0-9195-45195b139dcf
+      value: c5a8b3ad-ab56-403b-8cfe-635f4ad7c15f
     - name: buildingId
-      value: fc49b574-a4ef-4a57-94a3-387a5380b407
+      value: 9ac9fc9d-f445-4b9d-abd3-e5d2565d0675
     - name: countryId
       value: fc1005f1-7931-41c7-8968-fc8a075cb2f3
     - name: countyId
@@ -29,27 +29,29 @@ request:
     - name: cityId
       value: c483cb89-93cb-4640-a648-44d6b1665b79
     - name: identificationNumber
-      value: "1792493915437"
+      value: "1792669332924"
     - name: feeId
-      value: c4033716-f3f7-42a3-bd22-8ca52a4cd033
+      value: b0252c43-aff8-4656-a83d-45c52ebd5808
     - name: brokerId
-      value: cb6476a6-f570-43c3-8968-fe69235ed1cf
+      value: 5fa1fa4f-0786-4dfe-a6a8-47c9c970b0cd
     - name: brokerCode
-      value: PM-93918553
+      value: PM-69336979
     - name: feeName
-       value: Postman Fee 93917262
+      value: Postman Fee 69334712
     - name: currencyCode
-      value: XUL
+      value: XNW
     - name: currencyName
-      value: Bruno Currency 917702
+      value: Bruno Currency 335249
     - name: updatedCurrencyCode
-      value: YKC
+      value: YJN
     - name: policyId
-      value: 3c936a83-fd7a-408c-a3e7-44aa97c3b415
+      value: 07105712-40ec-4e47-a1a2-98967eec7e32
     - name: riskFactorReference
-      value: 01d24366-b436-454a-8c13-02be3855500a
+      value: bb5d9f74-45e1-4f38-be73-01b481a3bb23
     - name: riskFactorId
-      value: 2e45c79d-83ba-43a5-8f13-b7209e9b6257
+      value: f64a1864-e7fb-48d1-bf9e-bdedc76daba7
+    - name: currencyId
+      value: 48c2cea1-ddc8-4185-8786-76c8b8b91b52
 
 docs:
   content: Alapszintu Postman tesztek az Insurance API jelenlegi /api route-jaihoz.

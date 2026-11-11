@@ -25,7 +25,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         );
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
             value: request
         );
@@ -51,7 +51,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         Assert.Equal(5.12345678m, saved.ExchangeRateToBase);
         Assert.Equal(isActive, saved.IsActive);
         
-        using var getResponse = await HttpClient.GetAsync(response.Headers.Location);
+        using var getResponse = await AdminHttpClient.GetAsync(response.Headers.Location);
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(body, await ReadJsonAsync(getResponse)));
     }
@@ -68,7 +68,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         var request = TestData.Currency(exchangeRateToBase: exchangeRateToBase);
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
             value: request
         );
@@ -91,7 +91,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         request.Remove(requiredField);
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
             value: request
         );
@@ -113,7 +113,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         );
 
         // Act
-        using var response = await HttpClient.PostAsJsonAsync(
+        using var response = await AdminHttpClient.PostAsJsonAsync(
             requestUri: "/api/admin/currencies",
             value: request
         );
@@ -139,7 +139,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await AdminHttpClient.PutAsJsonAsync(
             requestUri: $"/api/admin/currencies/{currencyId}",
             value: request
         );
@@ -154,7 +154,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         Assert.Equal(5.25m, saved.ExchangeRateToBase);
         Assert.False(saved.IsActive);
         
-        using var getResponse = await HttpClient.GetAsync($"/api/admin/currencies/{currencyId}");
+        using var getResponse = await AdminHttpClient.GetAsync($"/api/admin/currencies/{currencyId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(await ReadJsonAsync(response), await ReadJsonAsync(getResponse)));
     }
@@ -173,7 +173,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await AdminHttpClient.PutAsJsonAsync(
             requestUri: $"/api/admin/currencies/{currencyId}",
             value: request
         );
@@ -181,7 +181,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.BadRequest, "ExchangeRateToBase");
         
-        using var getResponse = await HttpClient.GetAsync($"/api/admin/currencies/{currencyId}");
+        using var getResponse = await AdminHttpClient.GetAsync($"/api/admin/currencies/{currencyId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
         Assert.True(JsonNode.DeepEquals(createdCurrency, await ReadJsonAsync(getResponse)));
     }
@@ -206,7 +206,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         );
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await AdminHttpClient.PutAsJsonAsync(
             requestUri: $"/api/admin/currencies/{currencyId}",
             value: request
         );
@@ -232,7 +232,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         var request = TestData.Currency(isActive: true);
 
         // Act
-        using var response = await HttpClient.PutAsJsonAsync(
+        using var response = await AdminHttpClient.PutAsJsonAsync(
             requestUri: $"/api/admin/currencies/{currencyId}",
             value: request
         );
@@ -253,8 +253,8 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         await CreateCurrencyAsync(TestData.Currency(code: "AAA"));
 
         // Act
-        using var lastPageResponse = await HttpClient.GetAsync("/api/admin/currencies?pageNumber=3&pageSize=1");
-        using var beyondLastPageResponse = await HttpClient.GetAsync("/api/admin/currencies?pageNumber=4&pageSize=1");
+        using var lastPageResponse = await AdminHttpClient.GetAsync("/api/admin/currencies?pageNumber=3&pageSize=1");
+        using var beyondLastPageResponse = await AdminHttpClient.GetAsync("/api/admin/currencies?pageNumber=4&pageSize=1");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, lastPageResponse.StatusCode);
@@ -285,7 +285,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         var url = $"/api/admin/currencies{suffix}";
 
         // Act
-        using var response = await HttpClient.GetAsync(url);
+        using var response = await AdminHttpClient.GetAsync(url);
 
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.BadRequest);
@@ -313,7 +313,7 @@ public sealed class CurrenciesEndpointsTests(IntegrationTestFixture fixture) : I
         }
 
         // Act
-        using var response = await HttpClient.SendAsync(request);
+        using var response = await AdminHttpClient.SendAsync(request);
 
         // Assert
         await AssertProblemAsync(response, HttpStatusCode.NotFound);

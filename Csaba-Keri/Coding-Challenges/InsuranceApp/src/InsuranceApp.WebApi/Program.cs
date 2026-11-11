@@ -1,6 +1,8 @@
 using InsuranceApp.Application;
 using InsuranceApp.Infrastructure;
 using InsuranceApp.WebApi.Errors;
+using InsuranceApp.WebApi.Security;
+using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 
 namespace InsuranceApp.WebApi;
@@ -40,12 +42,24 @@ public sealed class Program
             builder.Services.AddSwaggerGen(options =>
             {
                 options.UseOneOfForPolymorphism();
+
+                options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
+
+                options.OperationFilter<BearerSecurityOperationFilter>();
             });
         }
 
         builder.Services.AddApplication();
 
         builder.Services.AddInfrastructure(connectionString);
+
+        builder.Services.AddJwtAuthentication();
+        builder.Services.AddAuthorizationPolicies();
 
         var app = builder.Build();
 
@@ -56,6 +70,9 @@ public sealed class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapControllers();
 

@@ -82,6 +82,38 @@ public sealed class RiskFactorConfigurationServiceTest
         Assert.Equal(1, result.PageSize);
     }
 
+    [Fact]
+    public async Task GetByIdAsync_ReturnsMappedConfiguration()
+    {
+        // Arrange
+        var configuration = CreateConfiguration(RiskFactorLevel.BuildingType, "Historic", 12.5m);
+        _repository.Storage.Add(configuration);
+
+        // Act
+        var dto = await _service.GetRiskFactorByIdAsync(configuration.Id, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(configuration.Id, dto.Id);
+        Assert.Equal(configuration.Level, dto.Level);
+        Assert.Equal(configuration.Reference, dto.Reference);
+        Assert.Equal(configuration.AdjustmentPercentage, dto.AdjustmentPercentage);
+        Assert.Equal(configuration.IsActive, dto.IsActive);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ThrowsNotFoundWhenConfigurationDoesNotExist()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
+            _service.GetRiskFactorByIdAsync(id, CancellationToken.None));
+
+        // Assert
+        Assert.Equal("Risk factor configuration was not found.", exception.Message);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
