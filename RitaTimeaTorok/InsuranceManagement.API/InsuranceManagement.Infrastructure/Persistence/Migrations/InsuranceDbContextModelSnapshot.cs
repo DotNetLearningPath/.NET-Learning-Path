@@ -312,6 +312,66 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.RiskFactorConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AdjustmentPercentage")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int?>("BuildingType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CountyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("CountyId");
+
+                    b.ToTable("RiskFactorConfigurations", t =>
+                        {
+                            t.HasCheckConstraint("CK_RiskFactorConfigurations_LevelTarget", "([Level] = 1 AND [CountryId] IS NOT NULL AND [CountyId] IS NULL AND [CityId] IS NULL AND [BuildingType] IS NULL) OR ([Level] = 2 AND [CountryId] IS NULL AND [CountyId] IS NOT NULL AND [CityId] IS NULL AND [BuildingType] IS NULL) OR ([Level] = 3 AND [CountryId] IS NULL AND [CountyId] IS NULL AND [CityId] IS NOT NULL AND [BuildingType] IS NULL) OR ([Level] = 4 AND [CountryId] IS NULL AND [CountyId] IS NULL AND [CityId] IS NULL AND [BuildingType] IS NOT NULL)");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1"),
+                            AdjustmentPercentage = 5m,
+                            BuildingType = 1,
+                            IsActive = true,
+                            Level = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2"),
+                            AdjustmentPercentage = 10m,
+                            BuildingType = 3,
+                            IsActive = true,
+                            Level = 4
+                        });
+                });
+
             modelBuilder.Entity("InsuranceManagement.Domain.Entities.Building", b =>
                 {
                     b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)
@@ -343,6 +403,24 @@ namespace InsuranceManagement.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("InsuranceManagement.Domain.Entities.Metadata.RiskFactorConfiguration", b =>
+                {
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.City", null)
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InsuranceManagement.Domain.Entities.Geography.County", null)
+                        .WithMany()
+                        .HasForeignKey("CountyId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }
