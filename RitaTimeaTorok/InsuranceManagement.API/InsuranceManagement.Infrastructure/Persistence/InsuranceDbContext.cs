@@ -1,6 +1,6 @@
 ﻿using InsuranceManagement.Domain.Entities;
 using InsuranceManagement.Domain.Entities.Geography;
-using InsuranceManagement.Infrastructure.Persistence.Configurations;
+using InsuranceManagement.Domain.Entities.Metadata;
 using InsuranceManagement.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +16,8 @@ namespace InsuranceManagement.Infrastructure.Persistence
         public DbSet<Country> Countries => Set<Country>();
         public DbSet<County> Counties => Set<County>();
         public DbSet<City> Cities => Set<City>();
+        public DbSet<Currency> Currencies => Set<Currency>();
+        public DbSet<FeeConfiguration> FeeConfigurations => Set<FeeConfiguration>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +27,8 @@ namespace InsuranceManagement.Infrastructure.Persistence
                 typeof(InsuranceDbContext).Assembly);
 
             GeographySeedData.Seed(modelBuilder);
+            CurrencySeedData.Seed(modelBuilder);
+            FeeConfigurationSeedData.Seed(modelBuilder);
         }
     }
 }
