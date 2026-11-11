@@ -14,6 +14,7 @@ namespace InsuranceManagement.Application.Services
         ICountyRepository countyRepository,
         IGenericRepository<Country> countryRepository,
         ICityRepository cityRepository,
+        IRiskFactorConfigurationRepository riskFactorConfigurationRepository,
         IMapper mapper,
         ILogger<CountyService> logger) : ICountyService
     {
@@ -80,6 +81,10 @@ namespace InsuranceManagement.Application.Services
             if (await cityRepository.ExistsByCountyIdAsync(id))
                 throw new ConflictException(
                     "Cannot delete a county that contains cities.");
+
+            if (await riskFactorConfigurationRepository.ExistsByCountyIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a county that has risk factor configurations.");
 
             await countyRepository.DeleteAsync(county);
             logger.LogInformation("Deleted county {CountyId}", id);

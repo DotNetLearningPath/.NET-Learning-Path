@@ -18,6 +18,7 @@ namespace InsuranceManagement.UnitTests.Services
         private Mock<ICityRepository> _cityRepository = null!;
         private Mock<IGenericRepository<County>> _countyRepository = null!;
         private Mock<IBuildingRepository> _buildingRepository = null!;
+        private Mock<IRiskFactorConfigurationRepository> _riskFactorConfigurationRepository = null!;
         private IMapper _mapper = null!;
         private CityService _cityService = null!;
 
@@ -27,6 +28,7 @@ namespace InsuranceManagement.UnitTests.Services
             _cityRepository = new Mock<ICityRepository>();
             _countyRepository = new Mock<IGenericRepository<County>>();
             _buildingRepository = new Mock<IBuildingRepository>();
+            _riskFactorConfigurationRepository = new Mock<IRiskFactorConfigurationRepository>();
 
             _mapper = TestMapperFactory.Create();
 
@@ -34,6 +36,7 @@ namespace InsuranceManagement.UnitTests.Services
                 _cityRepository.Object,
                 _countyRepository.Object,
                 _buildingRepository.Object,
+                _riskFactorConfigurationRepository.Object,
                 _mapper,
                 NullLogger<CityService>.Instance);
         }
