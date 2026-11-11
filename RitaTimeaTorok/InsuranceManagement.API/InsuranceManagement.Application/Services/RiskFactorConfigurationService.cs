@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using InsuranceManagement.Application.Constants;
 using InsuranceManagement.Application.DTOs.Metadata;
 using InsuranceManagement.Application.DTOs.Pagination;
 using InsuranceManagement.Application.Exceptions;
@@ -140,8 +141,10 @@ namespace InsuranceManagement.Application.Services
 
         private static void ValidateAdjustmentPercentage(decimal adjustmentPercentage)
         {
-            if (adjustmentPercentage < -50 || adjustmentPercentage > 300)
-                throw new ValidationException("Adjustment percentage must be between -50 and 300.");
+            if (adjustmentPercentage < RiskFactorLimits.MinimumAdjustmentPercentage ||
+                adjustmentPercentage > RiskFactorLimits.MaximumAdjustmentPercentage)
+                throw new ValidationException(
+                    $"Adjustment percentage must be between {RiskFactorLimits.MinimumAdjustmentPercentage} and {RiskFactorLimits.MaximumAdjustmentPercentage}.");
         }
 
     }
