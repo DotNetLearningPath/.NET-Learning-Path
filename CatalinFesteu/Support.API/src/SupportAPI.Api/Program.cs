@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.FeatureManagement;
 using SupportAPI.Api;
 using SupportAPI.Api.Middleware;
 using SupportAPI.Application;
@@ -10,6 +11,8 @@ var builderConfiguration = builder.Configuration;
 var connectionString = builderConfiguration.GetConnectionString("SupportDb")
     ?? throw new InvalidOperationException("Connection string 'SupportDb' is not configured"); ;
 
+builder.Services.AddFeatureManagement();
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString);
 
@@ -17,6 +20,7 @@ builder.Services.AddIdentityAndAccessManagement(builderConfiguration);
 
 builder.Services.AddSwaggerSetup(builderConfiguration);
 builder.Services.AddErrorHandling();
+
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>

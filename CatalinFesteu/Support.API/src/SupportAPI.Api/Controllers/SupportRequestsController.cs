@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement.Mvc;
 using SupportAPI.Api.Requests;
 using SupportAPI.Application.Abstractions;
 using SupportAPI.Application.Commands;
@@ -9,6 +10,7 @@ using SupportAPI.Application.Results;
 namespace SupportAPI.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/requests")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -16,7 +18,6 @@ namespace SupportAPI.Api.Controllers
         ICommandHandler<CreateSupportRequestCommand, SupportRequestResult> commandHandler,
         IQueryHandler<GetSupportRequestByIdQuery, SupportRequestResult> queryHandler) : ControllerBase
     {
-        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(SupportRequestResult), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create(
@@ -31,7 +32,7 @@ namespace SupportAPI.Api.Controllers
                 result);
         }
 
-        [Authorize]
+        [FeatureGate("GetEndpoint")]
         [HttpGet("{requestId:guid}")]
         [ProducesResponseType(typeof(SupportRequestResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(

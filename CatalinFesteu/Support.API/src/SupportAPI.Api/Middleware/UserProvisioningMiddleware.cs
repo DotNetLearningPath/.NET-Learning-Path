@@ -7,7 +7,8 @@ namespace SupportAPI.Api.Middleware
     public class UserProvisioningMiddleware(
         RequestDelegate next)
     {
-        public async Task InvokeAsync(HttpContext httpContext,
+        public async Task InvokeAsync(
+            HttpContext httpContext,
             IUserProvisioningService userProvisioningService,
             ICurrentUser currentUser)
         {
