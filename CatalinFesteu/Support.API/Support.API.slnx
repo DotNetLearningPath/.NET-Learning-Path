@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="./src/SupportAPI.Application/SupportAPI.Application.csproj" />
+  <Project Path="./src/SupportAPI.Domain/SupportAPI.Domain.csproj" />
+  <Project Path="./src/SupportAPI.Infrastructure/SupportAPI.Infrastructure.csproj" />
+  <Project Path="./src/SupportAPI.Api/SupportAPI.Api.csproj" />
+</Solution>
