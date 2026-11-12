@@ -10,6 +10,9 @@ namespace InsuranceManagement.Infrastructure.Persistence
         DbContextOptions<InsuranceDbContext> options)
         : DbContext(options)
     {
+        public DbSet<Admin> Admins => Set<Admin>();
+        public DbSet<Broker> Brokers => Set<Broker>();
+
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Building> Buildings => Set<Building>();
 
@@ -32,6 +35,7 @@ namespace InsuranceManagement.Infrastructure.Persistence
             CurrencySeedData.Seed(modelBuilder);
             FeeConfigurationSeedData.Seed(modelBuilder);
             RiskFactorConfigurationSeedData.Seed(modelBuilder);
+            AdminBrokerSeedData.Seed(modelBuilder);
         }
     }
 }

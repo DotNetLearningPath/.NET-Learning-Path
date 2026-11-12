@@ -39,6 +39,7 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IBrokerService, BrokerService>();
 builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 builder.Services.AddScoped<IRiskFactorConfigurationService, RiskFactorConfigurationService>();
 
@@ -48,6 +49,7 @@ builder.Services.AddAutoMapper(
     typeof(ClientMappingProfile),
     typeof(BuildingMappingProfile),
     typeof(CurrencyMappingProfile),
+    typeof(BrokerMappingProfile),
     typeof(FeeConfigurationMappingProfile),
     typeof(RiskFactorConfigurationMappingProfile));
 
