@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: support-api-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - support-api-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: "http://localhost:8180"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+    ports:
+      - "8180:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+      - ./keycloak:/opt/keycloak/data/import:ro
+      - ./keycloak/themes/support:/opt/keycloak/themes/support:ro
+    healthcheck:
+      test: ["CMD", "bash", "-ec", "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  api:
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        restart: true
+      postgres:
+        condition: service_healthy
+        restart: true
+    container_name: support-api-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Keycloak__MetadataAddress: "http://keycloak:8080/realms/support/.well-known/openid-configuration"
+      Keycloak__RealmUrl: "http://localhost:8180/realms/support"
+      Keycloak__Issuer: "http://localhost:8180/realms/support"
+    secrets:
+      - source: supportdb_connection_string
+        target: ConnectionStrings__SupportDb
+
+secrets:
+  supportdb_connection_string:
+    file: ./secrets/supportdb-connection-string
+
+volumes:
+  support-api-postgres-data:
+  keycloak-data:
