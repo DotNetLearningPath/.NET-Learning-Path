@@ -19,3 +19,19 @@ Accept: application/json
 ### List cities
 GET {{InsuranceManagement.API_HostAddress}}/api/brokers/cities?pageNumber=1&pageSize=10
 Accept: application/json
+
+### List currencies
+GET {{InsuranceManagement.API_HostAddress}}/api/admin/currencies?pageNumber=1&pageSize=10
+Accept: application/json
+
+### List fee configurations
+GET {{InsuranceManagement.API_HostAddress}}/api/admin/fees?pageNumber=1&pageSize=10
+Accept: application/json
+
+### List risk factor configurations
+GET {{InsuranceManagement.API_HostAddress}}/api/admin/risk-factors?pageNumber=1&pageSize=10
+Accept: application/json
+
+### List brokers
+GET {{InsuranceManagement.API_HostAddress}}/api/admin/brokers?pageNumber=1&pageSize=10
+Accept: application/json

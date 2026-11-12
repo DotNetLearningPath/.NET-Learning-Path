@@ -31,7 +31,9 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICountyRepository, CountyRepository>();
 builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+builder.Services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
 builder.Services.AddScoped<IRiskFactorConfigurationRepository, RiskFactorConfigurationRepository>();
+builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICountyService, CountyService>();
@@ -39,8 +41,10 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IBrokerService, BrokerService>();
 builder.Services.AddScoped<IFeeConfigurationService, FeeConfigurationService>();
 builder.Services.AddScoped<IRiskFactorConfigurationService, RiskFactorConfigurationService>();
+builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 builder.Services.AddAutoMapper(
     config => { },
@@ -48,8 +52,10 @@ builder.Services.AddAutoMapper(
     typeof(ClientMappingProfile),
     typeof(BuildingMappingProfile),
     typeof(CurrencyMappingProfile),
+    typeof(BrokerMappingProfile),
     typeof(FeeConfigurationMappingProfile),
-    typeof(RiskFactorConfigurationMappingProfile));
+    typeof(RiskFactorConfigurationMappingProfile),
+    typeof(PolicyMappingProfile));
 
 builder.Services.AddControllers();
 
