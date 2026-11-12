@@ -12,6 +12,8 @@ namespace InsuranceManagement.Infrastructure.Persistence
     {
         public DbSet<Admin> Admins => Set<Admin>();
         public DbSet<Broker> Brokers => Set<Broker>();
+        public DbSet<Policy> Policies => Set<Policy>();
+        public DbSet<PolicyCalculationSnapshot> PolicyCalculationSnapshots => Set<PolicyCalculationSnapshot>();
 
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Building> Buildings => Set<Building>();
