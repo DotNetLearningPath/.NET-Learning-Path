@@ -1,4 +1,5 @@
-﻿using InsuranceApp.Application.DTOs.Broker;
+﻿using InsuranceApp.Application.DTOs.Auth;
+using InsuranceApp.Application.DTOs.Broker;
 using InsuranceApp.Application.DTOs.Building;
 using InsuranceApp.Application.DTOs.Client;
 using InsuranceApp.Application.DTOs.Currency;
@@ -44,10 +45,12 @@ internal static class TestData
 
     public const decimal InvalidRiskFactorPercentageScale = 5.123m;
 
+    public static readonly Guid BrokerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
     public static readonly Guid PolicyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid PolicyClientId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     public static readonly Guid PolicyBuildingId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-    public static readonly Guid PolicyBrokerId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+    public static readonly Guid PolicyBrokerId = TestData.BrokerId;
     public static readonly Guid PolicyCurrencyId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     public const string PolicyNumber = "2026-TEST123456";
     public const string PolicyCancellationReason = "Requested by client";
@@ -482,7 +485,7 @@ internal static class TestData
             PolicyNumber = PolicyNumber,
             ClientId = Guid.NewGuid(),
             BuildingId = Guid.NewGuid(),
-            BrokerId = Guid.NewGuid(),
+            BrokerId = PolicyBrokerId,
             CurrencyId = Guid.NewGuid(),
             Status = PolicyStatus.Draft,
             StartDate = startDate,
@@ -503,7 +506,7 @@ internal static class TestData
             PolicyNumber = "2026-TEST654321",
             ClientId = Guid.NewGuid(),
             BuildingId = Guid.NewGuid(),
-            BrokerId = Guid.NewGuid(),
+            BrokerId = PolicyBrokerId,
             CurrencyId = Guid.NewGuid(),
             Status = PolicyStatus.Draft,
             StartDate = startDate,
@@ -560,6 +563,7 @@ internal static class TestData
     }
     #endregion
 
+
     #region Reports totals policies
     public static List<PolicyReportDto> CreatePolicyReports(PolicyReportGroupType groupType)
     {
@@ -587,5 +591,72 @@ internal static class TestData
             }
         ];
     }
+    #endregion
+
+
+    #region Authentication
+
+    public const string TestUsername = "broker1";
+    public const string TestPassword = "TestPassword123!";
+    public const string TestPasswordHash = "hashed-password";
+
+    public const string AccessToken = "test-access-token";
+    public const string RefreshToken = "test-refresh-token";
+    public const string RefreshTokenHash = "test-refresh-token-hash";
+
+    public static readonly Guid UserId = Guid.NewGuid();
+
+    public static User CreateUser(bool isActive = true)
+    {
+        return new User
+        {
+            UserId = UserId,
+            Username = TestUsername,
+            PasswordHash = TestPasswordHash,
+            RoleId = Role.Broker,
+            BrokerId = BrokerId,
+            IsActive = isActive,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static LoginDto CreateLoginDto(string username, string password)
+    {
+        return new LoginDto
+        {
+            Username = username,
+            Password = password
+        };
+    }
+
+    public static UserRefreshToken CreateUserRefreshToken(bool isExpired = false, bool isRevoked = false, bool isUserActive = true)
+    {
+        var user = CreateUser(isUserActive);
+
+        var expiresAt = DateTime.UtcNow.AddDays(7);
+        DateTime? revokedAt = null;
+
+        if (isExpired)
+        {
+            expiresAt = DateTime.UtcNow.AddMinutes(-1);
+        }
+
+        if (isRevoked)
+        {
+            revokedAt = DateTime.UtcNow.AddMinutes(-10);
+        }
+
+        return new UserRefreshToken
+        {
+            RefreshTokenId = Guid.NewGuid(),
+            UserId = user.UserId,
+            User = user,
+            TokenHash = RefreshTokenHash,
+            CreatedAt = DateTime.UtcNow.AddDays(-1),
+            ExpiresAt = expiresAt,
+            RevokedAt = revokedAt
+        };
+    }
+
     #endregion
 }

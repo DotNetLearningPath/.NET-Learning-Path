@@ -13,6 +13,13 @@ namespace InsuranceApp.IntegrationTests.Api.Controllers.Admin;
 public sealed class CurrencyEndpointsTests(WebApplicationFactorySqlite factory)
     : IntegrationTestBaseSqlite(factory), IClassFixture<WebApplicationFactorySqlite>
 {
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await AuthenticateAsAdminAsync();
+    }
+
     #region Create Currency Tests
 
     [Fact]

@@ -78,10 +78,7 @@ public sealed class CurrencyService(ICurrencyRepository currencyRepository, ILog
             return Result<CurrencyDto>.Failure(CurrencyErrors.DuplicateCode);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Currency {CurrencyId} created.", currency.CurrencyId);
-        }
+        logger.LogInformation("Currency {CurrencyId} created.", currency.CurrencyId);
 
         return Result<CurrencyDto>.Success(MapCurrencyToDto(currency));
     }
@@ -136,10 +133,7 @@ public sealed class CurrencyService(ICurrencyRepository currencyRepository, ILog
             return Result<CurrencyDto>.Failure(CurrencyErrors.DuplicateCode);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Currency {CurrencyId} updated.", currencyId);
-        }
+        logger.LogInformation("Currency {CurrencyId} updated.", currencyId);
 
         return Result<CurrencyDto>.Success(MapCurrencyToDto(currency));
     }

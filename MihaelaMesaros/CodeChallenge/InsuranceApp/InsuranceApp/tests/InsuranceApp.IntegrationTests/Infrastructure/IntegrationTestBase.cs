@@ -1,9 +1,15 @@
-﻿using InsuranceApp.Domain.Entities;
+using InsuranceApp.Application.Abstractions.Security;
+using InsuranceApp.Application.DTOs.Auth;
+using InsuranceApp.Domain.Entities;
 using InsuranceApp.Domain.Enums;
 using InsuranceApp.Infrastructure.Persistence;
 using InsuranceApp.IntegrationTests.Common;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace InsuranceApp.IntegrationTests.Infrastructure;
 
@@ -38,6 +44,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     #region Reset database
     protected async Task ResetDatabaseAsync()
     {
+        DbContext.UserRefreshTokens.RemoveRange(DbContext.UserRefreshTokens);
+        DbContext.Users.RemoveRange(DbContext.Users);
         DbContext.Policies.RemoveRange(DbContext.Policies);
         DbContext.Buildings.RemoveRange(DbContext.Buildings);
         DbContext.RiskFactorConfigs.RemoveRange(DbContext.RiskFactorConfigs);
@@ -51,6 +59,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         DbContext.Brokers.RemoveRange(DbContext.Brokers);
 
         await DbContext.SaveChangesAsync();
+        DbContext.ChangeTracker.Clear();
     }
     #endregion
 
@@ -102,7 +111,10 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         await SeedAsync(TestData.BuildingClient);
         await SeedAsync(TestData.BuildingForRead);
-        await SeedAsync(TestData.BrokerForCreate);
+        if (!await DbContext.Brokers.AnyAsync(x => x.BrokerId == TestData.BrokerForCreate.BrokerId))
+        {
+            await SeedAsync(TestData.BrokerForCreate);
+        }
         await SeedAsync(TestData.CurrencyForCreate);
     }
 
@@ -112,7 +124,13 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         await SeedAsync(TestData.ClientsList);
         await SeedAsync(TestData.BuildingsList);
-        await SeedAsync(TestData.BrokersList);
+        foreach (var broker in TestData.BrokersList)
+        {
+            if (!await DbContext.Brokers.AnyAsync(x => x.BrokerId == broker.BrokerId))
+            {
+                await SeedAsync(broker);
+            }
+        }
         await SeedAsync(TestData.CurrenciesList);
 
         var policies = TestData.PoliciesList;
@@ -120,6 +138,70 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await SeedAsync(policies);
 
         return policies;
+    }
+    #endregion
+
+
+    #region Seed users
+    protected async Task<User> SeedUserAsync(User user)
+    {
+        var passwordService = _scope.ServiceProvider
+            .GetRequiredService<IPasswordService>();
+
+        user.PasswordHash = passwordService.HashPassword(
+            user,
+            TestData.TestPassword);
+
+        await SeedAsync(user);
+
+        return user;
+    }
+    #endregion
+
+
+    #region Authentication
+
+    protected async Task<LoginResponseDto> LoginAsync(string username)
+    {
+        var response = await HttpClient.PostAsJsonAsync("/api/auth/login", new LoginDto { Username = username, Password = TestData.TestPassword });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+
+        Assert.NotNull(result);
+
+        return result;
+    }
+
+    protected async Task AuthenticateAsAdminAsync()
+    {
+        var admin = TestData.CreateAdminUser();
+        await SeedUserAsync(admin);
+
+        var login = await LoginAsync(admin.Username);
+
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+    }
+
+    protected async Task AuthenticateAsBrokerAsync(Guid brokerId)
+    {
+        var brokerUser = await DbContext.Users.FirstOrDefaultAsync(x => x.Username == TestData.BrokerUsername);
+
+        if (brokerUser is null)
+        {
+            brokerUser = TestData.CreateBrokerUser(brokerId);
+            await SeedUserAsync(brokerUser);
+        }
+        else
+        {
+            brokerUser.BrokerId = brokerId;
+            await DbContext.SaveChangesAsync();
+        }
+
+        var login = await LoginAsync(brokerUser.Username);
+
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
     }
     #endregion
 }

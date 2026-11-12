@@ -182,10 +182,7 @@ public sealed class PolicyService(
             return Result<PolicyDto>.Failure(PolicyErrors.PolicyNumberNotGenerated);
         }
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Draft policy {PolicyId} has been created by broker {BrokerId}.", policy.PolicyId, policy.BrokerId);
-        }
+        logger.LogInformation("Draft policy {PolicyId} has been created by broker {BrokerId}.", policy.PolicyId, policy.BrokerId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
@@ -264,10 +261,7 @@ public sealed class PolicyService(
 
         await policyRepository.SavePolicyChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Policy {PolicyId} has been activated.", policyId);
-        }
+        logger.LogInformation("Policy {PolicyId} has been activated.", policyId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
@@ -320,10 +314,7 @@ public sealed class PolicyService(
 
         await policyRepository.SavePolicyChangesAsync(cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Policy {PolicyId} has been cancelled.", policyId);
-        }
+        logger.LogInformation("Policy {PolicyId} has been cancelled.", policyId);
 
         return Result<PolicyDto>.Success(MapPolicyToDto(policy));
     }
