@@ -14,5 +14,7 @@ namespace InsuranceManagement.Application.DTOs.Metadata
 
         [Required]
         public required decimal ExchangeRateToBase { get; set; }
+
+        public bool? IsActive { get; set; }
     }
 }

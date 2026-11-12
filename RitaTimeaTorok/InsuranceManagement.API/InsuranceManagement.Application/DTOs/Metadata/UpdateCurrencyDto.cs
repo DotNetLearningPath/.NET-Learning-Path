@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace InsuranceManagement.Application.DTOs.Metadata
 {
     public class UpdateCurrencyDto

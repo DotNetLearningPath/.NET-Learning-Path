@@ -16,6 +16,7 @@ namespace InsuranceManagement.UnitTests.Services
     public class CountryServiceTests
     {
         private Mock<IGenericRepository<Country>> _countryRepository = null!;
+        private Mock<IRiskFactorConfigurationRepository> _riskFactorConfigurationRepository = null!;
         private IMapper _mapper = null!;
         private CountryService _countryService = null!;
 
@@ -23,12 +24,14 @@ namespace InsuranceManagement.UnitTests.Services
         public void Setup()
         {
             _countryRepository = new Mock<IGenericRepository<Country>>();
+            _riskFactorConfigurationRepository = new Mock<IRiskFactorConfigurationRepository>();
 
             _mapper = TestMapperFactory.Create();
 
             _countryService = new CountryService(
                 _countryRepository.Object,
                 Mock.Of<ICountyRepository>(),
+                _riskFactorConfigurationRepository.Object,
                 _mapper,
                 NullLogger<CountryService>.Instance);
         }

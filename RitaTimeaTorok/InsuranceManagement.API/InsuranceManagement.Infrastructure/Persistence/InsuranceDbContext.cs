@@ -16,8 +16,10 @@ namespace InsuranceManagement.Infrastructure.Persistence
         public DbSet<Country> Countries => Set<Country>();
         public DbSet<County> Counties => Set<County>();
         public DbSet<City> Cities => Set<City>();
+
         public DbSet<Currency> Currencies => Set<Currency>();
         public DbSet<FeeConfiguration> FeeConfigurations => Set<FeeConfiguration>();
+        public DbSet<RiskFactorConfiguration> RiskFactorConfigurations => Set<RiskFactorConfiguration>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +31,7 @@ namespace InsuranceManagement.Infrastructure.Persistence
             GeographySeedData.Seed(modelBuilder);
             CurrencySeedData.Seed(modelBuilder);
             FeeConfigurationSeedData.Seed(modelBuilder);
+            RiskFactorConfigurationSeedData.Seed(modelBuilder);
         }
     }
 }

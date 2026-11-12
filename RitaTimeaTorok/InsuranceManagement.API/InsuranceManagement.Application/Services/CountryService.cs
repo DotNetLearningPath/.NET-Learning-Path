@@ -13,6 +13,7 @@ namespace InsuranceManagement.Application.Services
     public class CountryService(
         IGenericRepository<Country> countryRepository,
         ICountyRepository countyRepository,
+        IRiskFactorConfigurationRepository riskFactorConfigurationRepository,
         IMapper mapper,
         ILogger<CountryService> logger) : ICountryService
     {
@@ -73,6 +74,10 @@ namespace InsuranceManagement.Application.Services
             if (await countyRepository.ExistsByCountryIdAsync(id))
                 throw new ConflictException(
                     "Cannot delete a country that contains counties.");
+
+            if (await riskFactorConfigurationRepository.ExistsByCountryIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a country that has risk factor configurations.");
 
             await countryRepository.DeleteAsync(country);
             logger.LogInformation("Deleted country {CountryId}", id);

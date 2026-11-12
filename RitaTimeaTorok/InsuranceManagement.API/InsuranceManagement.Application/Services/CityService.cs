@@ -14,6 +14,7 @@ namespace InsuranceManagement.Application.Services
         ICityRepository cityRepository,
         IGenericRepository<County> countyRepository,
         IBuildingRepository buildingRepository,
+        IRiskFactorConfigurationRepository riskFactorConfigurationRepository,
         IMapper mapper,
         ILogger<CityService> logger) : ICityService
     {
@@ -82,6 +83,10 @@ namespace InsuranceManagement.Application.Services
             if (await buildingRepository.ExistsByCityIdAsync(id))
                 throw new ConflictException(
                     "Cannot delete a city that contains buildings.");
+
+            if (await riskFactorConfigurationRepository.ExistsByCityIdAsync(id))
+                throw new ConflictException(
+                    "Cannot delete a city that has risk factor configurations.");
 
             await cityRepository.DeleteAsync(city);
             logger.LogInformation("Deleted city {CityId}", id);
